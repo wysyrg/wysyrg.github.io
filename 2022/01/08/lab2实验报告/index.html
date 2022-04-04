@@ -1,0 +1,1293 @@
+<!DOCTYPE html>
+<html lang="en">
+    <!-- title -->
+
+
+    
+
+<!-- keywords -->
+
+
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="author" content="John Doe">
+    <meta name="renderer" content="webkit">
+    <meta name="copyright" content="John Doe">
+    
+        <meta name="keywords" content="hexo,hexo-theme,hexo-blog">
+    
+    <meta name="description" content="">
+    <meta name="description" content="lab2实验报告练习1：实现 first-fit 连续物理内存分配算法先熟悉两个数据结构:  每一个物理页的属性结构:  123456struct Page &amp;#123;    int ref;                        &#x2F;&#x2F; page frame&amp;#x27;s reference counter    uint32_t flags;                 &#x2F;&#x2F; ar">
+<meta property="og:type" content="article">
+<meta property="og:title" content="lab2 实验报告">
+<meta property="og:url" content="http://example.com/2022/01/08/lab2%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="lab2实验报告练习1：实现 first-fit 连续物理内存分配算法先熟悉两个数据结构:  每一个物理页的属性结构:  123456struct Page &amp;#123;    int ref;                        &#x2F;&#x2F; page frame&amp;#x27;s reference counter    uint32_t flags;                 &#x2F;&#x2F; ar">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/8126967-823374bd5c9b730b.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/8126967-d6e5143c6cc1be4a.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/image-20210929231259931.png">
+<meta property="article:published_time" content="2022-01-07T16:13:03.335Z">
+<meta property="article:modified_time" content="2021-09-29T15:13:13.484Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="os">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/8126967-823374bd5c9b730b.png">
+    <meta http-equiv="Cache-control" content="no-cache">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <link rel="icon" href="/assets/favicon.ico">
+    
+    <title>lab2 实验报告 · 渐渐的博客</title>
+    <!-- /*! loadCSS. [c]2017 Filament Group, Inc. MIT License */
+/* This file is meant as a standalone workflow for
+- testing support for link[rel=preload]
+- enabling async CSS loading in browsers that do not support rel=preload
+- applying rel preload css once loaded, whether supported or not.
+*/ -->
+<script>
+    (function (w) {
+        'use strict'
+        // rel=preload support test
+        if (!w.loadCSS) {
+            w.loadCSS = function () {}
+        }
+        // define on the loadCSS obj
+        var rp = (loadCSS.relpreload = {})
+        // rel=preload feature support test
+        // runs once and returns a function for compat purposes
+        rp.support = (function () {
+            var ret
+            try {
+                ret = w.document.createElement('link').relList.supports('preload')
+            } catch (e) {
+                ret = false
+            }
+            return function () {
+                return ret
+            }
+        })()
+
+        // if preload isn't supported, get an asynchronous load by using a non-matching media attribute
+        // then change that media back to its intended value on load
+        rp.bindMediaToggle = function (link) {
+            // remember existing media attr for ultimate state, or default to 'all'
+            var finalMedia = link.media || 'all'
+
+            function enableStylesheet() {
+                link.media = finalMedia
+            }
+
+            // bind load handlers to enable media
+            if (link.addEventListener) {
+                link.addEventListener('load', enableStylesheet)
+            } else if (link.attachEvent) {
+                link.attachEvent('onload', enableStylesheet)
+            }
+
+            // Set rel and non-applicable media type to start an async request
+            // note: timeout allows this to happen async to let rendering continue in IE
+            setTimeout(function () {
+                link.rel = 'stylesheet'
+                link.media = 'only x'
+            })
+            // also enable media after 3 seconds,
+            // which will catch very old browsers (android 2.x, old firefox) that don't support onload on link
+            setTimeout(enableStylesheet, 3000)
+        }
+
+        // loop through link elements in DOM
+        rp.poly = function () {
+            // double check this to prevent external calls from running
+            if (rp.support()) {
+                return
+            }
+            var links = w.document.getElementsByTagName('link')
+            for (var i = 0; i < links.length; i++) {
+                var link = links[i]
+                // qualify links to those with rel=preload and as=style attrs
+                if (
+                    link.rel === 'preload' &&
+                    link.getAttribute('as') === 'style' &&
+                    !link.getAttribute('data-loadcss')
+                ) {
+                    // prevent rerunning on link
+                    link.setAttribute('data-loadcss', true)
+                    // bind listeners to toggle media back
+                    rp.bindMediaToggle(link)
+                }
+            }
+        }
+
+        // if unsupported, run the polyfill
+        if (!rp.support()) {
+            // run once at least
+            rp.poly()
+
+            // rerun poly on an interval until onload
+            var run = w.setInterval(rp.poly, 500)
+            if (w.addEventListener) {
+                w.addEventListener('load', function () {
+                    rp.poly()
+                    w.clearInterval(run)
+                })
+            } else if (w.attachEvent) {
+                w.attachEvent('onload', function () {
+                    rp.poly()
+                    w.clearInterval(run)
+                })
+            }
+        }
+
+        // commonjs
+        if (typeof exports !== 'undefined') {
+            exports.loadCSS = loadCSS
+        } else {
+            w.loadCSS = loadCSS
+        }
+    })(typeof global !== 'undefined' ? global : this)
+</script>
+
+    <style type="text/css">
+    @font-face {
+        font-family: 'Oswald-Regular';
+        src: url("/font/Oswald-Regular.ttf");
+    }
+
+    body {
+        margin: 0;
+    }
+
+    header,
+    footer,
+    .back-top,
+    .sidebar,
+    .container,
+    .site-intro-meta,
+    .toc-wrapper {
+        display: none;
+    }
+
+    .site-intro {
+        position: relative;
+        z-index: 3;
+        width: 100%;
+        /* height: 50vh; */
+        overflow: hidden;
+    }
+
+    .site-intro-placeholder {
+        position: absolute;
+        z-index: -2;
+        top: 0;
+        left: 0;
+        width: calc(100% + 300px);
+        height: 100%;
+        background: repeating-linear-gradient(-45deg, #444 0, #444 80px, #333 80px, #333 160px);
+        background-position: center center;
+        transform: translate3d(-226px, 0, 0);
+        animation: gradient-move 2.5s ease-out 0s infinite;
+    }
+
+    @keyframes gradient-move {
+        0% {
+            transform: translate3d(-226px, 0, 0);
+        }
+        100% {
+            transform: translate3d(0, 0, 0);
+        }
+    }
+</style>
+
+    <link rel="preload" href="/css/style.css?v=20210823" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="/css/dark.css?v=20210823" as="style">
+    <link rel="stylesheet" href="/css/dark.css" media="(prefers-color-scheme: dark)">
+    <link rel="stylesheet" href="/css/mobile.css?v=20210823" media="(max-width: 960px)">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js" as="script">
+    <link rel="preload" href="/scripts/main.js?v=20210823" as="script">
+    <link rel="preload" href="/scripts/dark.js?v=20210823" as="script">
+    <link rel="preload" href="/font/Oswald-Regular.ttf" as="font" crossorigin>
+    <link rel="preload" href="https://at.alicdn.com/t/font_327081_1dta1rlogw17zaor.woff" as="font" crossorigin>
+    <!-- algolia -->
+    
+    <!-- 百度统计  -->
+    
+    <!-- 谷歌统计  -->
+    
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <script type="text/javascript">
+        if (typeof window.$ == undefined) {
+            console.warn('jquery load from jsdelivr failed, will load local script')
+            document.write('<script src="/lib/jquery.min.js" />')
+        }
+    </script>
+    
+        <body class="post-body">
+    
+        <!-- header -->
+        <header class="header header-mobile">
+    <!-- top read progress line -->
+    <div class="header-element">
+        <div class="read-progress"></div>
+    </div>
+    <!-- sidebar menu button -->
+    <div class="header-element">
+        
+            <div class="header-sidebar-menu">
+        
+            
+                <div style="padding-left: 1px;">&#xe775;</div>
+            
+        </div>
+    </div>
+    <!-- header actions -->
+    <div class="header-actions">
+        <!-- theme mode switch button -->
+        <span class="header-theme-btn header-element">
+            <i class="fas fa-adjust"></i>
+        </span>
+        <!-- back to home page text -->
+        <span class="home-link header-element">
+            <a href=/>渐渐的博客</a>
+        </span>
+    </div>
+    <!-- toggle banner for post layout -->
+    
+        
+            <div class="banner">
+        
+            <div class="blog-title header-element">
+                <a href="/">渐渐的博客</a>
+            </div>
+            <div class="post-title header-element">
+                <a href="#" class="post-name">lab2 实验报告</a>
+            </div>
+        </div>
+    
+</header>
+
+        <!-- fixed footer -->
+        <footer class="footer-fixed">
+    <!-- back to top button -->
+    <div class="footer-fixed-element">
+        
+            <div class="back-top back-top-hidden">
+        
+        
+            <div>&#xe639;</div>
+        
+        </div>
+    </div>
+</footer>
+
+        <!-- wrapper -->
+        <div class="wrapper">
+            <div class="site-intro" style="
+
+
+
+
+
+
+
+    height:50vh;
+
+">
+    
+    <!-- 主页  -->
+    
+        
+    <!-- 404页  -->
+            
+    <div class="site-intro-placeholder"></div>
+    <div class="site-intro-img" style="background-image: url(/intro/wlop1.jpeg)"></div>
+    <div class="site-intro-meta">
+        <!-- 标题  -->
+        <h1 class="intro-title">
+            <!-- 主页  -->
+            
+                lab2 实验报告
+            <!-- 404 -->
+            
+        </h1>
+        <!-- 副标题 -->
+        <p class="intro-subtitle">
+            <!-- 主页副标题  -->
+            
+                
+            <!-- 404 -->
+            
+        </p>
+        <!-- 文章页 meta -->
+        
+            <div class="post-intros">
+                <!-- 文章页标签  -->
+                
+                    <div class= post-intro-tags >
+    
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags="os">os</a>
+    
+</div>
+
+                
+                
+                    <div class="post-intro-read">
+                        <span>Word count: <span class="post-count word-count">3.8k</span>Reading time: <span class="post-count reading-time">15 min</span></span>
+                    </div>
+                
+                <div class="post-intro-meta">
+                    <!-- 撰写日期 -->
+                    <span class="iconfont-archer post-intro-calander">&#xe676;</span>
+                    <span class="post-intro-time">2022/01/08</span>
+                    <!-- busuanzi -->
+                    
+                        <span id="busuanzi_container_page_pv" class="busuanzi-pv">
+                            <span class="iconfont-archer post-intro-busuanzi">&#xe602;</span>
+                            <span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    
+                    <!-- 文章分享 -->
+                    <span class="share-wrapper">
+                        <span class="iconfont-archer share-icon">&#xe71d;</span>
+                        <span class="share-text">Share</span>
+                        <ul class="share-list">
+                            <li class="iconfont-archer share-qr" data-type="qr">&#xe75b;
+                                <div class="share-qrcode"></div>
+                            </li>
+                            <li class="iconfont-archer" data-type="weibo">&#xe619;</li>
+                            <li class="iconfont-archer" data-type="qzone">&#xe62e;</li>
+                            <li class="iconfont-archer" data-type="twitter">&#xe634;</li>
+                            <li class="iconfont-archer" data-type="facebook">&#xe67a;</li>
+                        </ul>
+                    </span>
+                </div>
+            </div>
+        
+    </div>
+</div>
+
+            <script>
+  // get user agent
+  function getBrowserVersions() {
+    var u = window.navigator.userAgent
+    return {
+      userAgent: u,
+      trident: u.indexOf('Trident') > -1, //IE内核
+      presto: u.indexOf('Presto') > -1, //opera内核
+      webKit: u.indexOf('AppleWebKit') > -1, //苹果、谷歌内核
+      gecko: u.indexOf('Gecko') > -1 && u.indexOf('KHTML') == -1, //火狐内核
+      mobile: !!u.match(/AppleWebKit.*Mobile.*/), //是否为移动终端
+      ios: !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/), //ios终端
+      android: u.indexOf('Android') > -1 || u.indexOf('Linux') > -1, //android终端或者uc浏览器
+      iPhone: u.indexOf('iPhone') > -1 || u.indexOf('Mac') > -1, //是否为iPhone或者安卓QQ浏览器
+      iPad: u.indexOf('iPad') > -1, //是否为iPad
+      webApp: u.indexOf('Safari') == -1, //是否为web应用程序，没有头部与底部
+      weixin: u.indexOf('MicroMessenger') == -1, //是否为微信浏览器
+      uc: u.indexOf('UCBrowser') > -1, //是否为android下的UC浏览器
+    }
+  }
+  var browser = {
+    versions: getBrowserVersions(),
+  }
+  console.log('userAgent: ' + browser.versions.userAgent)
+
+  // callback
+  function fontLoaded() {
+    console.log('font loaded')
+    if (document.getElementsByClassName('site-intro-meta')) {
+      document
+        .getElementsByClassName('intro-title')[0]
+        .classList.add('intro-fade-in')
+      document
+        .getElementsByClassName('intro-subtitle')[0]
+        .classList.add('intro-fade-in')
+      var postIntros = document.getElementsByClassName('post-intros')[0]
+      if (postIntros) {
+        postIntros.classList.add('post-fade-in')
+      }
+    }
+  }
+
+  // UC不支持跨域，所以直接显示
+  function asyncCb() {
+    if (browser.versions.uc) {
+      console.log('UCBrowser')
+      fontLoaded()
+    } else {
+      WebFont.load({
+        custom: {
+          families: ['Oswald-Regular'],
+        },
+        loading: function () {
+          // 所有字体开始加载
+          // console.log('font loading');
+        },
+        active: function () {
+          // 所有字体已渲染
+          fontLoaded()
+        },
+        inactive: function () {
+          // 字体预加载失败，无效字体或浏览器不支持加载
+          console.log('inactive: timeout')
+          fontLoaded()
+        },
+        timeout: 5000, // Set the timeout to two seconds
+      })
+    }
+  }
+
+  function asyncErr() {
+    console.warn('script load from CDN failed, will load local script')
+  }
+
+  // load webfont-loader async, and add callback function
+  function async(u, cb, err) {
+    var d = document,
+      t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0]
+    o.src = u
+    if (cb) {
+      o.addEventListener(
+        'load',
+        function (e) {
+          cb(null, e)
+        },
+        false
+      )
+    }
+    if (err) {
+      o.addEventListener(
+        'error',
+        function (e) {
+          err(null, e)
+        },
+        false
+      )
+    }
+    s.parentNode.insertBefore(o, s)
+  }
+
+  var asyncLoadWithFallBack = function (arr, success, reject) {
+    var currReject = function () {
+      reject()
+      arr.shift()
+      if (arr.length) async(arr[0], success, currReject)
+    }
+
+    async(arr[0], success, currReject)
+  }
+
+  asyncLoadWithFallBack(
+    [
+      'https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.min.js',
+      'https://cdn.bootcss.com/webfont/1.6.28/webfontloader.js',
+      "/lib/webfontloader.min.js",
+    ],
+    asyncCb,
+    asyncErr
+  )
+</script>
+
+            <img class="loading" src="/assets/loading.svg" style="display: block; margin: 6rem auto 0 auto; width: 6rem; height: 6rem;" />
+            <div class="container container-unloaded">
+                <main class="main post-page">
+    <article class="article-entry">
+        <h2 id="lab2实验报告"><a href="#lab2实验报告" class="headerlink" title="lab2实验报告"></a>lab2实验报告</h2><h3 id="练习1：实现-first-fit-连续物理内存分配算法"><a href="#练习1：实现-first-fit-连续物理内存分配算法" class="headerlink" title="练习1：实现 first-fit 连续物理内存分配算法"></a>练习1：实现 first-fit 连续物理内存分配算法</h3><p>先熟悉两个数据结构:</p>
+<ol>
+<li>每一个物理页的属性结构:</li>
+</ol>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Page</span> &#123;</span></span><br><span class="line">    <span class="keyword">int</span> ref;                        <span class="comment">// page frame&#x27;s reference counter</span></span><br><span class="line">    <span class="keyword">uint32_t</span> flags;                 <span class="comment">// array of flags that describe the status of the page frame</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> property;          <span class="comment">// the num of free block, used in first fit pm manager</span></span><br><span class="line">    <span class="keyword">list_entry_t</span> page_link;         <span class="comment">// free list link</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>1、ref表示这样页被页表的引用记数，应该就是映射此物理页的虚拟页个数。如果这个页被页表引用了，即在某页表中有一个页表项设置了一个虚拟页到这个Page管理的物理页的映射关系，就会把Page的ref加一；反之，若页表项取消，即映射关系解除，就会把Page的ref减一。<br>2、这表示flags目前用到了两个bit表示页目前具有的两种属性，bit 0表示此页是否被保留（reserved），如果是被保留的页，则bit 0会设置为1，且不能放到空闲页链表中，即这样的页不是空闲页，不能动态分配与释放。比如目前内核代码占用的空间就属于这样“被保留”的页。在本实验中，bit 1表示此页是否是free的，如果设置为1，表示这页是free的，可以被分配；如果设置为0，表示这页已经被分配出去了，不能被再二次分配。 </p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&gt;* Flags describing the status of a page frame */</span><br><span class="line">&gt;<span class="meta">#<span class="meta-keyword">define</span> PG_reserved                 0       <span class="comment">// the page descriptor is reserved for kernel or unusable</span></span></span><br><span class="line">&gt;<span class="meta">#<span class="meta-keyword">define</span> PG_property                 1       <span class="comment">// the member &#x27;property&#x27; is valid</span></span></span><br></pre></td></tr></table></figure>
+
+<p>3、Page数据结构的成员变量property用来记录某连续内存空闲块的大小（即地址连续的空闲页的个数）。这里需要注意的是用到此成员变量的这个Page比较特殊，是这个连续内存空闲块地址最小的一页（即头一页， Head Page）。连续内存空闲块利用这个页的成员变量property来记录在此块内的空闲页的个数。这里去的名字property也不是很直观，原因与上面类似，在不同的页分配算法中，property有不同的含义。<br>4、Page数据结构的成员变量page_link是便于把多个连续内存空闲块链接在一起的双向链表指针。这里需要注意的是用到此成员变量的这个Page比较特殊，是这个连续内存空闲块地址最小的一页（即头一页， Head Page）。连续内存空闲块利用这个页的成员变量page_link来链接比它地址小和大的其他连续内存空闲块。</p>
+</blockquote>
+<ol start="2">
+<li>一个双向链表，负责管理所有的连续内存空闲块，便于分配和释放。</li>
+</ol>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* free_area_t - maintains a doubly linked list to record free (unused) pages */</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">            <span class="keyword">list_entry_t</span> free_list;                                <span class="comment">// the list header</span></span><br><span class="line">            <span class="keyword">unsigned</span> <span class="keyword">int</span> nr_free;                                 <span class="comment">// # of free pages in this free list</span></span><br><span class="line">&#125; <span class="keyword">free_area_t</span>;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<ul>
+<li><code>free_list</code>是一个list_entry结构的双向链表指针</li>
+<li><code>nr_free</code>则记录当前空闲页的个数</li>
+</ul>
+</blockquote>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">关键变量：</span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> free_list (free_area.free_list)   <span class="comment">//空闲块的链表</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> nr_free (free_area.nr_free)      <span class="comment">//空闲块的个数</span></span></span><br><span class="line">关键函数：</span><br><span class="line">list_init(&amp;free_list);<span class="comment">//初始空闲块链表</span></span><br><span class="line">SetPageProperty(base); </span><br><span class="line"><span class="comment">/*#define SetPageProperty(page) set_bit(PG_property, &amp;((page)-&gt;flags))</span></span><br><span class="line"><span class="comment">扩展到:</span></span><br><span class="line"><span class="comment">set_bit(1, &amp;((p)-&gt;flags))*/</span></span><br><span class="line">ClearPageProperty(base);</span><br><span class="line"><span class="comment">/*#define ClearPageProperty(page) clear_bit(PG_property, &amp;((page)-&gt;flags))</span></span><br><span class="line"><span class="comment">扩展到:</span></span><br><span class="line"><span class="comment">clear_bit(1, &amp;((pp)-&gt;flags))*/</span></span><br><span class="line">关键宏:</span><br><span class="line">le2page(le,page_link); <span class="comment">//由链表指针得到对应页的地址</span></span><br></pre></td></tr></table></figure>
+
+
+
+<p>实验一中可能会修改<code>default_pmm.c</code>中的<code>default_init</code>，<code>default_init_memmap</code>，<code>default_alloc_pages</code>， <code>default_free_pages</code>等相关函数。</p>
+<ul>
+<li>首先查看<code>default_init</code>中的内容，发现仅有对空闲内存块链表的初始化以及将总空闲数目置零的操作，这是与具体物理内存分配算法无关的，因此直接使用默认的函数实现即可；</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">default_init</span><span class="params">(<span class="keyword">void</span>)</span> </span>&#123;</span><br><span class="line">    list_init(&amp;free_list);</span><br><span class="line">    nr_free = <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>接下来为<code>default_init_memmap</code>函数，这个函数是用来初始化空闲页链表的,初始化每一个空闲页，然后计算空闲页的总数。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">3</span>) default_init_memmap:  CALL GRAPH: kern_init --&gt; pmm_init--&gt;page_init--&gt;init_memmap--&gt; pmm_manager-&gt;<span class="function">init_memmap</span></span><br><span class="line"><span class="function"> *              This fun is used to init a <span class="built_in">free</span> <span class="title">block</span> <span class="params">(with parameter: addr_base, page_number)</span>.</span></span><br><span class="line"><span class="function"> *              First you should init each <span class="title">page</span> <span class="params">(in memlayout.h)</span> in <span class="keyword">this</span> <span class="built_in">free</span> block, include:</span></span><br><span class="line"><span class="function"> *                  p-&gt;flags should be <span class="built_in">set</span> bit <span class="title">PG_property</span> <span class="params">(means <span class="keyword">this</span> page is valid. In pmm_init fun (in pmm.c),the bit PG_reserved is setted in p-&gt;flags)</span></span></span><br><span class="line"><span class="function"> *                  <span class="keyword">if</span> <span class="keyword">this</span> page  is <span class="built_in">free</span> <span class="keyword">and</span> is <span class="keyword">not</span> the first page of <span class="built_in">free</span> block, p-&gt;property should be <span class="built_in">set</span> to 0.</span></span><br><span class="line"><span class="function"> *                  <span class="keyword">if</span> <span class="keyword">this</span> page  is <span class="built_in">free</span> <span class="keyword">and</span> is the first page of <span class="built_in">free</span> block, p-&gt;property should be <span class="built_in">set</span> to total num of block.</span></span><br><span class="line"><span class="function"> *                  p-&gt;ref should be 0, because now p is <span class="built_in">free</span> <span class="keyword">and</span> no reference.</span></span><br><span class="line"><span class="function"> *                  We can use p-&gt;page_link to link <span class="keyword">this</span> page to free_list, <span class="params">(such as: list_add_before(&amp;free_list, &amp;(p-&gt;page_link)); )</span></span></span><br><span class="line"><span class="function"> *              Finally, we should sum the number of <span class="built_in">free</span> mem block: nr_free+</span>=n</span><br></pre></td></tr></table></figure>
+
+<p>由注释可对代码进行修改</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">default_init_memmap</span><span class="params">(struct Page *base, <span class="keyword">size_t</span> n)</span> </span>&#123;</span><br><span class="line">    assert(n &gt; <span class="number">0</span>);</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">Page</span> *<span class="title">p</span> =</span> base;</span><br><span class="line">    <span class="keyword">for</span> (; p != base + n; p ++) &#123;</span><br><span class="line">        assert(PageReserved(p));</span><br><span class="line">        p-&gt;flags = p-&gt;property = <span class="number">0</span>;   <span class="comment">//p-&gt;flags应该背设置为p-&gt;property,且如果这个页面是空闲的，并且不是空闲块的第一页，p-&gt;property应该设置为0。</span></span><br><span class="line">        SetPageProperty(p);</span><br><span class="line">        set_page_ref(p, <span class="number">0</span>);    <span class="comment">//p是空闲的，没有被引用,即清空引用</span></span><br><span class="line">        list_add_before(&amp;free_list, &amp;(p-&gt;page_link));<span class="comment">//插入空闲的列表引用中</span></span><br><span class="line">    &#125;</span><br><span class="line">     <span class="comment">//接下来对空闲块的第一个页的Page结构进行初始化，具体实现为将其表示空闲块大小的成员变量设置为作为参数传入的空闲块大小（单位为页），然后更新存储所有空闲页数量的全局变量</span></span><br><span class="line">    nr_free += n;      <span class="comment">//计算所有空闲块数量</span></span><br><span class="line">    base-&gt;property = n;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li><p>接下来为<code>default_alloc_pages</code>,该函数的具体功能为分配指定页数的连续空闲物理空间，并且将第一页的Page结构的指针作为结果返回</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> struct Page *<span class="title">default_alloc_pages</span><span class="params">(<span class="keyword">size_t</span> n)</span> </span>&#123;</span><br><span class="line">    assert(n &gt; <span class="number">0</span>);</span><br><span class="line">    <span class="keyword">if</span> (n &gt; nr_free) &#123;          <span class="comment">//如果所有的空闲野加起来都不够，那直接返回NULL</span></span><br><span class="line">        <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">list_entry_t</span> *len;</span><br><span class="line">    <span class="keyword">list_entry_t</span> *le = &amp;free_list;</span><br><span class="line">    <span class="keyword">while</span> ((le = list_next(le)) != &amp;free_list) &#123;   <span class="comment">//le从空闲块的头指针开始向下寻找，直到返回至头指针处</span></span><br><span class="line">        <span class="class"><span class="keyword">struct</span> <span class="title">Page</span> *<span class="title">p</span> =</span> le2page(le, page_link);  <span class="comment">//将地址转换成页的结构</span></span><br><span class="line">        <span class="keyword">if</span> (p-&gt;property &gt;= n) &#123;        <span class="comment">//如果该块大小大于n，则直接选中</span></span><br><span class="line">            <span class="keyword">int</span> i;</span><br><span class="line">            <span class="keyword">for</span>(i=<span class="number">0</span>;i&lt;n;i++)&#123;        <span class="comment">//递归把选中的空闲块链表中的每一个页结构初始化</span></span><br><span class="line">                len=list_next(le);</span><br><span class="line">                <span class="class"><span class="keyword">struct</span> <span class="title">Page</span> *<span class="title">pp</span>=</span>le2page(le,page_link); <span class="comment">//让pp指向分配的那一页</span></span><br><span class="line">                SetPageReserved(pp);   <span class="comment">//被选到的页重置标志位</span></span><br><span class="line">                ClearPageProperty(pp);</span><br><span class="line">                list_del(le);         <span class="comment">//清除free_list中的链接</span></span><br><span class="line">                le=len;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span>(p-&gt;property&gt;n)&#123;          <span class="comment">//分割的页需要重新计算空闲块数量</span></span><br><span class="line">                (le2page(le,page_link))-&gt;property=p-&gt;property-n;</span><br><span class="line">            &#125;</span><br><span class="line">            ClearPageProperty(p);  <span class="comment">//第一页被再次重置标志位</span></span><br><span class="line">            SetPageReserved(p);</span><br><span class="line">            nr_free-=n;        <span class="comment">//重新计算剩余空闲块的数量    </span></span><br><span class="line">            <span class="keyword">return</span> p;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">NULL</span>;        <span class="comment">//没有找到分配失败</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li><p>最后为 <code>default_free_pages</code>函数，该函数的具体功能为释放指定的某一物理页开始的若干个连续物理页，并且完成first-fit算法中需要的若干信息的维护。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">default_free_pages</span><span class="params">(struct Page *base, <span class="keyword">size_t</span> n)</span> </span>&#123;</span><br><span class="line">    assert(n &gt; <span class="number">0</span>);</span><br><span class="line">    assert(PageReserved(base));     <span class="comment">//检查页标志是否错误</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">Page</span> *<span class="title">p</span> ;</span></span><br><span class="line">    <span class="keyword">list_entry_t</span> *le=&amp;free_list;   <span class="comment">//查找该插入的位置le</span></span><br><span class="line">    <span class="keyword">while</span>((le=list_next(le))!=&amp;free_list)&#123;</span><br><span class="line">        p=le2page(le,page_link);   <span class="comment">//将地址转换成页的结构</span></span><br><span class="line">        <span class="keyword">if</span>(p&gt;base)&#123;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">for</span>(p=base;p&lt;base+n;p++)&#123; <span class="comment">//向le之前插入n个页，并设置标志位</span></span><br><span class="line">        list_add_before(le,&amp;(p-&gt;page_link));</span><br><span class="line">        p-&gt;flags=<span class="number">0</span>;</span><br><span class="line">        set_page_ref(p,<span class="number">0</span>);   <span class="comment">//ref-1</span></span><br><span class="line">        ClearPageProperty(p);</span><br><span class="line">        SetPageProperty(p);</span><br><span class="line">    &#125;</span><br><span class="line">    base-&gt;property=n;  <span class="comment">//将页块信息记录在头部</span></span><br><span class="line">    <span class="comment">//向高地址合并</span></span><br><span class="line">    p=le2page(le,page_link);</span><br><span class="line">    <span class="keyword">if</span>(base+n==p)&#123;</span><br><span class="line">        base-&gt;property+=p-&gt;property;</span><br><span class="line">        p-&gt;property=<span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//向低地址合并</span></span><br><span class="line">    le=list_prev(&amp;(base-&gt;page_link));</span><br><span class="line">    p=le2page(le,page_link);</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span>(le!=&amp;free_list&amp;&amp;p==base<span class="number">-1</span>)&#123;       <span class="comment">//若低地址已分配则不需要合并 </span></span><br><span class="line">        <span class="keyword">while</span> (le!=&amp;free_list)&#123;</span><br><span class="line">            <span class="keyword">if</span>(p-&gt;property)&#123;</span><br><span class="line">                p-&gt;property+=base-&gt;property;</span><br><span class="line">                base-&gt;property=<span class="number">0</span>;</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">             le=list_prev(le);</span><br><span class="line">             p=le2page(le,page_link);  </span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    nr_free+=n;</span><br><span class="line">    <span class="keyword">return</span> ;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&gt;<span class="keyword">static</span> <span class="keyword">inline</span> <span class="keyword">void</span></span><br><span class="line">&gt;list_add_before(<span class="keyword">list_entry_t</span> *listelm, <span class="keyword">list_entry_t</span> *elm) &#123;</span><br><span class="line">  __list_add(elm, listelm-&gt;prev, listelm);</span><br><span class="line">&gt;&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>list_add_before</code>:添加一个新成员</p>
+<p><code>listelm</code>:要添加的列表头</p>
+<p><code>elm</code>:要添加的新元素</p>
+<p>将新元素<code>elm</code> 插入到已经在列表中的元素<code>listelm</code>之前。</p>
+</blockquote>
+</li>
+<li><p>你的first fit算法是否有进一步的改进空间?</p>
+<p>其中最主要的不足我认为就在于时间效率上，每次查询第一块符合条件的空闲内存块时，最坏情况需要找遍整个链表，可利用二分法去寻找合适的块，从而提升效率。</p>
+</li>
+</ul>
+<h3 id="练习二：实现寻找虚拟地址对应的页表项"><a href="#练习二：实现寻找虚拟地址对应的页表项" class="headerlink" title="练习二：实现寻找虚拟地址对应的页表项"></a>练习二：实现寻找虚拟地址对应的页表项</h3><blockquote>
+<p><code>PDX(la)</code> =虚拟地址的页面目录条目的索引。  </p>
+<p><code> KADDR(pa)</code>:接受一个物理地址并返回相应的内核虚拟地址。  </p>
+<p><code> set_page_ref(page,1)</code>:表示该页面被引用一次  </p>
+<p><code> page2pa(page)</code>:获取这个(struct page *)页面所管理的内存的物理地址  </p>
+<p><code>struct Page * alloc_page()</code>:分配一个页面  </p>
+<p><code> memset(void *s, char c, size_t n)</code>:设置s指向的内存区域的前n个字节到指定值c。  </p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th align="center"><code>PTE_P</code></th>
+<th><code>0x001</code></th>
+<th>页表/目录条目标志位:存在</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center"><code>PTE_W</code></td>
+<td><code>0x002</code></td>
+<td>目录条目标志位:可写</td>
+</tr>
+<tr>
+<td align="center"><code>PTE_U</code></td>
+<td><code>0x004</code></td>
+<td>目录条目标志位:用户可以访问</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>pde_t 全称为page directory entry，也就是一级页表的表项（注意：pgdir实际不是表项，而是一级页表本身，pgdir给出页表起始地址。）<br>pte_t 全称为page table entry，表示二级页表的表项。<br>uintptr_t 表示为线性地址，由于段式管理只做直接映射，所以它也是逻辑地址。</p>
+</blockquote>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">pte_t</span> *<span class="title">get_pte</span><span class="params">(<span class="keyword">pde_t</span> *pgdir, <span class="keyword">uintptr_t</span> la, <span class="keyword">bool</span> create)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">if</span> 0</span></span><br><span class="line">    <span class="keyword">pde_t</span> *pdep = <span class="literal">NULL</span>;   <span class="comment">// (1) find page directory entry</span></span><br><span class="line">    <span class="keyword">if</span> (<span class="number">0</span>) &#123;              <span class="comment">// (2) check if entry is not present</span></span><br><span class="line">                          <span class="comment">// (3) check if creating is needed, then alloc page for page table</span></span><br><span class="line">                          <span class="comment">// CAUTION: this page is used for page table, not for common data page</span></span><br><span class="line">                          <span class="comment">// (4) set page reference</span></span><br><span class="line">        <span class="keyword">uintptr_t</span> pa = <span class="number">0</span>; <span class="comment">// (5) get linear address of page</span></span><br><span class="line">                          <span class="comment">// (6) clear page content using memset</span></span><br><span class="line">                          <span class="comment">// (7) set page directory entry&#x27;s permission</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">NULL</span>;          <span class="comment">// (8) return page table entry</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line">            <span class="keyword">pde_t</span> *pdep=&amp;pgdir[PDX(la)];  <span class="comment">//查找页面目录条目</span></span><br><span class="line">            <span class="keyword">if</span>(!(*pdep &amp; PTE_P))&#123;         </span><br><span class="line">               <span class="class"><span class="keyword">struct</span> <span class="title">Page</span> *<span class="title">page</span>;</span>        <span class="comment">//申请一页</span></span><br><span class="line">               <span class="keyword">if</span>(!create||(page=alloc_page())==<span class="literal">NULL</span>)&#123;     <span class="comment">//检查是否需要创建，然后为页表分配页</span></span><br><span class="line">                   <span class="keyword">return</span> <span class="literal">NULL</span>; </span><br><span class="line">               &#125; </span><br><span class="line">               set_page_ref(page,<span class="number">1</span>);  <span class="comment">//引用次数+1</span></span><br><span class="line">               <span class="keyword">uintptr_t</span> pa=page2pa(page);  <span class="comment">//获取页的线性地址</span></span><br><span class="line">               <span class="built_in">memset</span>(KADDR(pa),<span class="number">0</span>,PGSIZE);    <span class="comment">//清除页面内容</span></span><br><span class="line">               *pdep=pa|PTE_U|PTE_W|PTE_P;   <span class="comment">//设置权限</span></span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">return</span> &amp;((<span class="keyword">pte_t</span> *)KADDR(PDE_ADDR(*pdep)))[PTX(la)];<span class="comment">//返回页表地址</span></span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>请描述页目录项（Page Directory Entry）和页表项（Page Table Entry）中每个组成部分的含义以及对ucore而言的潜在用处。</li>
+<li>PDE（页目录项）的具体组成如下图所示；描述每一个组成部分的含义如下[1]：<ul>
+<li>前20位表示4K对齐的该PDE对应的页表起始位置（物理地址，该物理地址的高20位即PDE中的高20位，低12位为0）；</li>
+<li>第9-11位未被CPU使用，可保留给OS使用；</li>
+<li>接下来的第8位可忽略；</li>
+<li>第7位用于设置Page大小，0表示4KB；</li>
+<li>第6位恒为0；</li>
+<li>第5位用于表示该页是否被使用过；</li>
+<li>第4位设置为1则表示不对该页进行缓存；</li>
+<li>第3位设置是否使用write through缓存写策略；</li>
+<li>第2位表示该页的访问需要的特权级；</li>
+<li>第1位表示是否允许读写；</li>
+<li>第0位为该PDE的存在位；</li>
+</ul>
+</li>
+</ul>
+<p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/8126967-823374bd5c9b730b.png" alt="img"></p>
+<ul>
+<li><p>接下来描述页表项（PTE）中的每个组成部分的含义，具体组成如下图所示[2]：</p>
+<ul>
+<li>高20位与PDE相似的，用于表示该PTE指向的物理页的物理地址；</li>
+<li>9-11位保留给OS使用；</li>
+<li>7-8位恒为0；</li>
+<li>第6位表示该页是否为dirty，即是否需要在swap out的时候写回外存；</li>
+<li>第5位表示是否被访问；</li>
+<li>3-4位恒为0；</li>
+<li>0-2位分别表示存在位、是否允许读写、访问该页需要的特权级；</li>
+</ul>
+<p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/8126967-d6e5143c6cc1be4a.png" alt="img"></p>
+</li>
+</ul>
+<blockquote>
+<p>可以发现无论是PTE还是TDE，都具有着一些保留的位供操作系统使用，也就是说ucore可以利用这些位来完成一些其他的内存管理相关的算法，比如可以在这些位里保存最近一段时间内该页的被访问的次数（仅能表示0-7次），用于辅助近似地实现虚拟内存管理中的换出策略的LRU之类的算法；也就是说这些保留位有利于OS进行功能的拓展；</p>
+<p>作者：AmadeusChan<br>链接：<a target="_blank" rel="noopener" href="https://www.jianshu.com/p/abbe81dfe016#%E7%BB%83%E4%B9%A00%E5%A1%AB%E5%86%99%E5%B7%B2%E6%9C%89%E5%AE%9E%E9%AA%8C">https://www.jianshu.com/p/abbe81dfe016#%E7%BB%83%E4%B9%A00%E5%A1%AB%E5%86%99%E5%B7%B2%E6%9C%89%E5%AE%9E%E9%AA%8C</a><br>来源：简书<br>著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。</p>
+</blockquote>
+<ul>
+<li>如果ucore执行过程中访问内存，出现了页访问异常，请问硬件要做哪些事情？<ul>
+<li> 将发生错误的线性地址保存在cr2寄存器中;</li>
+<li>在中断栈中依次压入EFLAGS，CS, EIP，以及页访问异常码error code，如果page fault是发生在用户态，则还需要先压入ss和esp，并且切换到内核栈；</li>
+<li>根据中断描述符表查询到对应page fault的ISR，跳转到对应的ISR处执行，接下来将由软件进行page fault处理；</li>
+</ul>
+</li>
+</ul>
+<h3 id="练习3：释放某虚拟地址所在的页并取消对应的二级页表项的映射"><a href="#练习3：释放某虚拟地址所在的页并取消对应的二级页表项的映射" class="headerlink" title="练习3：释放某虚拟地址所在的页并取消对应的二级页表项的映射"></a>练习3：释放某虚拟地址所在的页并取消对应的二级页表项的映射</h3><blockquote>
+<p><code> struct Page * Page pte2page(*ptep)</code>:从ptep的值获取相应的页面</p>
+<p><code>free_page</code>:释放一个页面</p>
+<p><code>page_ref_dec(page)</code>:  page-&gt;ref减一;注意:ff page-&gt;ref == 0，则该页为空闲页。</p>
+<p><code>tlb_invalidate(pde_t *pgdir, uintptr_t la)</code>:使TLB表项无效，但仅当页表处于编辑的是处理器当前正在使用的。</p>
+<p><code>PTE_P</code>   <code>0x001</code>     页表/目录条目标志位:存在 </p>
+</blockquote>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">inline</span> <span class="keyword">void</span></span></span><br><span class="line"><span class="function"><span class="title">page_remove_pte</span><span class="params">(<span class="keyword">pde_t</span> *pgdir, <span class="keyword">uintptr_t</span> la, <span class="keyword">pte_t</span> *ptep)</span> </span>&#123;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">if</span> 0</span></span><br><span class="line">    <span class="keyword">if</span> (<span class="number">0</span>) &#123;                      <span class="comment">//(1) check if this page table entry is present</span></span><br><span class="line">        <span class="class"><span class="keyword">struct</span> <span class="title">Page</span> *<span class="title">page</span> =</span> <span class="literal">NULL</span>; <span class="comment">//(2) find corresponding page to pte</span></span><br><span class="line">                                  <span class="comment">//(3) decrease page reference</span></span><br><span class="line">                                  <span class="comment">//(4) and free this page when page reference reachs 0</span></span><br><span class="line">                                  <span class="comment">//(5) clear second page table entry</span></span><br><span class="line">                                  <span class="comment">//(6) flush tlb</span></span><br><span class="line">    &#125;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span> </span></span><br><span class="line">        <span class="keyword">if</span>(*ptep&amp;PTE_P)&#123;                   <span class="comment">//判断页表中该项是否存在</span></span><br><span class="line">            <span class="class"><span class="keyword">struct</span> <span class="title">Page</span> *<span class="title">page</span>=</span>pte2page(*ptep);</span><br><span class="line">            <span class="keyword">if</span>(page_ref_dec(page)==<span class="number">0</span>)&#123;     <span class="comment">//判断是否只被引用一次</span></span><br><span class="line">                free_page(page);           <span class="comment">//若只被引用一次，则释放该页</span></span><br><span class="line">            &#125;</span><br><span class="line">            *ptep=<span class="number">0</span>;                      <span class="comment">//若被多次引用，不能释放此页，只能释放二级页表的表项</span></span><br><span class="line">            tlb_invalidate(pgdir,la);    <span class="comment">//更新页表</span></span><br><span class="line">         &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>数据结构Page的全局变量（其实是一个数组）的每一项与页表中的页目录项和页表项有无对应关系？如果有，其对应关系是啥？</p>
+<p>存在对应关系：由于页表项中存放着对应的物理页的物理地址，因此可以通过这个物理地址来获取到对应到的Page数组的对应项，具体做法为将物理地址除以一个页的大小，然后乘上一个Page结构的大小获得偏移量，使用偏移量加上Page数组的基地址皆可以或得到对应Page项的地址；</p>
+</li>
+<li><p>如果希望虚拟地址与物理地址相等，则需要如何修改lab2，完成此事？</p>
+<p>由于在完全启动了ucore之后，虚拟地址和线性地址相等，都等于物理地址加上0xc0000000，如果需要虚拟地址和物理地址相等，可以考虑更新GDT，更新段映射，使得virtual address = linear address - 0xc0000000，这样的话就可以实现virtual address = physical address；</p>
+</li>
+</ul>
+<h3 id="最后的运行结果："><a href="#最后的运行结果：" class="headerlink" title="最后的运行结果："></a>最后的运行结果：</h3><p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/image-20210929231259931.png" alt="image-20210929231259931"></p>
+
+    </article>
+    <!-- license -->
+    
+    <!-- paginator -->
+    <ul class="post-paginator">
+        <li class="next">
+            
+                <div class="nextSlogan">Next Post</div>
+                <a href="/2022/01/08/off-by-one/" title="off-by-one">
+                    <div class="nextTitle">off-by-one</div>
+                </a>
+            
+        </li>
+        <li class="previous">
+            
+                <div class="prevSlogan">Previous Post</div>
+                <a href="/2022/01/08/lab1%20%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A/" title="lab1实验报告">
+                    <div class="prevTitle">lab1实验报告</div>
+                </a>
+            
+        </li>
+    </ul>
+    <!-- comment -->
+    
+        <div class="post-comment">
+            <!-- 来必力 City 版安装代码 -->
+
+
+            
+
+            
+
+            
+
+            <!-- utteranc评论 -->
+
+
+            <!-- partial('_partial/comment/changyan') -->
+            <!--PC版-->
+
+
+            
+            
+
+        </div>
+    
+    <!-- timeliness note -->
+    <!-- idea from: https://hexo.fluid-dev.com/posts/hexo-injector/#%E6%96%87%E7%AB%A0%E6%97%B6%E6%95%88%E6%80%A7%E6%8F%90%E7%A4%BA -->
+    
+    <!-- Mathjax -->
+    
+</main>
+
+                <!-- profile -->
+                
+            </div>
+            <footer class="footer footer-unloaded">
+    <!-- social  -->
+    
+        <div class="social">
+            
+    
+        
+            
+                <a href="mailto:2811745785@qq.com" class="iconfont-archer email" title=email ></a>
+            
+        
+    
+        
+            
+                <a href="//github.com/wysyrg" class="iconfont-archer github" target="_blank" title=github></a>
+            
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+
+
+        </div>
+    
+    <!-- powered by Hexo  -->
+    <div class="copyright">
+        <span id="hexo-power">Powered by <a href="https://hexo.io/" target="_blank">Hexo</a></span><span class="iconfont-archer power">&#xe635;</span><span id="theme-info">theme <a href="https://github.com/fi3ework/hexo-theme-archer" target="_blank">Archer</a></span>
+    </div>
+    <!-- website approve for Chinese user -->
+    
+    <!-- 不蒜子  -->
+    
+        <div class="busuanzi-container">
+            
+             
+                <span id="busuanzi_container_site_pv">PV: <span id="busuanzi_value_site_pv"></span> :)</span>
+            
+        </div>
+    	
+</footer>
+
+        </div>
+        <!-- toc -->
+        
+            <div class="toc-wrapper toc-wrapper-loding" style=
+
+
+
+
+
+
+
+    top:50vh;
+
+>
+                <div class="toc-catalog">
+                    <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
+                </div>
+                <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#lab2%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A"><span class="toc-number">1.</span> <span class="toc-text">lab2实验报告</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BB%83%E4%B9%A01%EF%BC%9A%E5%AE%9E%E7%8E%B0-first-fit-%E8%BF%9E%E7%BB%AD%E7%89%A9%E7%90%86%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D%E7%AE%97%E6%B3%95"><span class="toc-number">1.1.</span> <span class="toc-text">练习1：实现 first-fit 连续物理内存分配算法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BB%83%E4%B9%A0%E4%BA%8C%EF%BC%9A%E5%AE%9E%E7%8E%B0%E5%AF%BB%E6%89%BE%E8%99%9A%E6%8B%9F%E5%9C%B0%E5%9D%80%E5%AF%B9%E5%BA%94%E7%9A%84%E9%A1%B5%E8%A1%A8%E9%A1%B9"><span class="toc-number">1.2.</span> <span class="toc-text">练习二：实现寻找虚拟地址对应的页表项</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BB%83%E4%B9%A03%EF%BC%9A%E9%87%8A%E6%94%BE%E6%9F%90%E8%99%9A%E6%8B%9F%E5%9C%B0%E5%9D%80%E6%89%80%E5%9C%A8%E7%9A%84%E9%A1%B5%E5%B9%B6%E5%8F%96%E6%B6%88%E5%AF%B9%E5%BA%94%E7%9A%84%E4%BA%8C%E7%BA%A7%E9%A1%B5%E8%A1%A8%E9%A1%B9%E7%9A%84%E6%98%A0%E5%B0%84"><span class="toc-number">1.3.</span> <span class="toc-text">练习3：释放某虚拟地址所在的页并取消对应的二级页表项的映射</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9C%80%E5%90%8E%E7%9A%84%E8%BF%90%E8%A1%8C%E7%BB%93%E6%9E%9C%EF%BC%9A"><span class="toc-number">1.4.</span> <span class="toc-text">最后的运行结果：</span></a></li></ol></li></ol>
+            </div>
+        
+        <!-- sidebar -->
+        <div class="sidebar sidebar-hide">
+    <ul class="sidebar-tabs sidebar-tabs-active-0">
+        <li class="sidebar-tab-archives"><span class="iconfont-archer">&#xe67d;</span><span class="tab-name">Archive</span></li>
+        <li class="sidebar-tab-tags"><span class="iconfont-archer">&#xe61b;</span><span class="tab-name">Tag</span></li>
+        <li class="sidebar-tab-categories"><span class="iconfont-archer">&#xe666;</span><span class="tab-name">Cate</span></li>
+    </ul>
+    <div class="sidebar-content sidebar-content-show-archive">
+        <div class="sidebar-panel-archives">
+    <!-- 在 ejs 中将 archive 按照时间排序 -->
+    
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+    
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+    
+    
+    
+    
+    <div class="total-and-search">
+        <div class="total-archive">
+        Total : 21
+        </div>
+        <!-- search  -->
+        
+    </div>
+    
+    <div class="post-archive">
+    
+        
+            
+            
+            <div class="archive-year"> 2022 </div>
+            <ul class="year-list">
+            
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/04</span>
+            <a class="archive-post-title" href="/2022/04/04/%E5%B3%BB%E6%9E%81pwn/">峻极pwn</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/19</span>
+            <a class="archive-post-title" href="/2022/03/19/stack%20pivoting/">stack pivoting</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/15</span>
+            <a class="archive-post-title" href="/2022/03/15/libc-2.26/">[Untitled Post]</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">02/26</span>
+            <a class="archive-post-title" href="/2022/02/26/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/">操作系统</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/16</span>
+            <a class="archive-post-title" href="/2022/01/16/large%20bin%20attack/">large bin attack</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/15</span>
+            <a class="archive-post-title" href="/2022/01/15/magicheap/">magicheap</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/15</span>
+            <a class="archive-post-title" href="/2022/01/15/unsorted%20bin%20attack/">unsorted bin attack</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/13</span>
+            <a class="archive-post-title" href="/2022/01/13/pwn200/">pwn200</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/12</span>
+            <a class="archive-post-title" href="/2022/01/12/write%20some%20paper/">write some paper</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/09</span>
+            <a class="archive-post-title" href="/2022/01/09/fastbin_attack/">fastbin_attack</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/overlapping%20chunks/">overlapping chunks</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/gdb%E8%B0%83%E8%AF%95/">gdb的使用</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/csaw/">csaw部分题解</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/ciscn_2019/">ciscn</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/secretHolder_hitcon_2016/">secretHolder_hitcon_2016</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/unsafe_unlink/">unsafe_unlink</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/kernel_pwn%E7%8E%AF%E5%A2%83/">kernel pwn环境搭建</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/off-by-one/">off-by-one</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/pwnable%E5%88%B7%E9%A2%98/">pwnable刷题</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/lab1%20%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A/">lab1实验报告</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/lab2%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A/">lab2 实验报告</a>
+        </li>
+    
+    </div>
+</div>
+
+        <div class="sidebar-panel-tags">
+    <div class="sidebar-tags-name">
+        
+            <span class="sidebar-tag-name" data-tags="unsorted bin attack">
+                <span class="iconfont-archer">&#xe606;</span>
+                unsorted bin attack
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="pwn">
+                <span class="iconfont-archer">&#xe606;</span>
+                pwn
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="house of spirit">
+                <span class="iconfont-archer">&#xe606;</span>
+                house of spirit
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="fastbin doule free">
+                <span class="iconfont-archer">&#xe606;</span>
+                fastbin doule free
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="os">
+                <span class="iconfont-archer">&#xe606;</span>
+                os
+            </span>
+        
+    </div>
+    <div class="iconfont-archer sidebar-tags-empty">&#xe678;</div>
+    <div class="tag-load-fail" style="display: none; color: #ccc; font-size: 0.6rem;">
+        缺失模块，请参考主题文档进行安装配置：https://github.com/fi3ework/hexo-theme-archer#%E5%AE%89%E8%A3%85%E4%B8%BB%E9%A2%98
+    </div> 
+    <div class="sidebar-tags-list"></div>
+</div>
+
+        <div class="sidebar-panel-categories">
+    <div class="sidebar-categories-name">
+    
+        <span class="sidebar-category-name" data-categories="Diary">
+            <span class="iconfont-archer">&#xe60a;</span>
+            Diary
+        </span>
+    
+    </div>
+    <div class="iconfont-archer sidebar-categories-empty">&#xe678;</div>
+    <div class="sidebar-categories-list"></div>
+</div>
+
+    </div>
+</div>
+
+        <!-- site-meta -->
+        <script>
+    var siteMeta = {
+        root: "/",
+        author: "John Doe"
+    }
+</script>
+
+        <!-- import experimental options here -->
+        <!-- Custom Font -->
+
+
+        <!-- main func -->
+        <script src="/scripts/main.js?v=20210823"></script>
+        <!-- dark mode -->
+        <script src="/scripts/dark.js?v=20210823"></script>
+        <!-- fancybox -->
+        <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" defer></script>
+        <!-- algolia -->
+        
+        <!-- busuanzi -->
+        
+            <script src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
+        
+        <!-- CNZZ -->
+        
+        <!-- async load share.js -->
+        
+            <script src="/scripts/share.js?v=20210823" async></script>
+        
+        <!-- mermaid -->
+        
+    </body>
+</html>

