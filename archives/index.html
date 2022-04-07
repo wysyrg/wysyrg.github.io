@@ -428,6 +428,68 @@
             
         
         <article class="index-post">
+            <a class="abstract-title" href="/2022/04/07/libc-2.26/">
+                
+                <span class="abstract-title-text">libc 2.26</span>
+            </a>
+            <div class="abstract-content">
+                fastbin attackfastbin dup在libc-2.26，对应 tcache dup由于新添加的tcache机制不会检查 二次释放，因此不必考虑如何绕过的问题，直接释放两次即可，fastbin dup变得更加简单，甚至还不局限于fastbin大小的chunk，我们称之为tcache dup。示例程序：
+123456789101112#include &lt;stdlib.h&gt;#include &lt;stdio.h&gt;int main() &#123;    void *p1 = malloc(0x10);    fprintf(stderr, &quot;1st...
+            </div>
+            <!-- read more -->
+            
+            <div class="abstract-post-meta">
+                <!-- date -->
+                <div class="abstract-date" title="Last updated: 2022/04/07">
+                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2022/04/07</span>
+                </div>
+                <!-- tags -->
+                
+            </div>
+        </article>
+        <div class="index-post-divider"></div>
+    
+        
+        
+        
+        
+            
+        
+        <article class="index-post">
+            <a class="abstract-title" href="/2022/04/07/house-of-storm/">
+                
+                <span class="abstract-title-text">house of storm</span>
+            </a>
+            <div class="abstract-content">
+                
+参考链接：
+https://www.anquanke.com/post/id/203096
+https://www.cnblogs.com/Rookle/p/13140339.html
+https://a1ex.online/2020/10/07/house-of-storm/
+https://chenqiw9.github.io/2021/07/21/Tcache%20Stashing%20Unlink%20Attack%E5%92%8Chouse%20of%20storm%E7%AE%80%E6%9E%90/
+
+产生条件House_of_storm是一种结合了unsorted_bi...
+            </div>
+            <!-- read more -->
+            
+            <div class="abstract-post-meta">
+                <!-- date -->
+                <div class="abstract-date" title="Last updated: 2022/04/07">
+                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2022/04/07</span>
+                </div>
+                <!-- tags -->
+                
+            </div>
+        </article>
+        <div class="index-post-divider"></div>
+    
+        
+        
+        
+        
+            
+        
+        <article class="index-post">
             <a class="abstract-title" href="/2022/04/04/%E5%B3%BB%E6%9E%81pwn/">
                 
                 <span class="abstract-title-text">峻极pwn</span>
@@ -702,81 +764,10 @@ IDA分析发现delete函数中free后，并没有清空link_list数组中的地�
         </article>
         <div class="index-post-divider"></div>
     
-        
-        
-        
-        
-            
-        
-        <article class="index-post">
-            <a class="abstract-title" href="/2022/01/09/fastbin_attack/">
-                
-                <span class="abstract-title-text">fastbin_attack</span>
-            </a>
-            <div class="abstract-content">
-                fastbin_attack介绍 ¶fastbin attack 是一类漏洞的利用方法，是指所有基于 fastbin 机制的漏洞利用方法。这类利用的前提是：
-
-存在堆溢出、use-after-free 等能控制 chunk 内容的漏洞
-漏洞发生于 fastbin 类型的 chunk 中
-
-如果细分的话，可以做如下的分类：
-
-Fastbin Double Free
-House of Spirit
-Alloc to Stack
-Arbitrary Alloc
-
-其中，前两种主要漏洞侧重于利用 free 函数释放真的 chunk 或伪造的 chunk，然后再次申请 chunk 进行攻击，后两种...
-            </div>
-            <!-- read more -->
-            
-            <div class="abstract-post-meta">
-                <!-- date -->
-                <div class="abstract-date" title="Last updated: 2022/01/15">
-                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2022/01/09</span>
-                </div>
-                <!-- tags -->
-                
-            </div>
-        </article>
-        <div class="index-post-divider"></div>
-    
-        
-        
-        
-        
-            
-        
-        <article class="index-post">
-            <a class="abstract-title" href="/2022/01/08/overlapping%20chunks/">
-                
-                <span class="abstract-title-text">overlapping chunks</span>
-            </a>
-            <div class="abstract-content">
-                overlapping chunkschunk extend 是堆漏洞的一种常见利用手法，通过extend可以实现chunk overlapping（块重叠）的效果。这种利用方法需要以下的时机和条件：
-
-程序中存在基于堆的漏洞
-漏洞可以控制 chunk header 中的数据
-
-拓展被释放块123456789101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475/* A simpl...
-            </div>
-            <!-- read more -->
-            
-            <div class="abstract-post-meta">
-                <!-- date -->
-                <div class="abstract-date" title="Last updated: 2022/01/08">
-                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2022/01/08</span>
-                </div>
-                <!-- tags -->
-                
-            </div>
-        </article>
-        <div class="index-post-divider"></div>
-    
     <!-- paginator  -->
     
         <nav class="page-nav">
-            <span class="page-number current">1</span><a class="page-number" href="/archives/page/2/">2</a><a class="extend next" rel="next" href="/archives/page/2/">NEXT &gt;</a>
+            <span class="page-number current">1</span><a class="page-number" href="/archives/page/2/">2</a><a class="page-number" href="/archives/page/3/">3</a><a class="extend next" rel="next" href="/archives/page/2/">NEXT &gt;</a>
         </nav>
     
 </main>
@@ -973,7 +964,37 @@ Arbitrary Alloc
         
         
         
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
     
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
         
         
         
@@ -1104,7 +1125,7 @@ Arbitrary Alloc
     
     <div class="total-and-search">
         <div class="total-archive">
-        Total : 20
+        Total : 22
         </div>
         <!-- search  -->
         
@@ -1118,6 +1139,18 @@ Arbitrary Alloc
             <div class="archive-year"> 2022 </div>
             <ul class="year-list">
             
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/07</span>
+            <a class="archive-post-title" href="/2022/04/07/libc-2.26/">libc 2.26</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/07</span>
+            <a class="archive-post-title" href="/2022/04/07/house-of-storm/">house of storm</a>
+        </li>
+    
         
         <li class="archive-post-item">
             <span class="archive-post-date">04/04</span>

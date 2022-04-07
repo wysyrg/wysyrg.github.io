@@ -428,6 +428,77 @@
             
         
         <article class="index-post">
+            <a class="abstract-title" href="/2022/01/09/fastbin_attack/">
+                
+                <span class="abstract-title-text">fastbin_attack</span>
+            </a>
+            <div class="abstract-content">
+                fastbin_attack介绍 ¶fastbin attack 是一类漏洞的利用方法，是指所有基于 fastbin 机制的漏洞利用方法。这类利用的前提是：
+
+存在堆溢出、use-after-free 等能控制 chunk 内容的漏洞
+漏洞发生于 fastbin 类型的 chunk 中
+
+如果细分的话，可以做如下的分类：
+
+Fastbin Double Free
+House of Spirit
+Alloc to Stack
+Arbitrary Alloc
+
+其中，前两种主要漏洞侧重于利用 free 函数释放真的 chunk 或伪造的 chunk，然后再次申请 chunk 进行攻击，后两种...
+            </div>
+            <!-- read more -->
+            
+            <div class="abstract-post-meta">
+                <!-- date -->
+                <div class="abstract-date" title="Last updated: 2022/01/15">
+                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2022/01/09</span>
+                </div>
+                <!-- tags -->
+                
+            </div>
+        </article>
+        <div class="index-post-divider"></div>
+    
+        
+        
+        
+        
+            
+        
+        <article class="index-post">
+            <a class="abstract-title" href="/2022/01/08/overlapping%20chunks/">
+                
+                <span class="abstract-title-text">overlapping chunks</span>
+            </a>
+            <div class="abstract-content">
+                overlapping chunkschunk extend 是堆漏洞的一种常见利用手法，通过extend可以实现chunk overlapping（块重叠）的效果。这种利用方法需要以下的时机和条件：
+
+程序中存在基于堆的漏洞
+漏洞可以控制 chunk header 中的数据
+
+拓展被释放块123456789101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475/* A simpl...
+            </div>
+            <!-- read more -->
+            
+            <div class="abstract-post-meta">
+                <!-- date -->
+                <div class="abstract-date" title="Last updated: 2022/01/08">
+                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2022/01/08</span>
+                </div>
+                <!-- tags -->
+                
+            </div>
+        </article>
+        <div class="index-post-divider"></div>
+    
+        
+        
+        
+        
+            
+        
+        <article class="index-post">
             <a class="abstract-title" href="/2022/01/08/gdb%E8%B0%83%E8%AF%95/">
                 
                 <span class="abstract-title-text">gdb的使用</span>
@@ -709,84 +780,10 @@ unlink源码12345678910111213141516171819202122232425262728293031323334353637383
         </article>
         <div class="index-post-divider"></div>
     
-        
-        
-        
-        
-            
-        
-        <article class="index-post">
-            <a class="abstract-title" href="/2022/01/08/lab1%20%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A/">
-                
-                <span class="abstract-title-text">lab1实验报告</span>
-            </a>
-            <div class="abstract-content">
-                lab1 实验报告练习1
-操作系统镜像文件ucore.img是如何一步一步生成的？(需要比较详细地解释Makefile中每一条相关命令和命令参数的含义，以及说明命令导致的结果)
-
-生成ucore.img(生成ucore.img需要kernel和bootblock)的代码如下：
-
-12345$(UCOREIMG): $(kernel) $(bootblock)	$(V)dd if=/dev/zero of=$@ count=10000	$(V)dd if=$(bootblock) of=$@ conv=notrunc	$(V)dd if=$(kernel) of=$@ seek=1 con...
-            </div>
-            <!-- read more -->
-            
-            <div class="abstract-post-meta">
-                <!-- date -->
-                <div class="abstract-date" title="Last updated: 2021/09/22">
-                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2022/01/08</span>
-                </div>
-                <!-- tags -->
-                
-                    <div class= abstract-tags >
-    
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags="os">os</a>
-    
-</div>
-
-                
-            </div>
-        </article>
-        <div class="index-post-divider"></div>
-    
-        
-        
-        
-        
-            
-        
-        <article class="index-post">
-            <a class="abstract-title" href="/2022/01/08/kernel_pwn%E7%8E%AF%E5%A2%83/">
-                
-                <span class="abstract-title-text">kernel pwn环境搭建</span>
-            </a>
-            <div class="abstract-content">
-                本文主要记一下kernel  pwn环境搭建过程
-参考链接
-
-https://www.jianshu.com/p/23351b38ecb0
-https://ctf-wiki.org/pwn/linux/kernel-mode/environment/build-kernel/
-https://n0va-scy.github.io/2020/06/21/kernel%20pwn%20%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/
-
-编译生成内核镜像先下载一个内核源码 ：https://mirrors.edge.kernel.org/pub/linux/kerne...
-            </div>
-            <!-- read more -->
-            
-            <div class="abstract-post-meta">
-                <!-- date -->
-                <div class="abstract-date" title="Last updated: 2022/01/11">
-                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2022/01/08</span>
-                </div>
-                <!-- tags -->
-                
-            </div>
-        </article>
-        <div class="index-post-divider"></div>
-    
     <!-- paginator  -->
     
         <nav class="page-nav">
-            <a class="extend prev" rel="prev" href="/archives/2022/">&lt; PREV</a><a class="page-number" href="/archives/2022/">1</a><span class="page-number current">2</span>
+            <a class="extend prev" rel="prev" href="/archives/2022/">&lt; PREV</a><a class="page-number" href="/archives/2022/">1</a><span class="page-number current">2</span><a class="page-number" href="/archives/2022/page/3/">3</a><a class="extend next" rel="next" href="/archives/2022/page/3/">NEXT &gt;</a>
         </nav>
     
 </main>
@@ -983,7 +980,37 @@ https://n0va-scy.github.io/2020/06/21/kernel%20pwn%20%E7%8E%AF%E5%A2%83%E6%90%AD
         
         
         
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
     
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
         
         
         
@@ -1114,7 +1141,7 @@ https://n0va-scy.github.io/2020/06/21/kernel%20pwn%20%E7%8E%AF%E5%A2%83%E6%90%AD
     
     <div class="total-and-search">
         <div class="total-archive">
-        Total : 20
+        Total : 22
         </div>
         <!-- search  -->
         
@@ -1128,6 +1155,18 @@ https://n0va-scy.github.io/2020/06/21/kernel%20pwn%20%E7%8E%AF%E5%A2%83%E6%90%AD
             <div class="archive-year"> 2022 </div>
             <ul class="year-list">
             
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/07</span>
+            <a class="archive-post-title" href="/2022/04/07/libc-2.26/">libc 2.26</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/07</span>
+            <a class="archive-post-title" href="/2022/04/07/house-of-storm/">house of storm</a>
+        </li>
+    
         
         <li class="archive-post-item">
             <span class="archive-post-date">04/04</span>

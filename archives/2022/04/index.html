@@ -428,6 +428,68 @@
             
         
         <article class="index-post">
+            <a class="abstract-title" href="/2022/04/07/libc-2.26/">
+                
+                <span class="abstract-title-text">libc 2.26</span>
+            </a>
+            <div class="abstract-content">
+                fastbin attackfastbin dup在libc-2.26，对应 tcache dup由于新添加的tcache机制不会检查 二次释放，因此不必考虑如何绕过的问题，直接释放两次即可，fastbin dup变得更加简单，甚至还不局限于fastbin大小的chunk，我们称之为tcache dup。示例程序：
+123456789101112#include &lt;stdlib.h&gt;#include &lt;stdio.h&gt;int main() &#123;    void *p1 = malloc(0x10);    fprintf(stderr, &quot;1st...
+            </div>
+            <!-- read more -->
+            
+            <div class="abstract-post-meta">
+                <!-- date -->
+                <div class="abstract-date" title="Last updated: 2022/04/07">
+                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2022/04/07</span>
+                </div>
+                <!-- tags -->
+                
+            </div>
+        </article>
+        <div class="index-post-divider"></div>
+    
+        
+        
+        
+        
+            
+        
+        <article class="index-post">
+            <a class="abstract-title" href="/2022/04/07/house-of-storm/">
+                
+                <span class="abstract-title-text">house of storm</span>
+            </a>
+            <div class="abstract-content">
+                
+参考链接：
+https://www.anquanke.com/post/id/203096
+https://www.cnblogs.com/Rookle/p/13140339.html
+https://a1ex.online/2020/10/07/house-of-storm/
+https://chenqiw9.github.io/2021/07/21/Tcache%20Stashing%20Unlink%20Attack%E5%92%8Chouse%20of%20storm%E7%AE%80%E6%9E%90/
+
+产生条件House_of_storm是一种结合了unsorted_bi...
+            </div>
+            <!-- read more -->
+            
+            <div class="abstract-post-meta">
+                <!-- date -->
+                <div class="abstract-date" title="Last updated: 2022/04/07">
+                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2022/04/07</span>
+                </div>
+                <!-- tags -->
+                
+            </div>
+        </article>
+        <div class="index-post-divider"></div>
+    
+        
+        
+        
+        
+            
+        
+        <article class="index-post">
             <a class="abstract-title" href="/2022/04/04/%E5%B3%BB%E6%9E%81pwn/">
                 
                 <span class="abstract-title-text">峻极pwn</span>
@@ -647,7 +709,37 @@ IDA分析12345678910111213141516171819202122232425262728__int64 __fastcall main(
         
         
         
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
     
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
         
         
         
@@ -778,7 +870,7 @@ IDA分析12345678910111213141516171819202122232425262728__int64 __fastcall main(
     
     <div class="total-and-search">
         <div class="total-archive">
-        Total : 20
+        Total : 22
         </div>
         <!-- search  -->
         
@@ -792,6 +884,18 @@ IDA分析12345678910111213141516171819202122232425262728__int64 __fastcall main(
             <div class="archive-year"> 2022 </div>
             <ul class="year-list">
             
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/07</span>
+            <a class="archive-post-title" href="/2022/04/07/libc-2.26/">libc 2.26</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/07</span>
+            <a class="archive-post-title" href="/2022/04/07/house-of-storm/">house of storm</a>
+        </li>
+    
         
         <li class="archive-post-item">
             <span class="archive-post-date">04/04</span>

