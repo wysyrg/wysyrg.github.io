@@ -28,12 +28,12 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://img2020.cnblogs.com/blog/2547408/202109/2547408-20210916185441224-1475278617.png">
 <meta property="og:image" content="https://img2020.cnblogs.com/blog/2547408/202109/2547408-20210916190235308-2007478208.png">
-<meta property="og:image" content="c:/Users/wqf/AppData/Roaming/Typora/typora-user-images/image-20220319191406365.png">
-<meta property="og:image" content="c:/Users/wqf/AppData/Roaming/Typora/typora-user-images/image-20220319192202094.png">
-<meta property="og:image" content="c:/Users/wqf/AppData/Roaming/Typora/typora-user-images/image-20220319192622054.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204072112893.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204072112894.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204072112895.png">
 <meta property="og:image" content="https://img2020.cnblogs.com/blog/2547408/202109/2547408-20210916192136789-1878432503.png">
 <meta property="article:published_time" content="2022-03-19T09:33:24.001Z">
-<meta property="article:modified_time" content="2022-04-04T13:28:06.932Z">
+<meta property="article:modified_time" content="2022-04-07T13:12:38.985Z">
 <meta property="article:author" content="John Doe">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://img2020.cnblogs.com/blog/2547408/202109/2547408-20210916185441224-1475278617.png">
@@ -540,17 +540,17 @@
 <li>执行指令pop ebp，ebp寄存器仍为shellcodeAddr-4；此时esp+4，指向shellcodeAddr</li>
 <li>执行指令pop eip，将shellcodeAddr移入eip中，从而执行shellcode</li>
 </ol>
-<h3 id="例题"><a href="#例题" class="headerlink" title="例题"></a>例题</h3><h4 id="检查保护"><a href="#检查保护" class="headerlink" title="检查保护"></a>检查保护</h4><p><img src="C:\Users\wqf\AppData\Roaming\Typora\typora-user-images\image-20220319191406365.png" alt="image-20220319191406365"></p>
+<h3 id="例题"><a href="#例题" class="headerlink" title="例题"></a>例题</h3><h4 id="检查保护"><a href="#检查保护" class="headerlink" title="检查保护"></a>检查保护</h4><p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204072112893.png" alt="image-20220319191406365"></p>
 <h4 id="IDA分析"><a href="#IDA分析" class="headerlink" title="IDA分析"></a>IDA分析</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> __cdecl <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">const</span> <span class="keyword">char</span> **argv, <span class="keyword">const</span> <span class="keyword">char</span> **envp)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  init();</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">&quot;Welcome, my friend. What&#x27;s your name?&quot;</span>);</span><br><span class="line">  vul();</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">vul</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">char</span> s[<span class="number">40</span>]; <span class="comment">// [esp+0h] [ebp-28h] BYREF</span></span><br><span class="line"></span><br><span class="line">  <span class="built_in">memset</span>(s, <span class="number">0</span>, <span class="number">0x20</span>u);</span><br><span class="line">  read(<span class="number">0</span>, s, <span class="number">0x30</span>u);</span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">&quot;Hello, %s\n&quot;</span>, s);</span><br><span class="line">  read(<span class="number">0</span>, s, <span class="number">0x30</span>u);</span><br><span class="line">  <span class="keyword">return</span> <span class="built_in">printf</span>(<span class="string">&quot;Hello, %s\n&quot;</span>, s);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">hack</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">return</span> system(<span class="string">&quot;echo flag&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>vul存在溢出漏洞，但是可利用的长度较少，仅能覆盖ebp和ret，文件中存在hack函数。该函数调用了 <strong>system</strong>，但并不能直接打印flag。因此，利用 <strong>read</strong> 函数也许可以覆盖栈上数据并写入 /bin/sh，使其执行 <strong>system</strong> 以getshell。于是可尝试利用栈迁移技术</p>
 <p>注意到文件提供了 <strong>printf</strong> 这一输出函数，该函数在未遇到终止符 <strong>‘\0’</strong> 时会一直输出。利用该特性可帮助我们泄露出栈上的地址，从而能计算出要劫持到栈上的准确地址。</p>
 <h4 id="漏洞利用"><a href="#漏洞利用" class="headerlink" title="漏洞利用"></a>漏洞利用</h4><p>在本题中，劫持目标地址即为缓冲区变量 <strong>s</strong> 的起始地址。要计算这一地址，可采取 栈上<strong>ebp</strong> + 偏移量 的方法。其中，栈上<strong>ebp</strong>可由 <strong>printf</strong> 函数泄露得到，偏移量的确定则需要进行调试分析。</p>
 <p>在第二个printf函数处下断点：</p>
-<p><img src="C:\Users\wqf\AppData\Roaming\Typora\typora-user-images\image-20220319192202094.png" alt="image-20220319192202094"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204072112894.png" alt="image-20220319192202094"></p>
 <p>‘aaaa’位于0xffffcf70,ebp寄存器位于0xffffcf98，而该地址中所存储的内容为0xffffcfa8，则old ebp距离s相距0x38，这说明只要使用 <strong>printf</strong> 泄露出攻击时栈上<strong>ebp</strong>所存地址，将该地址减去0x38即为 s 的准确地址，即栈迁移最终要劫持到的地方。</p>
 <p>接着我我们需要寻找leave ret的地址</p>
-<p><img src="C:\Users\wqf\AppData\Roaming\Typora\typora-user-images\image-20220319192622054.png" alt="image-20220319192622054"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204072112895.png" alt="image-20220319192622054"></p>
 <p>为了完成栈迁移的攻击结构，要将esp劫持到old_ebp-0x38处，需要将ebp的old ebp覆盖为</p>
 <p>old ebp-0x38,old ebp 可通过第一次printf泄露得到</p>
 <p><img src="https://img2020.cnblogs.com/blog/2547408/202109/2547408-20210916192136789-1878432503.png" alt="img"></p>
@@ -584,8 +584,8 @@
         <li class="previous">
             
                 <div class="prevSlogan">Previous Post</div>
-                <a href="/2022/03/15/libc-2.26/" title="">
-                    <div class="prevTitle">[Untitled Post]</div>
+                <a href="/2022/02/26/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" title="操作系统">
+                    <div class="prevTitle">操作系统</div>
                 </a>
             
         </li>
@@ -968,12 +968,6 @@
         
         
         
-        
-        
-        
-        
-        
-        
     
     
     
@@ -1004,12 +998,6 @@
         <li class="archive-post-item">
             <span class="archive-post-date">03/19</span>
             <a class="archive-post-title" href="/2022/03/19/stack%20pivoting/">stack pivoting</a>
-        </li>
-    
-        
-        <li class="archive-post-item">
-            <span class="archive-post-date">03/15</span>
-            <a class="archive-post-title" href="/2022/03/15/libc-2.26/">[Untitled Post]</a>
         </li>
     
         
@@ -1120,6 +1108,21 @@
             <a class="archive-post-title" href="/2022/01/08/lab2%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A/">lab2 实验报告</a>
         </li>
     
+        
+            
+            
+                
+                </ul>
+            
+            <div class="archive-year"> Invalid date </div>
+            <ul class="year-list">
+            
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">Invalid date</span>
+            <a class="archive-post-title" href="/2022/04/06/house-of-storm/">house of storm</a>
+        </li>
+    
     </div>
 </div>
 
@@ -1131,14 +1134,14 @@
                 unsorted bin attack
             </span>
         
-            <span class="sidebar-tag-name" data-tags="pwn">
-                <span class="iconfont-archer">&#xe606;</span>
-                pwn
-            </span>
-        
             <span class="sidebar-tag-name" data-tags="house of spirit">
                 <span class="iconfont-archer">&#xe606;</span>
                 house of spirit
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="pwn">
+                <span class="iconfont-archer">&#xe606;</span>
+                pwn
             </span>
         
             <span class="sidebar-tag-name" data-tags="fastbin doule free">
