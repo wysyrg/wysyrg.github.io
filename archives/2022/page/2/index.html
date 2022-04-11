@@ -428,6 +428,46 @@
             
         
         <article class="index-post">
+            <a class="abstract-title" href="/2022/01/12/write%20some%20paper/">
+                
+                <span class="abstract-title-text">write some paper</span>
+            </a>
+            <div class="abstract-content">
+                Write some paper
+参考链接：https://xuanxuanblingbling.github.io/ctf/pwn/2020/02/02/paper/
+
+首先检查程序：
+IDA分析发现delete函数中free后，并没有清空link_list数组中的地址，存在use-after-free漏洞
+1234567891011int delete_paper()&#123;  int v1; // [rsp+Ch] [rbp-4h] BYREF  printf(&quot;which paper you want to delete,please enter it&#x27;s...
+            </div>
+            <!-- read more -->
+            
+            <div class="abstract-post-meta">
+                <!-- date -->
+                <div class="abstract-date" title="Last updated: 2022/01/15">
+                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2022/01/12</span>
+                </div>
+                <!-- tags -->
+                
+                    <div class= abstract-tags >
+    
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags="fastbin doule free">fastbin doule free</a>
+    
+</div>
+
+                
+            </div>
+        </article>
+        <div class="index-post-divider"></div>
+    
+        
+        
+        
+        
+            
+        
+        <article class="index-post">
             <a class="abstract-title" href="/2022/01/09/fastbin_attack/">
                 
                 <span class="abstract-title-text">fastbin_attack</span>
@@ -741,45 +781,6 @@ unlink源码12345678910111213141516171819202122232425262728293031323334353637383
         </article>
         <div class="index-post-divider"></div>
     
-        
-        
-        
-        
-            
-        
-        <article class="index-post">
-            <a class="abstract-title" href="/2022/01/08/lab2%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A/">
-                
-                <span class="abstract-title-text">lab2 实验报告</span>
-            </a>
-            <div class="abstract-content">
-                lab2实验报告练习1：实现 first-fit 连续物理内存分配算法先熟悉两个数据结构:
-
-每一个物理页的属性结构:
-
-123456struct Page &#123;    int ref;                        // page frame&#x27;s reference counter    uint32_t flags;                 // array of flags that describe the status of the page frame    unsigned int property;          // the...
-            </div>
-            <!-- read more -->
-            
-            <div class="abstract-post-meta">
-                <!-- date -->
-                <div class="abstract-date" title="Last updated: 2021/09/29">
-                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2022/01/08</span>
-                </div>
-                <!-- tags -->
-                
-                    <div class= abstract-tags >
-    
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags="os">os</a>
-    
-</div>
-
-                
-            </div>
-        </article>
-        <div class="index-post-divider"></div>
-    
     <!-- paginator  -->
     
         <nav class="page-nav">
@@ -990,7 +991,22 @@ unlink源码12345678910111213141516171819202122232425262728293031323334353637383
         
         
         
+        
+        
+        
+        
+        
     
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
         
         
         
@@ -1141,7 +1157,7 @@ unlink源码12345678910111213141516171819202122232425262728293031323334353637383
     
     <div class="total-and-search">
         <div class="total-archive">
-        Total : 22
+        Total : 23
         </div>
         <!-- search  -->
         
@@ -1155,6 +1171,12 @@ unlink源码12345678910111213141516171819202122232425262728293031323334353637383
             <div class="archive-year"> 2022 </div>
             <ul class="year-list">
             
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/08</span>
+            <a class="archive-post-title" href="/2022/04/08/tcache/">tcache</a>
+        </li>
+    
         
         <li class="archive-post-item">
             <span class="archive-post-date">04/07</span>

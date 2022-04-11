@@ -428,6 +428,36 @@
             
         
         <article class="index-post">
+            <a class="abstract-title" href="/2022/04/08/tcache/">
+                
+                <span class="abstract-title-text">tcache</span>
+            </a>
+            <div class="abstract-content">
+                TCache机制TCache全名为Thread Local Caching，它为每个线程创建一个缓存，里面包含了一些小堆块，无须对arena上锁即可使用，这种无锁的分配算法能有不错的性能提升，但也引入了更多的不安全性,让之前很多的代码检查都不再起作用，可以很好的绕过，libc-2.26正式引入该机制，并默认开启。
+数据结构glibc在编译时使用USE_TCACHE条件来开启tcache机制，并定
+义了下面这些宏。
+123456789101112131415161718192021222324252627#if USE_TCACHE/* We want 64 entries.  This ...
+            </div>
+            <!-- read more -->
+            
+            <div class="abstract-post-meta">
+                <!-- date -->
+                <div class="abstract-date" title="Last updated: 2022/04/10">
+                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2022/04/08</span>
+                </div>
+                <!-- tags -->
+                
+            </div>
+        </article>
+        <div class="index-post-divider"></div>
+    
+        
+        
+        
+        
+            
+        
+        <article class="index-post">
             <a class="abstract-title" href="/2022/04/07/libc-2.26/">
                 
                 <span class="abstract-title-text">libc 2.26</span>
@@ -724,46 +754,6 @@ IDA静态分析main 函数调用的是sub_400A8E()的主程序部分
         </article>
         <div class="index-post-divider"></div>
     
-        
-        
-        
-        
-            
-        
-        <article class="index-post">
-            <a class="abstract-title" href="/2022/01/12/write%20some%20paper/">
-                
-                <span class="abstract-title-text">write some paper</span>
-            </a>
-            <div class="abstract-content">
-                Write some paper
-参考链接：https://xuanxuanblingbling.github.io/ctf/pwn/2020/02/02/paper/
-
-首先检查程序：
-IDA分析发现delete函数中free后，并没有清空link_list数组中的地址，存在use-after-free漏洞
-1234567891011int delete_paper()&#123;  int v1; // [rsp+Ch] [rbp-4h] BYREF  printf(&quot;which paper you want to delete,please enter it&#x27;s...
-            </div>
-            <!-- read more -->
-            
-            <div class="abstract-post-meta">
-                <!-- date -->
-                <div class="abstract-date" title="Last updated: 2022/01/15">
-                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2022/01/12</span>
-                </div>
-                <!-- tags -->
-                
-                    <div class= abstract-tags >
-    
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags="fastbin doule free">fastbin doule free</a>
-    
-</div>
-
-                
-            </div>
-        </article>
-        <div class="index-post-divider"></div>
-    
     <!-- paginator  -->
     
         <nav class="page-nav">
@@ -974,7 +964,22 @@ IDA分析发现delete函数中free后，并没有清空link_list数组中的地�
         
         
         
+        
+        
+        
+        
+        
     
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
         
         
         
@@ -1125,7 +1130,7 @@ IDA分析发现delete函数中free后，并没有清空link_list数组中的地�
     
     <div class="total-and-search">
         <div class="total-archive">
-        Total : 22
+        Total : 23
         </div>
         <!-- search  -->
         
@@ -1139,6 +1144,12 @@ IDA分析发现delete函数中free后，并没有清空link_list数组中的地�
             <div class="archive-year"> 2022 </div>
             <ul class="year-list">
             
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/08</span>
+            <a class="archive-post-title" href="/2022/04/08/tcache/">tcache</a>
+        </li>
+    
         
         <li class="archive-post-item">
             <span class="archive-post-date">04/07</span>
