@@ -21,34 +21,34 @@
     <meta name="description" content="">
     <meta name="description" content="保护检查 IDA分析main函数1234567891011121314151617181920212223242526272829303132333435363738void __fastcall __noreturn main(__int64 a1, char **a2, char **a3)&amp;#123;  int v3; &#x2F;&#x2F; eax  sub_A3A(a1, a2, a3);  qword_">
 <meta property="og:type" content="article">
-<meta property="og:title" content="LCTF2018 PWN easy_heap">
+<meta property="og:title" content="LCTF easy_heap">
 <meta property="og:url" content="http://example.com/2022/04/17/LCTF2018%20PWN%20easy_heap/index.html">
 <meta property="og:site_name" content="Hexo">
 <meta property="og:description" content="保护检查 IDA分析main函数1234567891011121314151617181920212223242526272829303132333435363738void __fastcall __noreturn main(__int64 a1, char **a2, char **a3)&amp;#123;  int v3; &#x2F;&#x2F; eax  sub_A3A(a1, a2, a3);  qword_">
 <meta property="og:locale" content="en_US">
-<meta property="og:image" content="c:/Users/wqf/AppData/Roaming/Typora/typora-user-images/image-20220410171957005.png">
-<meta property="og:image" content="c:/Users/wqf/AppData/Roaming/Typora/typora-user-images/image-20220417164252755.png">
-<meta property="og:image" content="c:/Users/wqf/AppData/Roaming/Typora/typora-user-images/image-20220417164454692.png">
-<meta property="og:image" content="c:/Users/wqf/AppData/Roaming/Typora/typora-user-images/image-20220417171034413.png">
-<meta property="og:image" content="c:/Users/wqf/AppData/Roaming/Typora/typora-user-images/image-20220417173145708.png">
-<meta property="og:image" content="c:/Users/wqf/AppData/Roaming/Typora/typora-user-images/image-20220417174927149.png">
-<meta property="og:image" content="c:/Users/wqf/AppData/Roaming/Typora/typora-user-images/image-20220417175022665.png">
-<meta property="og:image" content="c:/Users/wqf/AppData/Roaming/Typora/typora-user-images/image-20220417175150515.png">
-<meta property="og:image" content="c:/Users/wqf/AppData/Roaming/Typora/typora-user-images/image-20220417182515721.png">
-<meta property="og:image" content="c:/Users/wqf/AppData/Roaming/Typora/typora-user-images/image-20220417183609892.png">
-<meta property="og:image" content="c:/Users/wqf/AppData/Roaming/Typora/typora-user-images/image-20220417202118160.png">
-<meta property="og:image" content="c:/Users/wqf/AppData/Roaming/Typora/typora-user-images/image-20220417202707991.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204172053214.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204172053216.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204172053217.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204172053218.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204172053219.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204172053220.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204172053221.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204172053222.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204172053223.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204172053224.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204172053225.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204172053226.png">
 <meta property="article:published_time" content="2022-04-17T07:57:44.204Z">
-<meta property="article:modified_time" content="2022-04-17T12:52:11.220Z">
+<meta property="article:modified_time" content="2022-04-17T12:55:04.261Z">
 <meta property="article:author" content="John Doe">
 <meta property="article:tag" content="tcache">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="c:/Users/wqf/AppData/Roaming/Typora/typora-user-images/image-20220410171957005.png">
+<meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204172053214.png">
     <meta http-equiv="Cache-control" content="no-cache">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <link rel="icon" href="/assets/favicon.ico">
     
-    <title>LCTF2018 PWN easy_heap · 渐渐的博客</title>
+    <title>LCTF easy_heap · 渐渐的博客</title>
     <!-- /*! loadCSS. [c]2017 Filament Group, Inc. MIT License */
 /* This file is meant as a standalone workflow for
 - testing support for link[rel=preload]
@@ -273,7 +273,7 @@
                 <a href="/">渐渐的博客</a>
             </div>
             <div class="post-title header-element">
-                <a href="#" class="post-name">LCTF2018 PWN easy_heap</a>
+                <a href="#" class="post-name">LCTF easy_heap</a>
             </div>
         </div>
     
@@ -319,7 +319,7 @@
         <h1 class="intro-title">
             <!-- 主页  -->
             
-                LCTF2018 PWN easy_heap
+                LCTF easy_heap
             <!-- 404 -->
             
         </h1>
@@ -507,7 +507,7 @@
             <div class="container container-unloaded">
                 <main class="main post-page">
     <article class="article-entry">
-        <h3 id="保护检查"><a href="#保护检查" class="headerlink" title="保护检查"></a>保护检查</h3><p><img src="C:\Users\wqf\AppData\Roaming\Typora\typora-user-images\image-20220410171957005.png" alt="image-20220410171957005"></p>
+        <h3 id="保护检查"><a href="#保护检查" class="headerlink" title="保护检查"></a>保护检查</h3><p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204172053214.png" alt="image-20220410171957005"></p>
 <h3 id="IDA分析"><a href="#IDA分析" class="headerlink" title="IDA分析"></a>IDA分析</h3><h4 id="main函数"><a href="#main函数" class="headerlink" title="main函数"></a>main函数</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> __fastcall __noreturn <span class="title">main</span><span class="params">(__int64 a1, <span class="keyword">char</span> **a2, <span class="keyword">char</span> **a3)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">int</span> v3; <span class="comment">// eax</span></span><br><span class="line"></span><br><span class="line">  sub_A3A(a1, a2, a3);</span><br><span class="line">  qword_202050 = <span class="built_in">calloc</span>(<span class="number">0xA0</span>uLL, <span class="number">1uLL</span>);</span><br><span class="line">  <span class="keyword">if</span> ( !qword_202050 )</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">&quot;init error!&quot;</span>);</span><br><span class="line">    sub_BBF();</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">while</span> ( <span class="number">1</span> )</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="keyword">while</span> ( <span class="number">1</span> )</span><br><span class="line">    &#123;</span><br><span class="line">      menu();</span><br><span class="line">      v3 = sub_CAD();</span><br><span class="line">      <span class="keyword">if</span> ( v3 != <span class="number">2</span> )</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">      del();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> ( v3 &gt; <span class="number">2</span> )</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="keyword">if</span> ( v3 == <span class="number">3</span> )</span><br><span class="line">      &#123;</span><br><span class="line">        show();</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">else</span> <span class="keyword">if</span> ( v3 == <span class="number">4</span> )</span><br><span class="line">      &#123;</span><br><span class="line">        sub_BBF();</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span> ( v3 == <span class="number">1</span> )</span><br><span class="line">    &#123;</span><br><span class="line">      add();</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>首先调用calloc()函数创建一个size为<code>0xb0</code>大小的chunk，并将其malloc指针赋给存放在<code>.bss</code>段的<code>tk</code>全局变量。</p>
@@ -557,8 +557,8 @@
 <td>0x560d334f0c00</td>
 </tr>
 </tbody></table>
-<p><img src="C:\Users\wqf\AppData\Roaming\Typora\typora-user-images\image-20220417164252755.png" alt="image-20220417164252755"></p>
-<p><img src="C:\Users\wqf\AppData\Roaming\Typora\typora-user-images\image-20220417164454692.png" alt="image-20220417164454692"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204172053216.png" alt="image-20220417164252755"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204172053217.png" alt="image-20220417164454692"></p>
 <h4 id="null-byte-overflow漏洞覆盖inuse标志位"><a href="#null-byte-overflow漏洞覆盖inuse标志位" class="headerlink" title="null-byte-overflow漏洞覆盖inuse标志位"></a>null-byte-overflow漏洞覆盖inuse标志位</h4><p>现在我们已经写好了0x560d334f0b00的prev_size，接下来需要做的就是覆盖其inuse位了，那么既然要覆盖，就需要重新启用bin中的堆块，这里需要注意的是bin中如果tcache bin中有满足需求的空闲块，则优先在tcache中分配。所以我们需要首先申请7个chunk将tcache清空，但是这里还需要注意的是tcache中堆块被拿出的顺序，由于在之前为了防止chunk6、chunk7、chunk8被top chunk合并，所以最后释放进tcache bin中的堆块为chunk9，那么由于tcache的LIFO先进后出的分配机制，所以首先被分配的应该是chunk9，所以在分配7chunk后表格中的位置对应地址为：</p>
 <table>
 <thead>
@@ -625,9 +625,9 @@
 <li>第三个原因是防止接下来释放的chunk7与top chunk合并</li>
 </ul>
 <p>释放chunk7</p>
-<p><img src="C:\Users\wqf\AppData\Roaming\Typora\typora-user-images\image-20220417171034413.png" alt="image-20220417171034413"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204172053218.png" alt="image-20220417171034413"></p>
 <p>重新申请chunk8，对chunk9的inuse标志位进行覆盖：</p>
-<p><img src="C:\Users\wqf\AppData\Roaming\Typora\typora-user-images\image-20220417173145708.png" alt="image-20220417173145708"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204172053219.png" alt="image-20220417173145708"></p>
 <p>此时各个chunk的对应情况为：</p>
 <table>
 <thead>
@@ -661,11 +661,11 @@
 <p>此时chunk7的fd和bk指向的unsorted bin，如果这个时候将chunk7分配走，那么物理相邻的chunk0就会被认为是已分割后剩余堆块的头部，那么这个时候chunk0的fd指针和bk指针就会指向unsorted bin。</p>
 <p>这样一来chunk0虽然是使用状态，这样一来我们就可以调用程序自身的输出函数输出chunk0，连带着就会将unsorted bin地址输出出来</p>
 <h4 id="泄露unsorted-bin地址"><a href="#泄露unsorted-bin地址" class="headerlink" title="泄露unsorted bin地址"></a>泄露unsorted bin地址</h4><p>我们首先释放chunk 6，填满tcache</p>
-<p><img src="C:\Users\wqf\AppData\Roaming\Typora\typora-user-images\image-20220417174927149.png" alt="image-20220417174927149"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204172053220.png" alt="image-20220417174927149"></p>
 <p>然后释放chunk 9，chunk7 chunk0和chunk9合并，由于tcache 填满，所以合并后的块会放入unsorted bin 中</p>
-<p><img src="C:\Users\wqf\AppData\Roaming\Typora\typora-user-images\image-20220417175022665.png" alt="image-20220417175022665"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204172053221.png" alt="image-20220417175022665"></p>
 <p>接下来，将tcache清空</p>
-<p><img src="C:\Users\wqf\AppData\Roaming\Typora\typora-user-images\image-20220417175150515.png" alt="image-20220417175150515"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204172053222.png" alt="image-20220417175150515"></p>
 <p>此时各个chunk的对应情况为</p>
 <table>
 <thead>
@@ -696,7 +696,7 @@
 </tr>
 </tbody></table>
 <p>此时申请一个chunk 即从unsorted bin中切割一块，并放到chunk 8处，之前0x560d334f0900处的的fd和bk指向的unsorted bin，切割后0x560d334f0a00 的fd和bk指向unsorted bin，那么我们打印chunk0（0x560d334f0a00  ）即可泄露基址</p>
-<p><img src="C:\Users\wqf\AppData\Roaming\Typora\typora-user-images\image-20220417182515721.png" alt="image-20220417182515721"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204172053223.png" alt="image-20220417182515721"></p>
 <p>此时各个chunk的对应情况为：</p>
 <table>
 <thead>
@@ -758,7 +758,7 @@
 </tbody></table>
 <p>那么此时chunk0和chunk9中存放的都是<code>0x560d334f0a00</code>，那么这种情况我们可以利用Double Free！</p>
 <p>但是这里还需要注意的是tcache虽然对链表中的检查不够严格，但也并不是一点都不检查。还是会对链接tcache bin的堆块做完整性检查的，所以我们需要先将chunk1释放进tcache，为chunk0和chunk9做检查绕过，此时tcache中的情况为：</p>
-<p><img src="C:\Users\wqf\AppData\Roaming\Typora\typora-user-images\image-20220417183609892.png" alt="image-20220417183609892"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204172053224.png" alt="image-20220417183609892"></p>
 <p>可以看到释放两次<code>0x560d334f0a00</code>之后，bin中的空闲块数量还是3，但是只显示了<code>0x560d334f0a00</code>这一个地址。这是因为<code>0x560d334f0a00</code>被释放两次之后其fd指针将会指向自己的data区域地址，这就形成了闭环，导致bin中显示的情况也是自己指向自己。</p>
 <p>此时各个chunk的对应情况为：</p>
 <table>
@@ -790,9 +790,9 @@
 </tr>
 </tbody></table>
 <p>接下来我们重新申请一个堆块，这时重启的是第二次释放的<code>0x560d334f0a00</code>即tcache3。我们在申请堆块的同时将内容填写成<code>free_hook</code>的地址</p>
-<p><img src="C:\Users\wqf\AppData\Roaming\Typora\typora-user-images\image-20220417202118160.png" alt="image-20220417202118160"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204172053225.png" alt="image-20220417202118160"></p>
 <p>接下来申请第一次释放的<code>0x560d334f0a00</code>即tcache2，现在tcache中只剩余free_hook，然后再次申请就申请出了free_hook,并向其中写入one_gadget</p>
-<p><img src="C:\Users\wqf\AppData\Roaming\Typora\typora-user-images\image-20220417202707991.png" alt="image-20220417202707991"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204172053226.png" alt="image-20220417202707991"></p>
 <p>此时各个chunk的对应情况为：</p>
 <table>
 <thead>
@@ -1291,7 +1291,7 @@
         
         <li class="archive-post-item">
             <span class="archive-post-date">04/17</span>
-            <a class="archive-post-title" href="/2022/04/17/LCTF2018%20PWN%20easy_heap/">LCTF2018 PWN easy_heap</a>
+            <a class="archive-post-title" href="/2022/04/17/LCTF2018%20PWN%20easy_heap/">LCTF easy_heap</a>
         </li>
     
         
