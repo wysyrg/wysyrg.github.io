@@ -39,7 +39,7 @@
 <meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204172053225.png">
 <meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204172053226.png">
 <meta property="article:published_time" content="2022-04-17T07:57:44.204Z">
-<meta property="article:modified_time" content="2022-04-17T13:34:40.484Z">
+<meta property="article:modified_time" content="2022-04-17T13:40:03.691Z">
 <meta property="article:author" content="John Doe">
 <meta property="article:tag" content="tcache">
 <meta name="twitter:card" content="summary">
@@ -536,39 +536,39 @@
 <table>
 <thead>
 <tr>
-<th align="center">chunk0</th>
-<th align="center">chunk1</th>
-<th align="center">chunk2</th>
-<th align="center">chunk3</th>
+<th align="center"><strong>chunk0</strong></th>
+<th align="center"><strong>chunk1</strong></th>
+<th align="center"><strong>chunk2</strong></th>
+<th align="center"><strong>chunk3</strong></th>
 </tr>
 </thead>
 <tbody><tr>
-<td align="center">0x560d334f0300</td>
-<td align="center">0x560d334f0400</td>
-<td align="center">0x560d334f0500</td>
-<td align="center">0x560d334f0600</td>
+<td align="center"><strong>0x560d334f0300</strong></td>
+<td align="center"><strong>0x560d334f0400</strong></td>
+<td align="center"><strong>0x560d334f0500</strong></td>
+<td align="center"><strong>0x560d334f0600</strong></td>
 </tr>
 <tr>
-<td align="center">chunk4</td>
-<td align="center">chunk5</td>
-<td align="center">chunk6</td>
-<td align="center">chunk7</td>
+<td align="center"><strong>chunk4</strong></td>
+<td align="center"><strong>chunk5</strong></td>
+<td align="center"><strong>chunk6</strong></td>
+<td align="center"><strong>chunk7</strong></td>
 </tr>
 <tr>
-<td align="center">0x560d334f0700</td>
-<td align="center">0x560d334f0800</td>
-<td align="center">0x560d334f0900</td>
-<td align="center">0x560d334f0a00</td>
+<td align="center"><strong>0x560d334f0700</strong></td>
+<td align="center"><strong>0x560d334f0800</strong></td>
+<td align="center"><strong>0x560d334f0900</strong></td>
+<td align="center"><strong>0x560d334f0a00</strong></td>
 </tr>
 <tr>
-<td align="center">chunk8</td>
-<td align="center">chunk9</td>
+<td align="center"><strong>chunk8</strong></td>
+<td align="center"><strong>chunk9</strong></td>
 <td align="center"></td>
 <td align="center"></td>
 </tr>
 <tr>
-<td align="center">0x560d334f0b00</td>
-<td align="center">0x560d334f0c00</td>
+<td align="center"><strong>0x560d334f0b00</strong></td>
+<td align="center"><strong>0x560d334f0c00</strong></td>
 <td align="center"></td>
 <td align="center"></td>
 </tr>
@@ -579,82 +579,82 @@
 <table>
 <thead>
 <tr>
-<th>chunk0</th>
-<th>chunk1</th>
-<th>chunk2</th>
-<th>chunk3</th>
+<th align="center"><strong>chunk0</strong></th>
+<th align="center"><strong>chunk1</strong></th>
+<th align="center"><strong>chunk2</strong></th>
+<th align="center"><strong>chunk3</strong></th>
 </tr>
 </thead>
 <tbody><tr>
-<td>0x560d334f0c00</td>
-<td>0x560d334f0800</td>
-<td>0x560d334f0700</td>
-<td>0x560d334f0600</td>
+<td align="center"><strong>0x560d334f0c00</strong></td>
+<td align="center"><strong>0x560d334f0800</strong></td>
+<td align="center"><strong>0x560d334f0700</strong></td>
+<td align="center"><strong>0x560d334f0600</strong></td>
 </tr>
 <tr>
-<td>chunk4</td>
-<td>chunk5</td>
-<td>chunk6</td>
-<td>chunk7</td>
+<td align="center"><strong>chunk4</strong></td>
+<td align="center"><strong>chunk5</strong></td>
+<td align="center"><strong>chunk6</strong></td>
+<td align="center"><strong>chunk7</strong></td>
 </tr>
 <tr>
-<td>0x560d334f0500</td>
-<td>0x560d334f0400</td>
-<td>0x560d334f0300</td>
-<td>unsored bin</td>
+<td align="center"><strong>0x560d334f0500</strong></td>
+<td align="center"><strong>0x560d334f0400</strong></td>
+<td align="center"><strong>0x560d334f0300</strong></td>
+<td align="center"><strong>空</strong></td>
 </tr>
 <tr>
-<td>chunk8</td>
-<td>chunk9</td>
-<td></td>
-<td></td>
+<td align="center"><strong>chunk8</strong></td>
+<td align="center"><strong>chunk9</strong></td>
+<td align="center"></td>
+<td align="center"></td>
 </tr>
 <tr>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
+<td align="center"><strong>空</strong></td>
+<td align="center"><strong>空</strong></td>
+<td align="center"></td>
+<td align="center"></td>
 </tr>
 </tbody></table>
 <p>我们再去申请chunk的话就，就会直接从unsorted bin中分割了。</p>
 <table>
 <thead>
 <tr>
-<th>chunk0</th>
-<th>chunk1</th>
-<th>chunk2</th>
-<th>chunk3</th>
+<th align="center">chunk0</th>
+<th align="center">chunk1</th>
+<th align="center">chunk2</th>
+<th align="center">chunk3</th>
 </tr>
 </thead>
 <tbody><tr>
-<td>0x560d334f0c00</td>
-<td>0x560d334f0800</td>
-<td>0x560d334f0700</td>
-<td>0x560d334f0600</td>
+<td align="center"><strong>0x560d334f0c00</strong></td>
+<td align="center"><strong>0x560d334f0800</strong></td>
+<td align="center"><strong>0x560d334f0700</strong></td>
+<td align="center"><strong>0x560d334f0600</strong></td>
 </tr>
 <tr>
-<td>chunk4</td>
-<td>chunk5</td>
-<td>chunk6</td>
-<td>chunk7</td>
+<td align="center"><strong>chunk4</strong></td>
+<td align="center"><strong>chunk5</strong></td>
+<td align="center"><strong>chunk6</strong></td>
+<td align="center"><strong>chunk7</strong></td>
 </tr>
 <tr>
-<td>0x560d334f0500</td>
-<td>0x560d334f0400</td>
-<td>0x560d334f0300</td>
-<td>0x560d334f0900</td>
+<td align="center"><strong>0x560d334f0500</strong></td>
+<td align="center"><strong>0x560d334f0400</strong></td>
+<td align="center"><strong>0x560d334f0300</strong></td>
+<td align="center"><strong>0x560d334f0900</strong></td>
 </tr>
 <tr>
-<td>chunk8</td>
-<td>chunk9</td>
-<td></td>
-<td></td>
+<td align="center"><strong>chunk8</strong></td>
+<td align="center"><strong>chunk9</strong></td>
+<td align="center"></td>
+<td align="center"></td>
 </tr>
 <tr>
-<td>0x560d334f0a00</td>
-<td>0x560d334f0b00</td>
-<td></td>
-<td></td>
+<td align="center"><strong>0x560d334f0a00</strong></td>
+<td align="center"><strong>0x560d334f0b00</strong></td>
+<td align="center"></td>
+<td align="center"></td>
 </tr>
 </tbody></table>
 <p>所以接下来我们还需要倒一次bin，依然还是先释放chunk0 - chunk5，不过这里单释放的是chunk8</p>
@@ -672,41 +672,41 @@
 <table>
 <thead>
 <tr>
-<th>chunk0</th>
-<th>chunk1</th>
-<th>chunk2</th>
-<th>chunk3</th>
+<th align="center"><strong>chunk0</strong></th>
+<th align="center"><strong>chunk1</strong></th>
+<th align="center"><strong>chunk2</strong></th>
+<th align="center"><strong>chunk3</strong></th>
 </tr>
 </thead>
 <tbody><tr>
-<td>0x560d334f0a00</td>
-<td>tcache</td>
-<td>tcache</td>
-<td>tcache</td>
+<td align="center"><strong>0x560d334f0a00</strong></td>
+<td align="center"><strong>tcache</strong></td>
+<td align="center"><strong>tcache</strong></td>
+<td align="center"><strong>tcache</strong></td>
 </tr>
 <tr>
-<td>chunk4</td>
-<td>chunk5</td>
-<td>chunk6</td>
-<td>chunk7</td>
+<td align="center"><strong>chunk4</strong></td>
+<td align="center"><strong>chunk5</strong></td>
+<td align="center"><strong>chunk6</strong></td>
+<td align="center"><strong>chunk7</strong></td>
 </tr>
 <tr>
-<td>tcache</td>
-<td>tcache</td>
-<td>0x560d334f0300</td>
-<td>unsorted bin</td>
+<td align="center"><strong>tcache</strong></td>
+<td align="center"><strong>tcache</strong></td>
+<td align="center"><strong>0x560d334f0300</strong></td>
+<td align="center"><strong>unsorted bin</strong></td>
 </tr>
 <tr>
-<td>chunk8</td>
-<td>chunk9</td>
-<td></td>
-<td></td>
+<td align="center"><strong>chunk8</strong></td>
+<td align="center"><strong>chunk9</strong></td>
+<td align="center"></td>
+<td align="center"></td>
 </tr>
 <tr>
-<td>空</td>
-<td>0x560d334f0b00</td>
-<td></td>
-<td></td>
+<td align="center"><strong>空</strong></td>
+<td align="center"><strong>0x560d334f0b00</strong></td>
+<td align="center"></td>
+<td align="center"></td>
 </tr>
 </tbody></table>
 <p>由于我们修改了chunk9的inuse标志位，且chunk0是chunk9物理相邻的前一个chunk，所以即使chunk0处于使用状态，但现在被chunk9强迫标志为被释放堆块。那么如果将chunk9释放后挂进unsorted bin中，那么chunk7、chunk0、chunk9还是会被认为是连续释放进unsorted bin之后合并的大块。</p>
@@ -722,41 +722,41 @@
 <table>
 <thead>
 <tr>
-<th>chunk0</th>
-<th>chunk1</th>
-<th>chunk2</th>
-<th>chunk3</th>
+<th align="center"><strong>chunk0</strong></th>
+<th align="center"><strong>chunk1</strong></th>
+<th align="center"><strong>chunk2</strong></th>
+<th align="center"><strong>chunk3</strong></th>
 </tr>
 </thead>
 <tbody><tr>
-<td>0x560d334f0a00</td>
-<td>0x560d334f0300</td>
-<td>0x560d334f0400</td>
-<td>0x560d334f0500</td>
+<td align="center"><strong>0x560d334f0a00</strong></td>
+<td align="center"><strong>0x560d334f0300</strong></td>
+<td align="center"><strong>0x560d334f0400</strong></td>
+<td align="center"><strong>0x560d334f0500</strong></td>
 </tr>
 <tr>
-<td>chunk4</td>
-<td>chunk5</td>
-<td>chunk6</td>
-<td>chunk7</td>
+<td align="center"><strong>chunk4</strong></td>
+<td align="center"><strong>chunk5</strong></td>
+<td align="center"><strong>chunk6</strong></td>
+<td align="center"><strong>chunk7</strong></td>
 </tr>
 <tr>
-<td>0x560d334f0600</td>
-<td>0x560d334f0700</td>
-<td>0x560d334f0800</td>
-<td>0x560d334f0c00</td>
+<td align="center"><strong>0x560d334f0600</strong></td>
+<td align="center"><strong>0x560d334f0700</strong></td>
+<td align="center"><strong>0x560d334f0800</strong></td>
+<td align="center"><strong>0x560d334f0c00</strong></td>
 </tr>
 <tr>
-<td>chunk8</td>
-<td>chunk9</td>
-<td></td>
-<td></td>
+<td align="center"><strong>chunk8</strong></td>
+<td align="center"><strong>chunk9</strong></td>
+<td align="center"></td>
+<td align="center"></td>
 </tr>
 <tr>
-<td>空</td>
-<td>unsorted</td>
-<td></td>
-<td></td>
+<td align="center"><strong>空</strong></td>
+<td align="center"><strong>unsorted</strong></td>
+<td align="center"></td>
+<td align="center"></td>
 </tr>
 </tbody></table>
 <p>此时申请一个chunk 即从unsorted bin中切割一块，并放到chunk 8处，之前0x560d334f0900处的的fd和bk指向的unsorted bin，切割后0x560d334f0a00 的fd和bk指向unsorted bin，那么我们打印chunk0（0x560d334f0a00  ）即可泄露基址</p>
@@ -765,41 +765,41 @@
 <table>
 <thead>
 <tr>
-<th>chunk0</th>
-<th>chunk1</th>
-<th>chunk2</th>
-<th>chunk3</th>
+<th align="center"><strong>chunk0</strong></th>
+<th align="center"><strong>chunk1</strong></th>
+<th align="center"><strong>chunk2</strong></th>
+<th align="center"><strong>chunk3</strong></th>
 </tr>
 </thead>
 <tbody><tr>
-<td>0x560d334f0a00</td>
-<td>0x560d334f0300</td>
-<td>0x560d334f0400</td>
-<td>0x560d334f0500</td>
+<td align="center"><strong>0x560d334f0a00</strong></td>
+<td align="center"><strong>0x560d334f0300</strong></td>
+<td align="center"><strong>0x560d334f0400</strong></td>
+<td align="center"><strong>0x560d334f0500</strong></td>
 </tr>
 <tr>
-<td>chunk4</td>
-<td>chunk5</td>
-<td>chunk6</td>
-<td>chunk7</td>
+<td align="center"><strong>chunk4</strong></td>
+<td align="center"><strong>chunk5</strong></td>
+<td align="center"><strong>chunk6</strong></td>
+<td align="center"><strong>chunk7</strong></td>
 </tr>
 <tr>
-<td>0x560d334f0600</td>
-<td>0x560d334f0700</td>
-<td>0x560d334f0800</td>
-<td>0x560d334f0c00</td>
+<td align="center"><strong>0x560d334f0600</strong></td>
+<td align="center"><strong>0x560d334f0700</strong></td>
+<td align="center"><strong>0x560d334f0800</strong></td>
+<td align="center"><strong>0x560d334f0c00</strong></td>
 </tr>
 <tr>
-<td>chunk8</td>
-<td>chunk9</td>
-<td></td>
-<td></td>
+<td align="center"><strong>chunk8</strong></td>
+<td align="center"><strong>chunk9</strong></td>
+<td align="center"></td>
+<td align="center"></td>
 </tr>
 <tr>
-<td>0x560d334f0900</td>
-<td>unsorted</td>
-<td></td>
-<td></td>
+<td align="center"><strong>0x560d334f0900</strong></td>
+<td align="center"><strong>unsorted</strong></td>
+<td align="center"></td>
+<td align="center"></td>
 </tr>
 </tbody></table>
 <h4 id="构建Double-Free，将free-hook挂进tcache-bin"><a href="#构建Double-Free，将free-hook挂进tcache-bin" class="headerlink" title="构建Double Free，将free_hook挂进tcache bin"></a>构建Double Free，将free_hook挂进tcache bin</h4><p>如果再去申请一个堆块的话，就会从unsorted bin中的合并堆块分割，即<code>0x560d334f0a00</code>不仅会存放进chunk0，还会存放进chunk9：</p>
@@ -807,41 +807,41 @@
 <table>
 <thead>
 <tr>
-<th>chunk0</th>
-<th>chunk1</th>
-<th>chunk2</th>
-<th>chunk3</th>
+<th align="center"><strong>chunk0</strong></th>
+<th align="center"><strong>chunk1</strong></th>
+<th align="center"><strong>chunk2</strong></th>
+<th align="center"><strong>chunk3</strong></th>
 </tr>
 </thead>
 <tbody><tr>
-<td>0x560d334f0a00</td>
-<td>0x560d334f0300</td>
-<td>0x560d334f0400</td>
-<td>0x560d334f0500</td>
+<td align="center"><strong>0x560d334f0a00</strong></td>
+<td align="center"><strong>0x560d334f0300</strong></td>
+<td align="center"><strong>0x560d334f0400</strong></td>
+<td align="center"><strong>0x560d334f0500</strong></td>
 </tr>
 <tr>
-<td>chunk4</td>
-<td>chunk5</td>
-<td>chunk6</td>
-<td>chunk7</td>
+<td align="center"><strong>chunk4</strong></td>
+<td align="center"><strong>chunk5</strong></td>
+<td align="center"><strong>chunk6</strong></td>
+<td align="center"><strong>chunk7</strong></td>
 </tr>
 <tr>
-<td>0x560d334f0600</td>
-<td>0x560d334f0700</td>
-<td>0x560d334f0800</td>
-<td>0x560d334f0c00</td>
+<td align="center"><strong>0x560d334f0600</strong></td>
+<td align="center"><strong>0x560d334f0700</strong></td>
+<td align="center"><strong>0x560d334f0800</strong></td>
+<td align="center"><strong>0x560d334f0c00</strong></td>
 </tr>
 <tr>
-<td>chunk8</td>
-<td>chunk9</td>
-<td></td>
-<td></td>
+<td align="center"><strong>chunk8</strong></td>
+<td align="center"><strong>chunk9</strong></td>
+<td align="center"></td>
+<td align="center"></td>
 </tr>
 <tr>
-<td>0x560d334f0900</td>
-<td>0x560d334f0a00</td>
-<td></td>
-<td></td>
+<td align="center"><strong>0x560d334f0900</strong></td>
+<td align="center"><strong>0x560d334f0a00</strong></td>
+<td align="center"></td>
+<td align="center"></td>
 </tr>
 </tbody></table>
 <p>那么此时chunk0和chunk9中存放的都是<code>0x560d334f0a00</code>，那么这种情况我们可以利用Double Free！</p>
@@ -852,41 +852,41 @@
 <table>
 <thead>
 <tr>
-<th>chunk0</th>
-<th>chunk1</th>
-<th>chunk2</th>
-<th>chunk3</th>
+<th align="center"><strong>chunk0</strong></th>
+<th align="center"><strong>chunk1</strong></th>
+<th align="center"><strong>chunk2</strong></th>
+<th align="center"><strong>chunk3</strong></th>
 </tr>
 </thead>
 <tbody><tr>
-<td>tcache2</td>
-<td>tcache1</td>
-<td>0x560d334f0400</td>
-<td>0x560d334f0500</td>
+<td align="center"><strong>tcache2</strong></td>
+<td align="center"><strong>tcache1</strong></td>
+<td align="center"><strong>0x560d334f0400</strong></td>
+<td align="center"><strong>0x560d334f0500</strong></td>
 </tr>
 <tr>
-<td>chunk4</td>
-<td>chunk5</td>
-<td>chunk6</td>
-<td>chunk7</td>
+<td align="center"><strong>chunk4</strong></td>
+<td align="center"><strong>chunk5</strong></td>
+<td align="center"><strong>chunk6</strong></td>
+<td align="center"><strong>chunk7</strong></td>
 </tr>
 <tr>
-<td>0x560d334f0600</td>
-<td>0x560d334f0700</td>
-<td>0x560d334f0800</td>
-<td>0x560d334f0c00</td>
+<td align="center"><strong>0x560d334f0600</strong></td>
+<td align="center"><strong>0x560d334f0700</strong></td>
+<td align="center"><strong>0x560d334f0800</strong></td>
+<td align="center"><strong>0x560d334f0c00</strong></td>
 </tr>
 <tr>
-<td>chunk8</td>
-<td>chunk9</td>
-<td></td>
-<td></td>
+<td align="center"><strong>chunk8</strong></td>
+<td align="center"><strong>chunk9</strong></td>
+<td align="center"></td>
+<td align="center"></td>
 </tr>
 <tr>
-<td>0x560d334f0900</td>
-<td>tcache3</td>
-<td></td>
-<td></td>
+<td align="center"><strong>0x560d334f0900</strong></td>
+<td align="center"><strong>tcache3</strong></td>
+<td align="center"></td>
+<td align="center"></td>
 </tr>
 </tbody></table>
 <p>接下来我们重新申请一个堆块，这时重启的是第二次释放的<code>0x560d334f0a00</code>即tcache3。我们在申请堆块的同时将内容填写成<code>free_hook</code>的地址</p>
@@ -897,41 +897,41 @@
 <table>
 <thead>
 <tr>
-<th>chunk0</th>
-<th>chunk1</th>
-<th>chunk2</th>
-<th>chunk3</th>
+<th align="center"><strong>chunk0</strong></th>
+<th align="center"><strong>chunk1</strong></th>
+<th align="center"><strong>chunk2</strong></th>
+<th align="center"><strong>chunk3</strong></th>
 </tr>
 </thead>
 <tbody><tr>
-<td>0x560d334f0a00</td>
-<td>0x560d334f0a00</td>
-<td>0x560d334f0400</td>
-<td>0x560d334f0500</td>
+<td align="center"><strong>0x560d334f0a00</strong></td>
+<td align="center"><strong>0x560d334f0a00</strong></td>
+<td align="center"><strong>0x560d334f0400</strong></td>
+<td align="center"><strong>0x560d334f0500</strong></td>
 </tr>
 <tr>
-<td>chunk4</td>
-<td>chunk5</td>
-<td>chunk6</td>
-<td>chunk7</td>
+<td align="center"><strong>chunk4</strong></td>
+<td align="center"><strong>chunk5</strong></td>
+<td align="center"><strong>chunk6</strong></td>
+<td align="center"><strong>chunk7</strong></td>
 </tr>
 <tr>
-<td>0x560d334f0600</td>
-<td>0x560d334f0700</td>
-<td>0x560d334f0800</td>
-<td>0x560d334f0c00</td>
+<td align="center"><strong>0x560d334f0600</strong></td>
+<td align="center"><strong>0x560d334f0700</strong></td>
+<td align="center"><strong>0x560d334f0800</strong></td>
+<td align="center"><strong>0x560d334f0c00</strong></td>
 </tr>
 <tr>
-<td>chunk8</td>
-<td>chunk9</td>
-<td></td>
-<td></td>
+<td align="center"><strong>chunk8</strong></td>
+<td align="center"><strong>chunk9</strong></td>
+<td align="center"></td>
+<td align="center"></td>
 </tr>
 <tr>
-<td>0x560d334f0900</td>
-<td>free_hook(one_gadget)</td>
-<td></td>
-<td></td>
+<td align="center"><strong>0x560d334f0900</strong></td>
+<td align="center"><strong>free_hook(one_gadget)</strong></td>
+<td align="center"></td>
+<td align="center"></td>
 </tr>
 </tbody></table>
 <p>接下来delete(0)即可getshell</p>
