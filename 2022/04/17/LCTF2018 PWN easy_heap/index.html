@@ -19,12 +19,12 @@
         <meta name="keywords" content="hexo,hexo-theme,hexo-blog">
     
     <meta name="description" content="">
-    <meta name="description" content="保护检查 IDA分析main函数1234567891011121314151617181920212223242526272829303132333435363738void __fastcall __noreturn main(__int64 a1, char **a2, char **a3)&amp;#123;  int v3; &#x2F;&#x2F; eax  sub_A3A(a1, a2, a3);  qword_">
+    <meta name="description" content="参考链接：https:&#x2F;&#x2F;ctf-wiki.org&#x2F;pwn&#x2F;linux&#x2F;user-mode&#x2F;heap&#x2F;ptmalloc2&#x2F;tcache-attack&#x2F; https:&#x2F;&#x2F;hollk.blog.csdn.net&#x2F;article&#x2F;details&#x2F;113697892?spm&#x3D;1001.2014.3001.5502  保护检查 IDA分析main函数1234567891011121314151617181">
 <meta property="og:type" content="article">
-<meta property="og:title" content="LCTF easy_heap">
+<meta property="og:title" content="LCTF2018 easy_heap">
 <meta property="og:url" content="http://example.com/2022/04/17/LCTF2018%20PWN%20easy_heap/index.html">
 <meta property="og:site_name" content="Hexo">
-<meta property="og:description" content="保护检查 IDA分析main函数1234567891011121314151617181920212223242526272829303132333435363738void __fastcall __noreturn main(__int64 a1, char **a2, char **a3)&amp;#123;  int v3; &#x2F;&#x2F; eax  sub_A3A(a1, a2, a3);  qword_">
+<meta property="og:description" content="参考链接：https:&#x2F;&#x2F;ctf-wiki.org&#x2F;pwn&#x2F;linux&#x2F;user-mode&#x2F;heap&#x2F;ptmalloc2&#x2F;tcache-attack&#x2F; https:&#x2F;&#x2F;hollk.blog.csdn.net&#x2F;article&#x2F;details&#x2F;113697892?spm&#x3D;1001.2014.3001.5502  保护检查 IDA分析main函数1234567891011121314151617181">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204172053214.png">
 <meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204172053216.png">
@@ -39,7 +39,7 @@
 <meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204172053225.png">
 <meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204172053226.png">
 <meta property="article:published_time" content="2022-04-17T07:57:44.204Z">
-<meta property="article:modified_time" content="2022-04-17T12:55:04.261Z">
+<meta property="article:modified_time" content="2022-04-17T13:12:56.676Z">
 <meta property="article:author" content="John Doe">
 <meta property="article:tag" content="tcache">
 <meta name="twitter:card" content="summary">
@@ -48,7 +48,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <link rel="icon" href="/assets/favicon.ico">
     
-    <title>LCTF easy_heap · 渐渐的博客</title>
+    <title>LCTF2018 easy_heap · 渐渐的博客</title>
     <!-- /*! loadCSS. [c]2017 Filament Group, Inc. MIT License */
 /* This file is meant as a standalone workflow for
 - testing support for link[rel=preload]
@@ -273,7 +273,7 @@
                 <a href="/">渐渐的博客</a>
             </div>
             <div class="post-title header-element">
-                <a href="#" class="post-name">LCTF easy_heap</a>
+                <a href="#" class="post-name">LCTF2018 easy_heap</a>
             </div>
         </div>
     
@@ -319,7 +319,7 @@
         <h1 class="intro-title">
             <!-- 主页  -->
             
-                LCTF easy_heap
+                LCTF2018 easy_heap
             <!-- 404 -->
             
         </h1>
@@ -507,7 +507,11 @@
             <div class="container container-unloaded">
                 <main class="main post-page">
     <article class="article-entry">
-        <h3 id="保护检查"><a href="#保护检查" class="headerlink" title="保护检查"></a>保护检查</h3><p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204172053214.png" alt="image-20220410171957005"></p>
+        <blockquote>
+<p>参考链接：<a target="_blank" rel="noopener" href="https://ctf-wiki.org/pwn/linux/user-mode/heap/ptmalloc2/tcache-attack/">https://ctf-wiki.org/pwn/linux/user-mode/heap/ptmalloc2/tcache-attack/</a></p>
+<p><a target="_blank" rel="noopener" href="https://hollk.blog.csdn.net/article/details/113697892?spm=1001.2014.3001.5502">https://hollk.blog.csdn.net/article/details/113697892?spm=1001.2014.3001.5502</a></p>
+</blockquote>
+<h3 id="保护检查"><a href="#保护检查" class="headerlink" title="保护检查"></a>保护检查</h3><p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204172053214.png" alt="image-20220410171957005"></p>
 <h3 id="IDA分析"><a href="#IDA分析" class="headerlink" title="IDA分析"></a>IDA分析</h3><h4 id="main函数"><a href="#main函数" class="headerlink" title="main函数"></a>main函数</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> __fastcall __noreturn <span class="title">main</span><span class="params">(__int64 a1, <span class="keyword">char</span> **a2, <span class="keyword">char</span> **a3)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">int</span> v3; <span class="comment">// eax</span></span><br><span class="line"></span><br><span class="line">  sub_A3A(a1, a2, a3);</span><br><span class="line">  qword_202050 = <span class="built_in">calloc</span>(<span class="number">0xA0</span>uLL, <span class="number">1uLL</span>);</span><br><span class="line">  <span class="keyword">if</span> ( !qword_202050 )</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">&quot;init error!&quot;</span>);</span><br><span class="line">    sub_BBF();</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">while</span> ( <span class="number">1</span> )</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="keyword">while</span> ( <span class="number">1</span> )</span><br><span class="line">    &#123;</span><br><span class="line">      menu();</span><br><span class="line">      v3 = sub_CAD();</span><br><span class="line">      <span class="keyword">if</span> ( v3 != <span class="number">2</span> )</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">      del();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> ( v3 &gt; <span class="number">2</span> )</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="keyword">if</span> ( v3 == <span class="number">3</span> )</span><br><span class="line">      &#123;</span><br><span class="line">        show();</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">else</span> <span class="keyword">if</span> ( v3 == <span class="number">4</span> )</span><br><span class="line">      &#123;</span><br><span class="line">        sub_BBF();</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span> ( v3 == <span class="number">1</span> )</span><br><span class="line">    &#123;</span><br><span class="line">      add();</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>首先调用calloc()函数创建一个size为<code>0xb0</code>大小的chunk，并将其malloc指针赋给存放在<code>.bss</code>段的<code>tk</code>全局变量。</p>
@@ -538,10 +542,6 @@
 <th>chunk3</th>
 <th>chunk4</th>
 <th>chunk5</th>
-<th>chunk6</th>
-<th>chunk7</th>
-<th>chunk8</th>
-<th>chunk9</th>
 </tr>
 </thead>
 <tbody><tr>
@@ -551,10 +551,22 @@
 <td>0x560d334f0600</td>
 <td>0x560d334f0700</td>
 <td>0x560d334f0800</td>
+</tr>
+<tr>
+<td>hunk6</td>
+<td>chunk7</td>
+<td>chunk8</td>
+<td>chunk9</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
 <td>0x560d334f0900</td>
 <td>0x560d334f0a00</td>
 <td>0x560d334f0b00</td>
 <td>0x560d334f0c00</td>
+<td></td>
+<td></td>
 </tr>
 </tbody></table>
 <p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204172053216.png" alt="image-20220417164252755"></p>
@@ -569,10 +581,6 @@
 <th>chunk3</th>
 <th>chunk4</th>
 <th>chunk5</th>
-<th>chunk6</th>
-<th>chunk7</th>
-<th align="center">chunk8</th>
-<th>chunk9</th>
 </tr>
 </thead>
 <tbody><tr>
@@ -582,9 +590,21 @@
 <td>0x560d334f0600</td>
 <td>0x560d334f0500</td>
 <td>0x560d334f0400</td>
+</tr>
+<tr>
+<td>chunk6</td>
+<td>chunk7</td>
+<td>chunk8</td>
+<td>chunk9</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
 <td>0x560d334f0300</td>
 <td>unsored bin</td>
-<td align="center"></td>
+<td></td>
+<td></td>
+<td></td>
 <td></td>
 </tr>
 </tbody></table>
@@ -598,10 +618,6 @@
 <th>chunk3</th>
 <th>chunk4</th>
 <th>chunk5</th>
-<th>chunk6</th>
-<th>chunk7</th>
-<th>chunk8</th>
-<th>chunk9</th>
 </tr>
 </thead>
 <tbody><tr>
@@ -611,10 +627,22 @@
 <td>0x560d334f0600</td>
 <td>0x560d334f0500</td>
 <td>0x560d334f0400</td>
+</tr>
+<tr>
+<td>chunk6</td>
+<td>chunk7</td>
+<td>chunk8</td>
+<td>chunk9</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
 <td>0x560d334f0300</td>
 <td>0x560d334f0900</td>
 <td>0x560d334f0a00</td>
 <td>0x560d334f0b00</td>
+<td></td>
+<td></td>
 </tr>
 </tbody></table>
 <p>所以接下来我们还需要倒一次bin，依然还是先释放chunk0 - chunk5，不过这里单释放的是chunk8</p>
@@ -638,10 +666,6 @@
 <th>chunk3</th>
 <th>chunk4</th>
 <th>chunk5</th>
-<th>chunk6</th>
-<th>chunk7</th>
-<th>chunk8</th>
-<th>chunk9</th>
 </tr>
 </thead>
 <tbody><tr>
@@ -651,10 +675,22 @@
 <td>tcache</td>
 <td>tcache</td>
 <td>tcache</td>
+</tr>
+<tr>
+<td>chunk6</td>
+<td>chunk7</td>
+<td>chunk8</td>
+<td>chunk9</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
 <td>0x560d334f0300</td>
 <td>unsorted bin</td>
 <td>空</td>
 <td>0x560d334f0b00</td>
+<td></td>
+<td></td>
 </tr>
 </tbody></table>
 <p>由于我们修改了chunk9的inuse标志位，且chunk0是chunk9物理相邻的前一个chunk，所以即使chunk0处于使用状态，但现在被chunk9强迫标志为被释放堆块。那么如果将chunk9释放后挂进unsorted bin中，那么chunk7、chunk0、chunk9还是会被认为是连续释放进unsorted bin之后合并的大块。</p>
@@ -676,10 +712,6 @@
 <th>chunk3</th>
 <th>chunk4</th>
 <th>chunk5</th>
-<th>chunk6</th>
-<th>chunk7</th>
-<th>chunk8</th>
-<th>chunk9</th>
 </tr>
 </thead>
 <tbody><tr>
@@ -689,10 +721,22 @@
 <td>0x560d334f0500</td>
 <td>0x560d334f0600</td>
 <td>0x560d334f0700</td>
+</tr>
+<tr>
+<td>chunk6</td>
+<td>chunk7</td>
+<td>chunk8</td>
+<td>chunk9</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
 <td>0x560d334f0800</td>
 <td>0x560d334f0c00</td>
 <td>空</td>
 <td>unsorted</td>
+<td></td>
+<td></td>
 </tr>
 </tbody></table>
 <p>此时申请一个chunk 即从unsorted bin中切割一块，并放到chunk 8处，之前0x560d334f0900处的的fd和bk指向的unsorted bin，切割后0x560d334f0a00 的fd和bk指向unsorted bin，那么我们打印chunk0（0x560d334f0a00  ）即可泄露基址</p>
@@ -707,10 +751,6 @@
 <th>chunk3</th>
 <th>chunk4</th>
 <th>chunk5</th>
-<th>chunk6</th>
-<th>chunk7</th>
-<th>chunk8</th>
-<th>chunk9</th>
 </tr>
 </thead>
 <tbody><tr>
@@ -720,10 +760,22 @@
 <td>0x560d334f0500</td>
 <td>0x560d334f0600</td>
 <td>0x560d334f0700</td>
+</tr>
+<tr>
+<td>chunk6</td>
+<td>chunk7</td>
+<td>chunk8</td>
+<td>chunk9</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
 <td>0x560d334f0800</td>
 <td>0x560d334f0c00</td>
 <td>0x560d334f0900</td>
 <td>unsorted</td>
+<td></td>
+<td></td>
 </tr>
 </tbody></table>
 <h4 id="构建Double-Free，将free-hook挂进tcache-bin"><a href="#构建Double-Free，将free-hook挂进tcache-bin" class="headerlink" title="构建Double Free，将free_hook挂进tcache bin"></a>构建Double Free，将free_hook挂进tcache bin</h4><p>如果再去申请一个堆块的话，就会从unsorted bin中的合并堆块分割，即<code>0x560d334f0a00</code>不仅会存放进chunk0，还会存放进chunk9：</p>
@@ -737,10 +789,6 @@
 <th>chunk3</th>
 <th>chunk4</th>
 <th>chunk5</th>
-<th>chunk6</th>
-<th>chunk7</th>
-<th>chunk8</th>
-<th>chunk9</th>
 </tr>
 </thead>
 <tbody><tr>
@@ -750,10 +798,22 @@
 <td>0x560d334f0500</td>
 <td>0x560d334f0600</td>
 <td>0x560d334f0700</td>
+</tr>
+<tr>
+<td>chunk6</td>
+<td>chunk7</td>
+<td>chunk8</td>
+<td>chunk9</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
 <td>0x560d334f0800</td>
 <td>0x560d334f0c00</td>
 <td>0x560d334f0900</td>
 <td>0x560d334f0a00</td>
+<td></td>
+<td></td>
 </tr>
 </tbody></table>
 <p>那么此时chunk0和chunk9中存放的都是<code>0x560d334f0a00</code>，那么这种情况我们可以利用Double Free！</p>
@@ -770,10 +830,6 @@
 <th>chunk3</th>
 <th>chunk4</th>
 <th>chunk5</th>
-<th>chunk6</th>
-<th>chunk7</th>
-<th>chunk8</th>
-<th>chunk9</th>
 </tr>
 </thead>
 <tbody><tr>
@@ -783,10 +839,22 @@
 <td>0x560d334f0500</td>
 <td>0x560d334f0600</td>
 <td>0x560d334f0700</td>
+</tr>
+<tr>
+<td>chunk6</td>
+<td>chunk7</td>
+<td>chunk8</td>
+<td>chunk9</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
 <td>0x560d334f0800</td>
 <td>0x560d334f0c00</td>
 <td>0x560d334f0900</td>
 <td>tcache3</td>
+<td></td>
+<td></td>
 </tr>
 </tbody></table>
 <p>接下来我们重新申请一个堆块，这时重启的是第二次释放的<code>0x560d334f0a00</code>即tcache3。我们在申请堆块的同时将内容填写成<code>free_hook</code>的地址</p>
@@ -803,10 +871,6 @@
 <th>chunk3</th>
 <th>chunk4</th>
 <th>chunk5</th>
-<th>chunk6</th>
-<th>chunk7</th>
-<th>chunk8</th>
-<th>chunk9</th>
 </tr>
 </thead>
 <tbody><tr>
@@ -816,10 +880,22 @@
 <td>0x560d334f0500</td>
 <td>0x560d334f0600</td>
 <td>0x560d334f0700</td>
+</tr>
+<tr>
+<td>chunk6</td>
+<td>chunk7</td>
+<td>chunk8</td>
+<td>chunk9</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
 <td>0x560d334f0800</td>
 <td>0x560d334f0c00</td>
 <td>0x560d334f0900</td>
 <td>free__hook(one_gadget)</td>
+<td></td>
+<td></td>
 </tr>
 </tbody></table>
 <p>接下来delete(0)即可getshell</p>
@@ -1291,7 +1367,7 @@
         
         <li class="archive-post-item">
             <span class="archive-post-date">04/17</span>
-            <a class="archive-post-title" href="/2022/04/17/LCTF2018%20PWN%20easy_heap/">LCTF easy_heap</a>
+            <a class="archive-post-title" href="/2022/04/17/LCTF2018%20PWN%20easy_heap/">LCTF2018 easy_heap</a>
         </li>
     
         
