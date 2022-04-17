@@ -441,6 +441,44 @@
             
         
         <article class="index-post">
+            <a class="abstract-title" href="/2022/01/13/pwn200/">
+                
+                <span class="abstract-title-text">pwn200</span>
+            </a>
+            <div class="abstract-content">
+                pwn200首先检查一下程序保护
+保护全关
+IDA静态分析main 函数调用的是sub_400A8E()的主程序部分
+123456789101112131415161718192021222324252627__int64 sub_400A8E()&#123;  __int64 i; // [rsp+10h] [rbp-40h]  char v2[48]; // [rsp+20h] [rbp-30h] BYREF  puts(&quot;who are u?&quot;);  for ( i = 0LL; i &lt;= 47; ++i )  &#123;    read(0, &amp...
+            </div>
+            <!-- read more -->
+            
+            <div class="abstract-post-meta">
+                <!-- date -->
+                <div class="abstract-date" title="Last updated: 2022/02/26">
+                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2022/01/13</span>
+                </div>
+                <!-- tags -->
+                
+                    <div class= abstract-tags >
+    
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags="house of spirit">house of spirit</a>
+    
+</div>
+
+                
+            </div>
+        </article>
+        <div class="index-post-divider"></div>
+    
+        
+        
+        
+        
+            
+        
+        <article class="index-post">
             <a class="abstract-title" href="/2022/01/12/write%20some%20paper/">
                 
                 <span class="abstract-title-text">write some paper</span>
@@ -766,34 +804,6 @@ unlink源码12345678910111213141516171819202122232425262728293031323334353637383
         </article>
         <div class="index-post-divider"></div>
     
-        
-        
-        
-        
-            
-        
-        <article class="index-post">
-            <a class="abstract-title" href="/2022/01/08/off-by-one/">
-                
-                <span class="abstract-title-text">off-by-one</span>
-            </a>
-            <div class="abstract-content">
-                off-by-oneoff-by-one是缓冲区溢出的一种特殊形式，即只能溢出一个字 节。这种漏洞往往是在字符串操作时边界检查不严谨所导致的，例如 
-循环语句中的循环次数设置有误。1234567891011121314151617181920#include&lt;stdio.h&gt;#include &lt;malloc.h&gt;#include&lt;string.h&gt;int main()&#123;    char *chunk1,*chunk2;    chunk1 = (char *)malloc(16);    chunk2 = (char *)malloc(16)...
-            </div>
-            <!-- read more -->
-            
-            <div class="abstract-post-meta">
-                <!-- date -->
-                <div class="abstract-date" title="Last updated: 2022/01/07">
-                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2022/01/08</span>
-                </div>
-                <!-- tags -->
-                
-            </div>
-        </article>
-        <div class="index-post-divider"></div>
-    
     <!-- paginator  -->
     
         <nav class="page-nav">
@@ -1083,7 +1093,22 @@ unlink源码12345678910111213141516171819202122232425262728293031323334353637383
         
         
         
+        
+        
+        
+        
+        
     
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
         
         
         
@@ -1244,7 +1269,7 @@ unlink源码12345678910111213141516171819202122232425262728293031323334353637383
     
     <div class="total-and-search">
         <div class="total-archive">
-        Total : 23
+        Total : 24
         </div>
         <!-- search  -->
         
@@ -1258,6 +1283,12 @@ unlink源码12345678910111213141516171819202122232425262728293031323334353637383
             <div class="archive-year"> 2022 </div>
             <ul class="year-list">
             
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/17</span>
+            <a class="archive-post-title" href="/2022/04/17/LCTF2018%20PWN%20easy_heap/">LCTF2018 PWN easy_heap</a>
+        </li>
+    
         
         <li class="archive-post-item">
             <span class="archive-post-date">04/08</span>
@@ -1425,6 +1456,11 @@ unlink源码12345678910111213141516171819202122232425262728293031323334353637383
             <span class="sidebar-tag-name" data-tags="os">
                 <span class="iconfont-archer">&#xe606;</span>
                 os
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="tcache">
+                <span class="iconfont-archer">&#xe606;</span>
+                tcache
             </span>
         
     </div>

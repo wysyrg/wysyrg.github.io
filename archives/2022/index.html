@@ -428,6 +428,42 @@
             
         
         <article class="index-post">
+            <a class="abstract-title" href="/2022/04/17/LCTF2018%20PWN%20easy_heap/">
+                
+                <span class="abstract-title-text">LCTF2018 PWN easy_heap</span>
+            </a>
+            <div class="abstract-content">
+                保护检查
+IDA分析main函数1234567891011121314151617181920212223242526272829303132333435363738void __fastcall __noreturn main(__int64 a1, char **a2, char **a3)&#123;  int v3; // eax  sub_A3A(a1, a2, a3);  qword_202050 = calloc(0xA0uLL, 1uLL);  if ( !qword_202050 )  &#123;    puts(&quot;init error!&quot;);  ...
+            </div>
+            <!-- read more -->
+            
+            <div class="abstract-post-meta">
+                <!-- date -->
+                <div class="abstract-date" title="Last updated: 2022/04/17">
+                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2022/04/17</span>
+                </div>
+                <!-- tags -->
+                
+                    <div class= abstract-tags >
+    
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags="tcache">tcache</a>
+    
+</div>
+
+                
+            </div>
+        </article>
+        <div class="index-post-divider"></div>
+    
+        
+        
+        
+        
+            
+        
+        <article class="index-post">
             <a class="abstract-title" href="/2022/04/08/tcache/">
                 
                 <span class="abstract-title-text">tcache</span>
@@ -716,44 +752,6 @@ global_max_fast是main_arena中控制最大fastbin大...
         </article>
         <div class="index-post-divider"></div>
     
-        
-        
-        
-        
-            
-        
-        <article class="index-post">
-            <a class="abstract-title" href="/2022/01/13/pwn200/">
-                
-                <span class="abstract-title-text">pwn200</span>
-            </a>
-            <div class="abstract-content">
-                pwn200首先检查一下程序保护
-保护全关
-IDA静态分析main 函数调用的是sub_400A8E()的主程序部分
-123456789101112131415161718192021222324252627__int64 sub_400A8E()&#123;  __int64 i; // [rsp+10h] [rbp-40h]  char v2[48]; // [rsp+20h] [rbp-30h] BYREF  puts(&quot;who are u?&quot;);  for ( i = 0LL; i &lt;= 47; ++i )  &#123;    read(0, &amp...
-            </div>
-            <!-- read more -->
-            
-            <div class="abstract-post-meta">
-                <!-- date -->
-                <div class="abstract-date" title="Last updated: 2022/02/26">
-                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2022/01/13</span>
-                </div>
-                <!-- tags -->
-                
-                    <div class= abstract-tags >
-    
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags="house of spirit">house of spirit</a>
-    
-</div>
-
-                
-            </div>
-        </article>
-        <div class="index-post-divider"></div>
-    
     <!-- paginator  -->
     
         <nav class="page-nav">
@@ -969,7 +967,22 @@ IDA静态分析main 函数调用的是sub_400A8E()的主程序部分
         
         
         
+        
+        
+        
+        
+        
     
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
         
         
         
@@ -1130,7 +1143,7 @@ IDA静态分析main 函数调用的是sub_400A8E()的主程序部分
     
     <div class="total-and-search">
         <div class="total-archive">
-        Total : 23
+        Total : 24
         </div>
         <!-- search  -->
         
@@ -1144,6 +1157,12 @@ IDA静态分析main 函数调用的是sub_400A8E()的主程序部分
             <div class="archive-year"> 2022 </div>
             <ul class="year-list">
             
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/17</span>
+            <a class="archive-post-title" href="/2022/04/17/LCTF2018%20PWN%20easy_heap/">LCTF2018 PWN easy_heap</a>
+        </li>
+    
         
         <li class="archive-post-item">
             <span class="archive-post-date">04/08</span>
@@ -1311,6 +1330,11 @@ IDA静态分析main 函数调用的是sub_400A8E()的主程序部分
             <span class="sidebar-tag-name" data-tags="os">
                 <span class="iconfont-archer">&#xe606;</span>
                 os
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="tcache">
+                <span class="iconfont-archer">&#xe606;</span>
+                tcache
             </span>
         
     </div>
