@@ -428,6 +428,49 @@
             
         
         <article class="index-post">
+            <a class="abstract-title" href="/2022/04/18/examination%20/">
+                
+                <span class="abstract-title-text">[Untitled Post]</span>
+            </a>
+            <div class="abstract-content">
+                
+title:examination周六的比赛题，看了一会没思路，直接开摆，现在看wp复现一下
+
+参考链接：[*CTF 2022 pwn] examination
+
+保护检查
+保护全开，应该要修改hook了
+IDA分析程序太长，就不一 一粘贴了，将函数功能整理如下
+teacher:
+add_student: v2 = calloc(1uLL, 0x20uLL);v3 = calloc(1uLL, 0x18uLL);
+
+
+增加一个学生
+管理块chunk :0x20,含指向成绩单的指针
+成绩单chunk：含有学生评级,成绩，以及评价指针，和评价长度
+评价   chunk ：这个块可以自定义
+...
+            </div>
+            <!-- read more -->
+            
+            <div class="abstract-post-meta">
+                <!-- date -->
+                <div class="abstract-date" title="Last updated: 2022/04/18">
+                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2022/04/18</span>
+                </div>
+                <!-- tags -->
+                
+            </div>
+        </article>
+        <div class="index-post-divider"></div>
+    
+        
+        
+        
+        
+            
+        
+        <article class="index-post">
             <a class="abstract-title" href="/2022/04/17/LCTF2018%20PWN%20easy_heap/">
                 
                 <span class="abstract-title-text">LCTF2018 easy_heap</span>
@@ -799,7 +842,22 @@ IDA分析12345678910111213141516171819202122232425262728__int64 __fastcall main(
         
         
         
+        
+        
+        
+        
+        
     
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
         
         
         
@@ -966,7 +1024,7 @@ IDA分析12345678910111213141516171819202122232425262728__int64 __fastcall main(
     
     <div class="total-and-search">
         <div class="total-archive">
-        Total : 24
+        Total : 25
         </div>
         <!-- search  -->
         
@@ -980,6 +1038,12 @@ IDA分析12345678910111213141516171819202122232425262728__int64 __fastcall main(
             <div class="archive-year"> 2022 </div>
             <ul class="year-list">
             
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/18</span>
+            <a class="archive-post-title" href="/2022/04/18/examination%20/">[Untitled Post]</a>
+        </li>
+    
         
         <li class="archive-post-item">
             <span class="archive-post-date">04/17</span>
