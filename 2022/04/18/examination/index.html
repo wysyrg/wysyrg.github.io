@@ -19,12 +19,12 @@
         <meta name="keywords" content="hexo,hexo-theme,hexo-blog">
     
     <meta name="description" content="">
-    <meta name="description" content="周六的比赛题，看了一会没思路，直接开摆，现在看wp复现一下  参考链接：[*CTF 2022 pwn] examination  保护检查 保护全开，应该要修改hook了 IDA分析程序太长，就不一 一粘贴了，将函数功能整理如下 teacher: add_student: v2 &#x3D; calloc(1uLL, 0x20uLL);v3 &#x3D; calloc(1uLL, 0x18uLL);   增加一个学生">
+    <meta name="description" content="周六的比赛题，看了一会没思路，直接开摆，现在看wp复现一下  参考链接：[*CTF 2022 pwn] examination  保护检查 保护全开，应该要修改hook了 IDA分析程序太长，就不一 一粘贴了，将函数功能整理如下 teacher: add_student: v2 &#x3D; calloc(1uLL, 0x20uLL);v3 &#x3D; calloc(1uLL, 0x18uLL);   ​">
 <meta property="og:type" content="article">
 <meta property="og:title" content="examination">
 <meta property="og:url" content="http://example.com/2022/04/18/examination/index.html">
 <meta property="og:site_name" content="Hexo">
-<meta property="og:description" content="周六的比赛题，看了一会没思路，直接开摆，现在看wp复现一下  参考链接：[*CTF 2022 pwn] examination  保护检查 保护全开，应该要修改hook了 IDA分析程序太长，就不一 一粘贴了，将函数功能整理如下 teacher: add_student: v2 &#x3D; calloc(1uLL, 0x20uLL);v3 &#x3D; calloc(1uLL, 0x18uLL);   增加一个学生">
+<meta property="og:description" content="周六的比赛题，看了一会没思路，直接开摆，现在看wp复现一下  参考链接：[*CTF 2022 pwn] examination  保护检查 保护全开，应该要修改hook了 IDA分析程序太长，就不一 一粘贴了，将函数功能整理如下 teacher: add_student: v2 &#x3D; calloc(1uLL, 0x20uLL);v3 &#x3D; calloc(1uLL, 0x18uLL);   ​">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204182251696.png">
 <meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204182251697.png">
@@ -46,7 +46,7 @@
 <meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204182251714.png">
 <meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204182251715.png">
 <meta property="article:published_time" content="2022-04-18T07:51:00.504Z">
-<meta property="article:modified_time" content="2022-04-18T15:01:36.565Z">
+<meta property="article:modified_time" content="2022-04-18T15:08:16.864Z">
 <meta property="article:author" content="John Doe">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204182251696.png">
@@ -516,54 +516,52 @@
 <li>add_student: <code>v2 = calloc(1uLL, 0x20uLL);v3 = calloc(1uLL, 0x18uLL);</code></li>
 </ul>
 <p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204182251697.png" alt="image-20220418162151739"></p>
-<p>增加一个学生</p>
-<p>管理块chunk :0x20,含指向成绩单的指针</p>
-<p>成绩单chunk：含有学生评级,成绩，以及评价指针，和评价长度</p>
-<p>评价   chunk ：这个块可以自定义</p>
+<p>​       增加一个学生</p>
+<p>​       管理块chunk :0x20,含指向成绩单的指针</p>
+<p>​       成绩单chunk：含有学生评级,成绩，以及评价指针，和评价长度 </p>
+<p>​       评价   chunk ：这个块可以自定义</p>
 <ul>
-<li>give score</li>
-</ul>
+<li><p>give score</p>
 <p>给学生打分：<code>v2 = buf[0] % (10 * **qword_5080[i]);</code>,按学生评级(1-9)给每个学生打分，打分规则为 随机数%(评级*10),如果出去玩 -10</p>
+</li>
+</ul>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> ( *(qword_5080[i] + <span class="number">24LL</span>) == <span class="number">1</span> )</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="built_in">puts</span>(<span class="string">&quot;the student is lazy! b@d!&quot;</span>);</span><br><span class="line">      v2 -= <span class="number">10</span>;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
 
 <ul>
-<li>write_review </li>
-</ul>
+<li><p>write_review </p>
 <p>给学生写评语，增加评价chunk可自定义size 和 content，如果已存在则修改content</p>
-<ul>
-<li>call parents</li>
-</ul>
+</li>
+<li><p>call parents</p>
 <p>叫家长开除：free 掉该学生的所有chunk，并将指针置0</p>
-<ul>
-<li>change role</li>
-</ul>
+</li>
+<li><p>change role</p>
 <p>切换学生老师</p>
+</li>
+</ul>
 <h4 id="student："><a href="#student：" class="headerlink" title="student："></a>student：</h4><ul>
-<li>do_test</li>
-</ul>
+<li><p>do_test</p>
 <p>没啥用</p>
-<ul>
-<li>check review</li>
-</ul>
+</li>
+<li><p>check review</p>
 <p>显示评价，当学生超过89分（正常不可能，因为%90最大89）可以显示chunk地址并允许给任意地址加1</p>
+</li>
+</ul>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> ( *(*qword_5080[a1] + <span class="number">4LL</span>) &gt; <span class="number">0x59</span>u )</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="built_in">printf</span>(<span class="string">&quot;Good Job! Here is your reward! %p\n&quot;</span>, qword_5080[a1]);</span><br><span class="line">      <span class="built_in">printf</span>(<span class="string">&quot;add 1 to wherever you want! addr: &quot;</span>);</span><br><span class="line">      sub_13D5(<span class="number">0LL</span>, nptr, <span class="number">16LL</span>);</span><br><span class="line">      v1 = atol(nptr);</span><br><span class="line">      ++*v1;</span><br><span class="line">      *(qword_5080[a1] + <span class="number">28LL</span>) = <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
 
 <ul>
-<li>pray</li>
-</ul>
+<li><p>pray</p>
 <p>出去玩。<code>*(qword_5080[a1] + 24LL) ^= 1u;</code></p>
-<ul>
-<li>set mode</li>
-</ul>
+</li>
+<li><p>set mode</p>
 <p>自己改分？</p>
-<ul>
-<li>change role</li>
-</ul>
+</li>
+<li><p>change role</p>
 <p>切换教师学生身份</p>
-<ul>
-<li>change id</li>
-</ul>
+</li>
+<li><p>change id</p>
 <p>切换学生编号</p>
+</li>
+</ul>
 <p>需要解决的问题，如果需要泄露libc就要用到unsorted bin，但是最多只能创建7个学生，没法填满tcache，但是size 大于400即可释放到unsorted bin中</p>
 <p>漏洞：check review中，显然存在后门。它实现泄露地址和任意地址修改，但不可能有正常学生得到90分。</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">unsigned</span> __int64 __fastcall <span class="title">check_review</span><span class="params">(<span class="keyword">int</span> a1)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  _BYTE *v1; <span class="comment">// rax</span></span><br><span class="line">  <span class="keyword">char</span> nptr[<span class="number">24</span>]; <span class="comment">// [rsp+20h] [rbp-20h] BYREF</span></span><br><span class="line">  <span class="keyword">unsigned</span> __int64 v4; <span class="comment">// [rsp+38h] [rbp-8h]</span></span><br><span class="line"></span><br><span class="line">  v4 = __readfsqword(<span class="number">0x28</span>u);</span><br><span class="line">  <span class="keyword">if</span> ( *(qword_5080[a1] + <span class="number">28LL</span>) == <span class="number">1</span> )</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">&quot;already gained the reward!&quot;</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">else</span></span><br><span class="line">  &#123;</span><br><span class="line">    <span class="keyword">if</span> ( *(*qword_5080[a1] + <span class="number">4LL</span>) &gt; <span class="number">0x59</span>u )</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="built_in">printf</span>(<span class="string">&quot;Good Job! Here is your reward! %p\n&quot;</span>, qword_5080[a1]);</span><br><span class="line">      <span class="built_in">printf</span>(<span class="string">&quot;add 1 to wherever you want! addr: &quot;</span>);</span><br><span class="line">      sub_13D5(<span class="number">0LL</span>, nptr, <span class="number">16LL</span>);</span><br><span class="line">      v1 = atol(nptr);</span><br><span class="line">      ++*v1;</span><br><span class="line">      *(qword_5080[a1] + <span class="number">28LL</span>) = <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> ( *(*qword_5080[a1] + <span class="number">8LL</span>) )</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="built_in">puts</span>(<span class="string">&quot;here is the review:&quot;</span>);</span><br><span class="line">      write(<span class="number">1</span>, *(*qword_5080[a1] + <span class="number">8LL</span>), *(*qword_5080[a1] + <span class="number">16LL</span>));</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">    &#123;</span><br><span class="line">      <span class="built_in">puts</span>(<span class="string">&quot;no reviewing yet!&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> __readfsqword(<span class="number">0x28</span>u) ^ v4;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
