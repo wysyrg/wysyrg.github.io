@@ -19,18 +19,29 @@
         <meta name="keywords" content="hexo,hexo-theme,hexo-blog">
     
     <meta name="description" content="">
-    <meta property="og:type" content="website">
-<meta property="og:title" content="Hexo">
-<meta property="og:url" content="http://example.com/archives/2022/01/page/2/index.html">
+    <meta name="description" content="参考链接：https:&#x2F;&#x2F;blog.csdn.net&#x2F;weixin_45799954&#x2F;article&#x2F;details&#x2F;115009760 https:&#x2F;&#x2F;www.wangan.com&#x2F;docs&#x2F;551  IDA Pro创建结构体手工创建创建结构体是在 IDA 的 structures 窗口中进行的，这个操作在堆漏洞的pwn题中经常使用 打开view -&gt; open subviews -&amp;">
+<meta property="og:type" content="article">
+<meta property="og:title" content="IDA pro创建结构体">
+<meta property="og:url" content="http://example.com/2022/04/19/IDA%20pro/index.html">
 <meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="参考链接：https:&#x2F;&#x2F;blog.csdn.net&#x2F;weixin_45799954&#x2F;article&#x2F;details&#x2F;115009760 https:&#x2F;&#x2F;www.wangan.com&#x2F;docs&#x2F;551  IDA Pro创建结构体手工创建创建结构体是在 IDA 的 structures 窗口中进行的，这个操作在堆漏洞的pwn题中经常使用 打开view -&gt; open subviews -&amp;">
 <meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204192032347.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204192032349.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204192032350.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204192032351.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204192032352.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204192032353.png">
+<meta property="article:published_time" content="2022-04-19T12:12:08.382Z">
+<meta property="article:modified_time" content="2022-04-19T12:32:45.366Z">
 <meta property="article:author" content="John Doe">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204192032347.png">
     <meta http-equiv="Cache-control" content="no-cache">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <link rel="icon" href="/assets/favicon.ico">
     
-    <title>渐渐的博客</title>
+    <title>IDA pro创建结构体 · 渐渐的博客</title>
     <!-- /*! loadCSS. [c]2017 Filament Group, Inc. MIT License */
 /* This file is meant as a standalone workflow for
 - testing support for link[rel=preload]
@@ -217,6 +228,8 @@
         }
     </script>
     
+        <body class="post-body">
+    
         <!-- header -->
         <header class="header header-mobile">
     <!-- top read progress line -->
@@ -246,6 +259,17 @@
     </div>
     <!-- toggle banner for post layout -->
     
+        
+            <div class="banner">
+        
+            <div class="blog-title header-element">
+                <a href="/">渐渐的博客</a>
+            </div>
+            <div class="post-title header-element">
+                <a href="#" class="post-name">IDA pro创建结构体</a>
+            </div>
+        </div>
+    
 </header>
 
         <!-- fixed footer -->
@@ -272,24 +296,71 @@
 
 
 
+    height:50vh;
+
 ">
     
     <!-- 主页  -->
+    
+        
+    <!-- 404页  -->
             
     <div class="site-intro-placeholder"></div>
-    <div class="site-intro-img" style="background-image: url(/)"></div>
+    <div class="site-intro-img" style="background-image: url(/intro/wlop1.jpeg)"></div>
     <div class="site-intro-meta">
         <!-- 标题  -->
         <h1 class="intro-title">
             <!-- 主页  -->
+            
+                IDA pro创建结构体
+            <!-- 404 -->
             
         </h1>
         <!-- 副标题 -->
         <p class="intro-subtitle">
             <!-- 主页副标题  -->
             
+                
+            <!-- 404 -->
+            
         </p>
         <!-- 文章页 meta -->
+        
+            <div class="post-intros">
+                <!-- 文章页标签  -->
+                
+                
+                    <div class="post-intro-read">
+                        <span>Word count: <span class="post-count word-count">507</span>Reading time: <span class="post-count reading-time">1 min</span></span>
+                    </div>
+                
+                <div class="post-intro-meta">
+                    <!-- 撰写日期 -->
+                    <span class="iconfont-archer post-intro-calander">&#xe676;</span>
+                    <span class="post-intro-time">2022/04/19</span>
+                    <!-- busuanzi -->
+                    
+                        <span id="busuanzi_container_page_pv" class="busuanzi-pv">
+                            <span class="iconfont-archer post-intro-busuanzi">&#xe602;</span>
+                            <span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    
+                    <!-- 文章分享 -->
+                    <span class="share-wrapper">
+                        <span class="iconfont-archer share-icon">&#xe71d;</span>
+                        <span class="share-text">Share</span>
+                        <ul class="share-list">
+                            <li class="iconfont-archer share-qr" data-type="qr">&#xe75b;
+                                <div class="share-qrcode"></div>
+                            </li>
+                            <li class="iconfont-archer" data-type="weibo">&#xe619;</li>
+                            <li class="iconfont-archer" data-type="qzone">&#xe62e;</li>
+                            <li class="iconfont-archer" data-type="twitter">&#xe634;</li>
+                            <li class="iconfont-archer" data-type="facebook">&#xe67a;</li>
+                        </ul>
+                    </span>
+                </div>
+            </div>
         
     </div>
 </div>
@@ -419,251 +490,79 @@
 
             <img class="loading" src="/assets/loading.svg" style="display: block; margin: 6rem auto 0 auto; width: 6rem; height: 6rem;" />
             <div class="container container-unloaded">
-                <main class="main index-page">
-    
-        
-        
-        
-        
-            
-        
-        <article class="index-post">
-            <a class="abstract-title" href="/2022/01/08/unsafe_unlink/">
-                
-                <span class="abstract-title-text">unsafe_unlink</span>
-            </a>
-            <div class="abstract-content">
-                unsafe_unlinkunlink利用条件
-UAF ，可修改 free 状态下 smallbin 或是 unsorted bin 的 fd 和 bk 指针
-已知位置存在一个指针指向可进行 UAF 的 chunk
+                <main class="main post-page">
+    <article class="article-entry">
+        <blockquote>
+<p> 参考链接：<a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_45799954/article/details/115009760">https://blog.csdn.net/weixin_45799954/article/details/115009760</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.wangan.com/docs/551">https://www.wangan.com/docs/551</a></p>
+</blockquote>
+<h3 id="IDA-Pro创建结构体"><a href="#IDA-Pro创建结构体" class="headerlink" title="IDA Pro创建结构体"></a>IDA Pro创建结构体</h3><h4 id="手工创建"><a href="#手工创建" class="headerlink" title="手工创建"></a>手工创建</h4><p>创建结构体是在 IDA 的 structures 窗口中进行的，这个操作在<code>堆漏洞的pwn题中经常使用</code></p>
+<p>打开<code>view -&gt; open subviews -&gt; Structures</code>，快捷键为<code>shift+F9</code></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Ins/Del : create/delete structure  创建和删除结构体</span><br><span class="line">D/A/* : create structure member (data/ascii/array)   添加不同类型的结构体成员，</span><br><span class="line">N : rename structure or structure member               对结构体或结构体成员重命名</span><br><span class="line">U : delete structure member                        删除结构体成员</span><br></pre></td></tr></table></figure>
 
-unlink源码123456789101112131415161718192021222324252627282930313233343536373839404142434445#define unlink(AV, P, BK, FD) &#123;                                            \    //判断chunk p的大小...
-            </div>
-            <!-- read more -->
-            
-            <div class="abstract-post-meta">
-                <!-- date -->
-                <div class="abstract-date" title="Last updated: 2022/01/12">
-                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2022/01/08</span>
-                </div>
-                <!-- tags -->
-                
-            </div>
-        </article>
-        <div class="index-post-divider"></div>
-    
-        
-        
-        
-        
-            
-        
-        <article class="index-post">
-            <a class="abstract-title" href="/2022/01/08/secretHolder_hitcon_2016/">
-                
-                <span class="abstract-title-text">secretHolder_hitcon_2016</span>
-            </a>
-            <div class="abstract-content">
-                secretHolder_hitcon_2016进行程序检查
-进入IDA分析函数main函数1234567891011121314151617181920212223242526272829303132void __fastcall __noreturn main(__int64 a1, char **a2, char **a3)&#123;  int v3; // eax  char s[8]; // [rsp+10h] [rbp-10h] BYREF  unsigned __int64 v5; // [rsp+18h] [rbp-8h]  v5 = __readfsqword(0x2...
-            </div>
-            <!-- read more -->
-            
-            <div class="abstract-post-meta">
-                <!-- date -->
-                <div class="abstract-date" title="Last updated: 2022/01/06">
-                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2022/01/08</span>
-                </div>
-                <!-- tags -->
-                
-            </div>
-        </article>
-        <div class="index-post-divider"></div>
-    
-        
-        
-        
-        
-            
-        
-        <article class="index-post">
-            <a class="abstract-title" href="/2022/01/08/pwnable%E5%88%B7%E9%A2%98/">
-                
-                <span class="abstract-title-text">pwnable刷题</span>
-            </a>
-            <div class="abstract-content">
-                一、start首先进行保护检查，保护全关
 
-然后用IDA分析一下：
-123456789101112131415161718192021222324252627282930313233343536text:08048060 ; __int64 start().text:08048060                 public _start.text:08048060 _start          proc near               ; DATA XREF: LOAD:08048018↑o.text:08048060                 push    esp...
-            </div>
-            <!-- read more -->
-            
-            <div class="abstract-post-meta">
-                <!-- date -->
-                <div class="abstract-date" title="Last updated: 2022/01/09">
-                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2022/01/08</span>
-                </div>
-                <!-- tags -->
-                
-                    <div class= abstract-tags >
-    
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags="pwn">pwn</a>
-    
-</div>
 
-                
-            </div>
-        </article>
-        <div class="index-post-divider"></div>
-    
-        
-        
-        
-        
-            
-        
-        <article class="index-post">
-            <a class="abstract-title" href="/2022/01/08/off-by-one/">
-                
-                <span class="abstract-title-text">off-by-one</span>
-            </a>
-            <div class="abstract-content">
-                off-by-oneoff-by-one是缓冲区溢出的一种特殊形式，即只能溢出一个字 节。这种漏洞往往是在字符串操作时边界检查不严谨所导致的，例如 
-循环语句中的循环次数设置有误。1234567891011121314151617181920#include&lt;stdio.h&gt;#include &lt;malloc.h&gt;#include&lt;string.h&gt;int main()&#123;    char *chunk1,*chunk2;    chunk1 = (char *)malloc(16);    chunk2 = (char *)malloc(16)...
-            </div>
-            <!-- read more -->
-            
-            <div class="abstract-post-meta">
-                <!-- date -->
-                <div class="abstract-date" title="Last updated: 2022/01/07">
-                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2022/01/08</span>
-                </div>
-                <!-- tags -->
-                
-            </div>
-        </article>
-        <div class="index-post-divider"></div>
-    
-        
-        
-        
-        
-            
-        
-        <article class="index-post">
-            <a class="abstract-title" href="/2022/01/08/lab2%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A/">
-                
-                <span class="abstract-title-text">lab2 实验报告</span>
-            </a>
-            <div class="abstract-content">
-                lab2实验报告练习1：实现 first-fit 连续物理内存分配算法先熟悉两个数据结构:
+<p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204192032347.png" alt="image-20220419201934458"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204192032349.png" alt="image-20220419202249658"></p>
+<p>前两个复选框用于决定新结构体在结构体窗口中的显示位置，或者是否在窗口中显示新结构体，第三个复选框是指定创建联合体，这里我们改完名字后直接点OK，界面中就出现了一个空的结构体</p>
+<p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204192032350.png" alt="image-20220419202350864"></p>
+<p>然后把光标移动到”ends”上按D键，就可以在行尾创建一个新的结构体成员，</p>
+<p>再把光标移动到该成员上，按D键改变该成员的数据类型，可改变的数据类型有<code>db(byte),dw(word),dd(dword),dq(qword)</code>，按A键可以设置为字符串，按*键可以设置为数组，按N键可以重命名成员，按U键删除成员，可以按照题目需求改变成员数据类型。</p>
+<p>右键变量选择<code>Convert to struct*</code>，再选择我们刚刚定义的结构体。</p>
+<p>有的时候需要设置变量类型，如下，可定义为 <code>struct gundam *qword_2020A0[9]</code></p>
+<p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204192032351.png" alt="image-20220419202523807"></p>
+<h4 id="导入-C-语言声明的结构体"><a href="#导入-C-语言声明的结构体" class="headerlink" title="导入 C 语言声明的结构体"></a>导入 C 语言声明的结构体</h4><p>实际上，IDA 有提供一个更方便的创建结构体的方法，就是直接写代码导入</p>
+<p>在 <code>View–&gt;Open Subviews–&gt;Local Types</code> 中可以看到本地已有的结构体，在该窗口中右击 insert</p>
+<p>可以添加新的结构体：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204192032352.png" alt="image-20220419202839088"></p>
+<p>接着我们需要对着 my_structure 右击，选择 <code>synchronize to idb</code>。如果没有这一步的话，会发现 structure 视图里面，并没有这个结构体。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204192032353.png" alt="image-20220419203214021"></p>
 
-每一个物理页的属性结构:
-
-123456struct Page &#123;    int ref;                        // page frame&#x27;s reference counter    uint32_t flags;                 // array of flags that describe the status of the page frame    unsigned int property;          // the...
-            </div>
-            <!-- read more -->
+    </article>
+    <!-- license -->
+    
+    <!-- paginator -->
+    <ul class="post-paginator">
+        <li class="next">
             
-            <div class="abstract-post-meta">
-                <!-- date -->
-                <div class="abstract-date" title="Last updated: 2021/09/29">
-                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2022/01/08</span>
-                </div>
-                <!-- tags -->
-                
-                    <div class= abstract-tags >
-    
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags="os">os</a>
-    
-</div>
-
-                
-            </div>
-        </article>
-        <div class="index-post-divider"></div>
-    
-        
-        
-        
-        
+        </li>
+        <li class="previous">
             
-        
-        <article class="index-post">
-            <a class="abstract-title" href="/2022/01/08/lab1%20%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A/">
-                
-                <span class="abstract-title-text">lab1实验报告</span>
-            </a>
-            <div class="abstract-content">
-                lab1 实验报告练习1
-操作系统镜像文件ucore.img是如何一步一步生成的？(需要比较详细地解释Makefile中每一条相关命令和命令参数的含义，以及说明命令导致的结果)
-
-生成ucore.img(生成ucore.img需要kernel和bootblock)的代码如下：
-
-12345$(UCOREIMG): $(kernel) $(bootblock)	$(V)dd if=/dev/zero of=$@ count=10000	$(V)dd if=$(bootblock) of=$@ conv=notrunc	$(V)dd if=$(kernel) of=$@ seek=1 con...
-            </div>
-            <!-- read more -->
+                <div class="prevSlogan">Previous Post</div>
+                <a href="/2022/04/19/gundam/" title="HITB CTF 2018 gundam">
+                    <div class="prevTitle">HITB CTF 2018 gundam</div>
+                </a>
             
-            <div class="abstract-post-meta">
-                <!-- date -->
-                <div class="abstract-date" title="Last updated: 2021/09/22">
-                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2022/01/08</span>
-                </div>
-                <!-- tags -->
-                
-                    <div class= abstract-tags >
+        </li>
+    </ul>
+    <!-- comment -->
     
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags="os">os</a>
-    
-</div>
+        <div class="post-comment">
+            <!-- 来必力 City 版安装代码 -->
 
-                
-            </div>
-        </article>
-        <div class="index-post-divider"></div>
-    
-        
-        
-        
-        
+
             
-        
-        <article class="index-post">
-            <a class="abstract-title" href="/2022/01/08/kernel_pwn%E7%8E%AF%E5%A2%83/">
-                
-                <span class="abstract-title-text">kernel pwn环境搭建</span>
-            </a>
-            <div class="abstract-content">
-                本文主要记一下kernel  pwn环境搭建过程
-参考链接
 
-https://www.jianshu.com/p/23351b38ecb0
-https://ctf-wiki.org/pwn/linux/kernel-mode/environment/build-kernel/
-https://n0va-scy.github.io/2020/06/21/kernel%20pwn%20%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/
-
-编译生成内核镜像先下载一个内核源码 ：https://mirrors.edge.kernel.org/pub/linux/kerne...
-            </div>
-            <!-- read more -->
             
-            <div class="abstract-post-meta">
-                <!-- date -->
-                <div class="abstract-date" title="Last updated: 2022/01/11">
-                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2022/01/08</span>
-                </div>
-                <!-- tags -->
-                
-            </div>
-        </article>
-        <div class="index-post-divider"></div>
+
+            
+
+            <!-- utteranc评论 -->
+
+
+            <!-- partial('_partial/comment/changyan') -->
+            <!--PC版-->
+
+
+            
+            
+
+        </div>
     
-    <!-- paginator  -->
+    <!-- timeliness note -->
+    <!-- idea from: https://hexo.fluid-dev.com/posts/hexo-injector/#%E6%96%87%E7%AB%A0%E6%97%B6%E6%95%88%E6%80%A7%E6%8F%90%E7%A4%BA -->
     
-        <nav class="page-nav">
-            <a class="extend prev" rel="prev" href="/archives/2022/01/">&lt; PREV</a><a class="page-number" href="/archives/2022/01/">1</a><span class="page-number current">2</span>
-        </nav>
+    <!-- Mathjax -->
     
 </main>
 
@@ -747,6 +646,23 @@ https://n0va-scy.github.io/2020/06/21/kernel%20pwn%20%E7%8E%AF%E5%A2%83%E6%90%AD
 
         </div>
         <!-- toc -->
+        
+            <div class="toc-wrapper toc-wrapper-loding" style=
+
+
+
+
+
+
+
+    top:50vh;
+
+>
+                <div class="toc-catalog">
+                    <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
+                </div>
+                <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#IDA-Pro%E5%88%9B%E5%BB%BA%E7%BB%93%E6%9E%84%E4%BD%93"><span class="toc-number">1.</span> <span class="toc-text">IDA Pro创建结构体</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%89%8B%E5%B7%A5%E5%88%9B%E5%BB%BA"><span class="toc-number">1.1.</span> <span class="toc-text">手工创建</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AF%BC%E5%85%A5-C-%E8%AF%AD%E8%A8%80%E5%A3%B0%E6%98%8E%E7%9A%84%E7%BB%93%E6%9E%84%E4%BD%93"><span class="toc-number">1.2.</span> <span class="toc-text">导入 C 语言声明的结构体</span></a></li></ol></li></ol>
+            </div>
         
         <!-- sidebar -->
         <div class="sidebar sidebar-hide">
@@ -1361,6 +1277,8 @@ https://n0va-scy.github.io/2020/06/21/kernel%20pwn%20%E7%8E%AF%E5%A2%83%E6%90%AD
         <!-- CNZZ -->
         
         <!-- async load share.js -->
+        
+            <script src="/scripts/share.js?v=20210823" async></script>
         
         <!-- mermaid -->
         
