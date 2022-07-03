@@ -428,6 +428,204 @@
             
         
         <article class="index-post">
+            <a class="abstract-title" href="/2022/04/17/LCTF2018%20PWN%20easy_heap/">
+                
+                <span class="abstract-title-text">LCTF2018 easy_heap</span>
+            </a>
+            <div class="abstract-content">
+                
+参考链接：https://ctf-wiki.org/pwn/linux/user-mode/heap/ptmalloc2/tcache-attack/
+https://hollk.blog.csdn.net/article/details/113697892?spm=1001.2014.3001.5502
+
+保护检查
+IDA分析main函数1234567891011121314151617181920212223242526272829303132333435363738void __fastcall __noreturn main(__int64 a1, char **a2, cha...
+            </div>
+            <!-- read more -->
+            
+            <div class="abstract-post-meta">
+                <!-- date -->
+                <div class="abstract-date" title="Last updated: 2022/04/17">
+                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2022/04/17</span>
+                </div>
+                <!-- tags -->
+                
+                    <div class= abstract-tags >
+    
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags="tcache">tcache</a>
+    
+</div>
+
+                
+            </div>
+        </article>
+        <div class="index-post-divider"></div>
+    
+        
+        
+        
+        
+            
+        
+        <article class="index-post">
+            <a class="abstract-title" href="/2022/04/08/tcache/">
+                
+                <span class="abstract-title-text">tcache</span>
+            </a>
+            <div class="abstract-content">
+                TCache机制TCache全名为Thread Local Caching，它为每个线程创建一个缓存，里面包含了一些小堆块，无须对arena上锁即可使用，这种无锁的分配算法能有不错的性能提升，但也引入了更多的不安全性,让之前很多的代码检查都不再起作用，可以很好的绕过，libc-2.26正式引入该机制，并默认开启。
+数据结构glibc在编译时使用USE_TCACHE条件来开启tcache机制，并定
+义了下面这些宏。
+123456789101112131415161718192021222324252627#if USE_TCACHE/* We want 64 entries.  This ...
+            </div>
+            <!-- read more -->
+            
+            <div class="abstract-post-meta">
+                <!-- date -->
+                <div class="abstract-date" title="Last updated: 2022/04/18">
+                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2022/04/08</span>
+                </div>
+                <!-- tags -->
+                
+            </div>
+        </article>
+        <div class="index-post-divider"></div>
+    
+        
+        
+        
+        
+            
+        
+        <article class="index-post">
+            <a class="abstract-title" href="/2022/04/07/libc-2.26/">
+                
+                <span class="abstract-title-text">libc 2.26</span>
+            </a>
+            <div class="abstract-content">
+                fastbin attackfastbin dup在libc-2.26，对应 tcache dup由于新添加的tcache机制不会检查 二次释放，因此不必考虑如何绕过的问题，直接释放两次即可，fastbin dup变得更加简单，甚至还不局限于fastbin大小的chunk，我们称之为tcache dup。示例程序：
+123456789101112#include &lt;stdlib.h&gt;#include &lt;stdio.h&gt;int main() &#123;    void *p1 = malloc(0x10);    fprintf(stderr, &quot;1st...
+            </div>
+            <!-- read more -->
+            
+            <div class="abstract-post-meta">
+                <!-- date -->
+                <div class="abstract-date" title="Last updated: 2022/04/07">
+                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2022/04/07</span>
+                </div>
+                <!-- tags -->
+                
+            </div>
+        </article>
+        <div class="index-post-divider"></div>
+    
+        
+        
+        
+        
+            
+        
+        <article class="index-post">
+            <a class="abstract-title" href="/2022/04/07/house-of-storm/">
+                
+                <span class="abstract-title-text">house of storm</span>
+            </a>
+            <div class="abstract-content">
+                
+参考链接：
+https://www.anquanke.com/post/id/203096
+https://www.cnblogs.com/Rookle/p/13140339.html
+https://a1ex.online/2020/10/07/house-of-storm/
+https://chenqiw9.github.io/2021/07/21/Tcache%20Stashing%20Unlink%20Attack%E5%92%8Chouse%20of%20storm%E7%AE%80%E6%9E%90/
+
+产生条件House_of_storm是一种结合了unsorted_bi...
+            </div>
+            <!-- read more -->
+            
+            <div class="abstract-post-meta">
+                <!-- date -->
+                <div class="abstract-date" title="Last updated: 2022/04/07">
+                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2022/04/07</span>
+                </div>
+                <!-- tags -->
+                
+            </div>
+        </article>
+        <div class="index-post-divider"></div>
+    
+        
+        
+        
+        
+            
+        
+        <article class="index-post">
+            <a class="abstract-title" href="/2022/04/04/%E5%B3%BB%E6%9E%81pwn/">
+                
+                <span class="abstract-title-text">峻极pwn</span>
+            </a>
+            <div class="abstract-content">
+                本文主要记录一下周日的比赛，和同学商量写出了3题
+warmpwn保护检查
+发现保护全开
+IDA分析12345678910111213141516171819202122232425262728__int64 __fastcall main(__int64 a1, char **a2, char **a3)&#123;  int v4; // [rsp+4h] [rbp-ECh] BYREF  int *v5; // [rsp+8h] [rbp-E8h]  char format[112]; // [rsp+10h] [rbp-E0h] BYREF  char s[104]; // [rs...
+            </div>
+            <!-- read more -->
+            
+            <div class="abstract-post-meta">
+                <!-- date -->
+                <div class="abstract-date" title="Last updated: 2022/04/04">
+                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2022/04/04</span>
+                </div>
+                <!-- tags -->
+                
+            </div>
+        </article>
+        <div class="index-post-divider"></div>
+    
+        
+        
+        
+        
+            
+        
+        <article class="index-post">
+            <a class="abstract-title" href="/2022/03/19/stack%20pivoting/">
+                
+                <span class="abstract-title-text">stack pivoting</span>
+            </a>
+            <div class="abstract-content">
+                 参考链接：https://www.cnblogs.com/max1z/p/15299000.html
+原理：stack pivoting，正如它所描述的，该技巧就是劫持栈指针指向攻击者所能控制的内存处，然后再在相应的位置进行 ROP。一般来说，我们可能在以下情况需要使用 stack pivoting
+
+可以控制的栈溢出的字节数较少，难以构造较长的 ROP 链
+开启了 PIE 保护，栈地址未知，我们可以将栈劫持到已知的区域。
+其它漏洞难以利用，我们需要进行转换，比如说将栈劫持到堆空间，从而在堆上写 rop 及进行堆漏洞利用
+
+此外，利用 stack pivoting 有以下几个要求：
+
+...
+            </div>
+            <!-- read more -->
+            
+            <div class="abstract-post-meta">
+                <!-- date -->
+                <div class="abstract-date" title="Last updated: 2022/05/04">
+                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2022/03/19</span>
+                </div>
+                <!-- tags -->
+                
+            </div>
+        </article>
+        <div class="index-post-divider"></div>
+    
+        
+        
+        
+        
+            
+        
+        <article class="index-post">
             <a class="abstract-title" href="/2022/02/26/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/">
                 
                 <span class="abstract-title-text">操作系统</span>
@@ -558,253 +756,10 @@ global_max_fast是main_arena中控制最大fastbin大...
         </article>
         <div class="index-post-divider"></div>
     
-        
-        
-        
-        
-            
-        
-        <article class="index-post">
-            <a class="abstract-title" href="/2022/01/13/pwn200/">
-                
-                <span class="abstract-title-text">pwn200</span>
-            </a>
-            <div class="abstract-content">
-                pwn200首先检查一下程序保护
-保护全关
-IDA静态分析main 函数调用的是sub_400A8E()的主程序部分
-123456789101112131415161718192021222324252627__int64 sub_400A8E()&#123;  __int64 i; // [rsp+10h] [rbp-40h]  char v2[48]; // [rsp+20h] [rbp-30h] BYREF  puts(&quot;who are u?&quot;);  for ( i = 0LL; i &lt;= 47; ++i )  &#123;    read(0, &amp...
-            </div>
-            <!-- read more -->
-            
-            <div class="abstract-post-meta">
-                <!-- date -->
-                <div class="abstract-date" title="Last updated: 2022/02/26">
-                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2022/01/13</span>
-                </div>
-                <!-- tags -->
-                
-                    <div class= abstract-tags >
-    
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags="house of spirit">house of spirit</a>
-    
-</div>
-
-                
-            </div>
-        </article>
-        <div class="index-post-divider"></div>
-    
-        
-        
-        
-        
-            
-        
-        <article class="index-post">
-            <a class="abstract-title" href="/2022/01/12/write%20some%20paper/">
-                
-                <span class="abstract-title-text">write some paper</span>
-            </a>
-            <div class="abstract-content">
-                Write some paper
-参考链接：https://xuanxuanblingbling.github.io/ctf/pwn/2020/02/02/paper/
-
-首先检查程序：
-IDA分析发现delete函数中free后，并没有清空link_list数组中的地址，存在use-after-free漏洞
-1234567891011int delete_paper()&#123;  int v1; // [rsp+Ch] [rbp-4h] BYREF  printf(&quot;which paper you want to delete,please enter it&#x27;s...
-            </div>
-            <!-- read more -->
-            
-            <div class="abstract-post-meta">
-                <!-- date -->
-                <div class="abstract-date" title="Last updated: 2022/01/15">
-                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2022/01/12</span>
-                </div>
-                <!-- tags -->
-                
-                    <div class= abstract-tags >
-    
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags="fastbin doule free">fastbin doule free</a>
-    
-</div>
-
-                
-            </div>
-        </article>
-        <div class="index-post-divider"></div>
-    
-        
-        
-        
-        
-            
-        
-        <article class="index-post">
-            <a class="abstract-title" href="/2022/01/09/fastbin_attack/">
-                
-                <span class="abstract-title-text">fastbin_attack</span>
-            </a>
-            <div class="abstract-content">
-                fastbin_attack介绍 ¶fastbin attack 是一类漏洞的利用方法，是指所有基于 fastbin 机制的漏洞利用方法。这类利用的前提是：
-
-存在堆溢出、use-after-free 等能控制 chunk 内容的漏洞
-漏洞发生于 fastbin 类型的 chunk 中
-
-如果细分的话，可以做如下的分类：
-
-Fastbin Double Free
-House of Spirit
-Alloc to Stack
-Arbitrary Alloc
-
-其中，前两种主要漏洞侧重于利用 free 函数释放真的 chunk 或伪造的 chunk，然后再次申请 chunk 进行攻击，后两种...
-            </div>
-            <!-- read more -->
-            
-            <div class="abstract-post-meta">
-                <!-- date -->
-                <div class="abstract-date" title="Last updated: 2022/01/15">
-                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2022/01/09</span>
-                </div>
-                <!-- tags -->
-                
-            </div>
-        </article>
-        <div class="index-post-divider"></div>
-    
-        
-        
-        
-        
-            
-        
-        <article class="index-post">
-            <a class="abstract-title" href="/2022/01/08/overlapping%20chunks/">
-                
-                <span class="abstract-title-text">overlapping chunks</span>
-            </a>
-            <div class="abstract-content">
-                overlapping chunkschunk extend 是堆漏洞的一种常见利用手法，通过extend可以实现chunk overlapping（块重叠）的效果。这种利用方法需要以下的时机和条件：
-
-程序中存在基于堆的漏洞
-漏洞可以控制 chunk header 中的数据
-
-拓展被释放块123456789101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475/* A simpl...
-            </div>
-            <!-- read more -->
-            
-            <div class="abstract-post-meta">
-                <!-- date -->
-                <div class="abstract-date" title="Last updated: 2022/01/08">
-                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2022/01/08</span>
-                </div>
-                <!-- tags -->
-                
-            </div>
-        </article>
-        <div class="index-post-divider"></div>
-    
-        
-        
-        
-        
-            
-        
-        <article class="index-post">
-            <a class="abstract-title" href="/2022/01/08/gdb%E8%B0%83%E8%AF%95/">
-                
-                <span class="abstract-title-text">gdb的使用</span>
-            </a>
-            <div class="abstract-content">
-                今天看视频听一下gdb的使用
-
-i b查看程序的寄存器内容
-★rip 当前执行指令的地址
-★rsp 存放当前栈帧的栈顶地址
-★rbp 存放当前栈帧的栈底地址
-★rax 通用寄存器。存放函数返回值
-
-disassemble  反编译
-disassemble $rip 查看rip位置的汇编语言
-
-  i  b 查看断点
-
-
-   cmp a1,0x61 :判断a1-0x61==0
-   sub a1,0x61: a1=a1-0x61
-
-disable 使断点失效
-enable 使断点有效
-
- si  步入  finish 步出
-
-
-
-
-8
-16
-32
-64
-
-
-
-BYTE
-WROD
-DWOR...
-            </div>
-            <!-- read more -->
-            
-            <div class="abstract-post-meta">
-                <!-- date -->
-                <div class="abstract-date" title="Last updated: 2022/01/05">
-                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2022/01/08</span>
-                </div>
-                <!-- tags -->
-                
-            </div>
-        </article>
-        <div class="index-post-divider"></div>
-    
-        
-        
-        
-        
-            
-        
-        <article class="index-post">
-            <a class="abstract-title" href="/2022/01/08/csaw/">
-                
-                <span class="abstract-title-text">csaw部分题解</span>
-            </a>
-            <div class="abstract-content">
-                Alien_math:我下载的alien_math用IDA分析时出现了些问题，这里借用其他师傅的图片进行分析:
-main函数：
-rand是伪随机的，这里srand没有初始化，所以它实际上总是返回相同的值。rand的输出是固定的，我们可以在v6与v5比较时下断点查看v6的值，
-
-
-得到结果为v6的值为0x6b8b4567，即1804289383。
-second_question:1234567891011121314151617181920212223242526272829303132333435363738394041424344454647void second_question(c...
-            </div>
-            <!-- read more -->
-            
-            <div class="abstract-post-meta">
-                <!-- date -->
-                <div class="abstract-date" title="Last updated: 2021/09/22">
-                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2022/01/08</span>
-                </div>
-                <!-- tags -->
-                
-            </div>
-        </article>
-        <div class="index-post-divider"></div>
-    
     <!-- paginator  -->
     
         <nav class="page-nav">
-            <a class="extend prev" rel="prev" href="/archives/2022/">&lt; PREV</a><a class="page-number" href="/archives/2022/">1</a><span class="page-number current">2</span><a class="page-number" href="/archives/2022/page/3/">3</a><a class="extend next" rel="next" href="/archives/2022/page/3/">NEXT &gt;</a>
+            <a class="extend prev" rel="prev" href="/archives/2022/">&lt; PREV</a><a class="page-number" href="/archives/2022/">1</a><span class="page-number current">2</span><a class="page-number" href="/archives/2022/page/3/">3</a><a class="page-number" href="/archives/2022/page/4/">4</a><a class="extend next" rel="next" href="/archives/2022/page/3/">NEXT &gt;</a>
         </nav>
     
 </main>
@@ -1041,7 +996,91 @@ second_question:1234567891011121314151617181920212223242526272829303132333435363
         
         
         
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
     
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
         
         
         
@@ -1248,7 +1287,7 @@ second_question:1234567891011121314151617181920212223242526272829303132333435363
     
     <div class="total-and-search">
         <div class="total-archive">
-        Total : 28
+        Total : 34
         </div>
         <!-- search  -->
         
@@ -1262,6 +1301,30 @@ second_question:1234567891011121314151617181920212223242526272829303132333435363
             <div class="archive-year"> 2022 </div>
             <ul class="year-list">
             
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/03</span>
+            <a class="archive-post-title" href="/2022/07/03/0ctf_2018_babystack/">[Untitled Post]</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/02</span>
+            <a class="archive-post-title" href="/2022/07/02/ret2dlresolve_x64/">ret2dlresolve_x64</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/29</span>
+            <a class="archive-post-title" href="/2022/04/29/dl-runtime-resolve/">ret2dl-resolve</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/24</span>
+            <a class="archive-post-title" href="/2022/04/24/%E5%BB%B6%E8%BF%9F%E7%BB%91%E5%AE%9A/">延迟绑定</a>
+        </li>
+    
         
         <li class="archive-post-item">
             <span class="archive-post-date">04/22</span>
@@ -1409,6 +1472,18 @@ second_question:1234567891011121314151617181920212223242526272829303132333435363
         
         <li class="archive-post-item">
             <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/lab1%20%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A/">lab1实验报告</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/lab2%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A/">lab2 实验报告</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
             <a class="archive-post-title" href="/2022/01/08/off-by-one/">off-by-one</a>
         </li>
     
@@ -1419,15 +1494,33 @@ second_question:1234567891011121314151617181920212223242526272829303132333435363
         </li>
     
         
+            
+            
+                
+                </ul>
+            
+            <div class="archive-year"> Invalid date </div>
+            <ul class="year-list">
+            
+        
         <li class="archive-post-item">
-            <span class="archive-post-date">01/08</span>
-            <a class="archive-post-title" href="/2022/01/08/lab1%20%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A/">lab1实验报告</a>
+            <span class="archive-post-date">Invalid date</span>
+            <a class="archive-post-title" href="/2022/04/25/srop/">srop</a>
         </li>
     
         
+            
+            
+                
+                </ul>
+            
+            <div class="archive-year"> Invalid date </div>
+            <ul class="year-list">
+            
+        
         <li class="archive-post-item">
-            <span class="archive-post-date">01/08</span>
-            <a class="archive-post-title" href="/2022/01/08/lab2%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A/">lab2 实验报告</a>
+            <span class="archive-post-date">Invalid date</span>
+            <a class="archive-post-title" href="/2022/05/07/%E9%9D%9E%E6%A0%88%E4%B8%8A%E7%9A%84%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%BC%8F%E6%B4%9E/">非栈上的格式化字符串漏洞</a>
         </li>
     
     </div>
@@ -1435,6 +1528,16 @@ second_question:1234567891011121314151617181920212223242526272829303132333435363
 
         <div class="sidebar-panel-tags">
     <div class="sidebar-tags-name">
+        
+            <span class="sidebar-tag-name" data-tags="tcache">
+                <span class="iconfont-archer">&#xe606;</span>
+                tcache
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="os">
+                <span class="iconfont-archer">&#xe606;</span>
+                os
+            </span>
         
             <span class="sidebar-tag-name" data-tags="unsorted bin attack">
                 <span class="iconfont-archer">&#xe606;</span>
@@ -1454,16 +1557,6 @@ second_question:1234567891011121314151617181920212223242526272829303132333435363
             <span class="sidebar-tag-name" data-tags="fastbin doule free">
                 <span class="iconfont-archer">&#xe606;</span>
                 fastbin doule free
-            </span>
-        
-            <span class="sidebar-tag-name" data-tags="tcache">
-                <span class="iconfont-archer">&#xe606;</span>
-                tcache
-            </span>
-        
-            <span class="sidebar-tag-name" data-tags="os">
-                <span class="iconfont-archer">&#xe606;</span>
-                os
             </span>
         
     </div>

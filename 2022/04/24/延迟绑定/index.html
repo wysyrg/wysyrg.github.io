@@ -1,0 +1,1472 @@
+<!DOCTYPE html>
+<html lang="en">
+    <!-- title -->
+
+
+    
+
+<!-- keywords -->
+
+
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="author" content="John Doe">
+    <meta name="renderer" content="webkit">
+    <meta name="copyright" content="John Doe">
+    
+        <meta name="keywords" content="hexo,hexo-theme,hexo-blog">
+    
+    <meta name="description" content="">
+    <meta name="description" content="参考链接：https:&#x2F;&#x2F;blog.csdn.net&#x2F;weixin_44681716&#x2F;article&#x2F;details&#x2F;89877497  延迟绑定延迟绑定：当程序第一次调用外部库的函数的时候，才对该函数的进行绑定（即符号查找和重定位等），将函数在内存中的真实地址写入.got.plt中的对应表项。延迟绑定是一种动态链接的优化技术，如果未采用延迟绑定技术，则程序开始执行时，动态链接器都要先进行一次链">
+<meta property="og:type" content="article">
+<meta property="og:title" content="延迟绑定">
+<meta property="og:url" content="http://example.com/2022/04/24/%E5%BB%B6%E8%BF%9F%E7%BB%91%E5%AE%9A/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="参考链接：https:&#x2F;&#x2F;blog.csdn.net&#x2F;weixin_44681716&#x2F;article&#x2F;details&#x2F;89877497  延迟绑定延迟绑定：当程序第一次调用外部库的函数的时候，才对该函数的进行绑定（即符号查找和重定位等），将函数在内存中的真实地址写入.got.plt中的对应表项。延迟绑定是一种动态链接的优化技术，如果未采用延迟绑定技术，则程序开始执行时，动态链接器都要先进行一次链">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204241440101.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204241439602.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20190506113642605.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80NDY4MTcxNg==,size_16,color_FFFFFF,t_70">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204241439604.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204241439605.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204241439606.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204241439607.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204241439608.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204241439609.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204241439610.png">
+<meta property="article:published_time" content="2022-04-24T03:06:37.163Z">
+<meta property="article:modified_time" content="2022-06-28T08:38:07.681Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204241440101.png">
+    <meta http-equiv="Cache-control" content="no-cache">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <link rel="icon" href="/assets/favicon.ico">
+    
+    <title>延迟绑定 · 渐渐的博客</title>
+    <!-- /*! loadCSS. [c]2017 Filament Group, Inc. MIT License */
+/* This file is meant as a standalone workflow for
+- testing support for link[rel=preload]
+- enabling async CSS loading in browsers that do not support rel=preload
+- applying rel preload css once loaded, whether supported or not.
+*/ -->
+<script>
+    (function (w) {
+        'use strict'
+        // rel=preload support test
+        if (!w.loadCSS) {
+            w.loadCSS = function () {}
+        }
+        // define on the loadCSS obj
+        var rp = (loadCSS.relpreload = {})
+        // rel=preload feature support test
+        // runs once and returns a function for compat purposes
+        rp.support = (function () {
+            var ret
+            try {
+                ret = w.document.createElement('link').relList.supports('preload')
+            } catch (e) {
+                ret = false
+            }
+            return function () {
+                return ret
+            }
+        })()
+
+        // if preload isn't supported, get an asynchronous load by using a non-matching media attribute
+        // then change that media back to its intended value on load
+        rp.bindMediaToggle = function (link) {
+            // remember existing media attr for ultimate state, or default to 'all'
+            var finalMedia = link.media || 'all'
+
+            function enableStylesheet() {
+                link.media = finalMedia
+            }
+
+            // bind load handlers to enable media
+            if (link.addEventListener) {
+                link.addEventListener('load', enableStylesheet)
+            } else if (link.attachEvent) {
+                link.attachEvent('onload', enableStylesheet)
+            }
+
+            // Set rel and non-applicable media type to start an async request
+            // note: timeout allows this to happen async to let rendering continue in IE
+            setTimeout(function () {
+                link.rel = 'stylesheet'
+                link.media = 'only x'
+            })
+            // also enable media after 3 seconds,
+            // which will catch very old browsers (android 2.x, old firefox) that don't support onload on link
+            setTimeout(enableStylesheet, 3000)
+        }
+
+        // loop through link elements in DOM
+        rp.poly = function () {
+            // double check this to prevent external calls from running
+            if (rp.support()) {
+                return
+            }
+            var links = w.document.getElementsByTagName('link')
+            for (var i = 0; i < links.length; i++) {
+                var link = links[i]
+                // qualify links to those with rel=preload and as=style attrs
+                if (
+                    link.rel === 'preload' &&
+                    link.getAttribute('as') === 'style' &&
+                    !link.getAttribute('data-loadcss')
+                ) {
+                    // prevent rerunning on link
+                    link.setAttribute('data-loadcss', true)
+                    // bind listeners to toggle media back
+                    rp.bindMediaToggle(link)
+                }
+            }
+        }
+
+        // if unsupported, run the polyfill
+        if (!rp.support()) {
+            // run once at least
+            rp.poly()
+
+            // rerun poly on an interval until onload
+            var run = w.setInterval(rp.poly, 500)
+            if (w.addEventListener) {
+                w.addEventListener('load', function () {
+                    rp.poly()
+                    w.clearInterval(run)
+                })
+            } else if (w.attachEvent) {
+                w.attachEvent('onload', function () {
+                    rp.poly()
+                    w.clearInterval(run)
+                })
+            }
+        }
+
+        // commonjs
+        if (typeof exports !== 'undefined') {
+            exports.loadCSS = loadCSS
+        } else {
+            w.loadCSS = loadCSS
+        }
+    })(typeof global !== 'undefined' ? global : this)
+</script>
+
+    <style type="text/css">
+    @font-face {
+        font-family: 'Oswald-Regular';
+        src: url("/font/Oswald-Regular.ttf");
+    }
+
+    body {
+        margin: 0;
+    }
+
+    header,
+    footer,
+    .back-top,
+    .sidebar,
+    .container,
+    .site-intro-meta,
+    .toc-wrapper {
+        display: none;
+    }
+
+    .site-intro {
+        position: relative;
+        z-index: 3;
+        width: 100%;
+        /* height: 50vh; */
+        overflow: hidden;
+    }
+
+    .site-intro-placeholder {
+        position: absolute;
+        z-index: -2;
+        top: 0;
+        left: 0;
+        width: calc(100% + 300px);
+        height: 100%;
+        background: repeating-linear-gradient(-45deg, #444 0, #444 80px, #333 80px, #333 160px);
+        background-position: center center;
+        transform: translate3d(-226px, 0, 0);
+        animation: gradient-move 2.5s ease-out 0s infinite;
+    }
+
+    @keyframes gradient-move {
+        0% {
+            transform: translate3d(-226px, 0, 0);
+        }
+        100% {
+            transform: translate3d(0, 0, 0);
+        }
+    }
+</style>
+
+    <link rel="preload" href="/css/style.css?v=20210823" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="/css/dark.css?v=20210823" as="style">
+    <link rel="stylesheet" href="/css/dark.css" media="(prefers-color-scheme: dark)">
+    <link rel="stylesheet" href="/css/mobile.css?v=20210823" media="(max-width: 960px)">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js" as="script">
+    <link rel="preload" href="/scripts/main.js?v=20210823" as="script">
+    <link rel="preload" href="/scripts/dark.js?v=20210823" as="script">
+    <link rel="preload" href="/font/Oswald-Regular.ttf" as="font" crossorigin>
+    <link rel="preload" href="https://at.alicdn.com/t/font_327081_1dta1rlogw17zaor.woff" as="font" crossorigin>
+    <!-- algolia -->
+    
+    <!-- 百度统计  -->
+    
+    <!-- 谷歌统计  -->
+    
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <script type="text/javascript">
+        if (typeof window.$ == undefined) {
+            console.warn('jquery load from jsdelivr failed, will load local script')
+            document.write('<script src="/lib/jquery.min.js" />')
+        }
+    </script>
+    
+        <body class="post-body">
+    
+        <!-- header -->
+        <header class="header header-mobile">
+    <!-- top read progress line -->
+    <div class="header-element">
+        <div class="read-progress"></div>
+    </div>
+    <!-- sidebar menu button -->
+    <div class="header-element">
+        
+            <div class="header-sidebar-menu">
+        
+            
+                <div style="padding-left: 1px;">&#xe775;</div>
+            
+        </div>
+    </div>
+    <!-- header actions -->
+    <div class="header-actions">
+        <!-- theme mode switch button -->
+        <span class="header-theme-btn header-element">
+            <i class="fas fa-adjust"></i>
+        </span>
+        <!-- back to home page text -->
+        <span class="home-link header-element">
+            <a href=/>渐渐的博客</a>
+        </span>
+    </div>
+    <!-- toggle banner for post layout -->
+    
+        
+            <div class="banner">
+        
+            <div class="blog-title header-element">
+                <a href="/">渐渐的博客</a>
+            </div>
+            <div class="post-title header-element">
+                <a href="#" class="post-name">延迟绑定</a>
+            </div>
+        </div>
+    
+</header>
+
+        <!-- fixed footer -->
+        <footer class="footer-fixed">
+    <!-- back to top button -->
+    <div class="footer-fixed-element">
+        
+            <div class="back-top back-top-hidden">
+        
+        
+            <div>&#xe639;</div>
+        
+        </div>
+    </div>
+</footer>
+
+        <!-- wrapper -->
+        <div class="wrapper">
+            <div class="site-intro" style="
+
+
+
+
+
+
+
+    height:50vh;
+
+">
+    
+    <!-- 主页  -->
+    
+        
+    <!-- 404页  -->
+            
+    <div class="site-intro-placeholder"></div>
+    <div class="site-intro-img" style="background-image: url(/intro/wlop1.jpeg)"></div>
+    <div class="site-intro-meta">
+        <!-- 标题  -->
+        <h1 class="intro-title">
+            <!-- 主页  -->
+            
+                延迟绑定
+            <!-- 404 -->
+            
+        </h1>
+        <!-- 副标题 -->
+        <p class="intro-subtitle">
+            <!-- 主页副标题  -->
+            
+                
+            <!-- 404 -->
+            
+        </p>
+        <!-- 文章页 meta -->
+        
+            <div class="post-intros">
+                <!-- 文章页标签  -->
+                
+                
+                    <div class="post-intro-read">
+                        <span>Word count: <span class="post-count word-count">1.6k</span>Reading time: <span class="post-count reading-time">5 min</span></span>
+                    </div>
+                
+                <div class="post-intro-meta">
+                    <!-- 撰写日期 -->
+                    <span class="iconfont-archer post-intro-calander">&#xe676;</span>
+                    <span class="post-intro-time">2022/04/24</span>
+                    <!-- busuanzi -->
+                    
+                        <span id="busuanzi_container_page_pv" class="busuanzi-pv">
+                            <span class="iconfont-archer post-intro-busuanzi">&#xe602;</span>
+                            <span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    
+                    <!-- 文章分享 -->
+                    <span class="share-wrapper">
+                        <span class="iconfont-archer share-icon">&#xe71d;</span>
+                        <span class="share-text">Share</span>
+                        <ul class="share-list">
+                            <li class="iconfont-archer share-qr" data-type="qr">&#xe75b;
+                                <div class="share-qrcode"></div>
+                            </li>
+                            <li class="iconfont-archer" data-type="weibo">&#xe619;</li>
+                            <li class="iconfont-archer" data-type="qzone">&#xe62e;</li>
+                            <li class="iconfont-archer" data-type="twitter">&#xe634;</li>
+                            <li class="iconfont-archer" data-type="facebook">&#xe67a;</li>
+                        </ul>
+                    </span>
+                </div>
+            </div>
+        
+    </div>
+</div>
+
+            <script>
+  // get user agent
+  function getBrowserVersions() {
+    var u = window.navigator.userAgent
+    return {
+      userAgent: u,
+      trident: u.indexOf('Trident') > -1, //IE内核
+      presto: u.indexOf('Presto') > -1, //opera内核
+      webKit: u.indexOf('AppleWebKit') > -1, //苹果、谷歌内核
+      gecko: u.indexOf('Gecko') > -1 && u.indexOf('KHTML') == -1, //火狐内核
+      mobile: !!u.match(/AppleWebKit.*Mobile.*/), //是否为移动终端
+      ios: !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/), //ios终端
+      android: u.indexOf('Android') > -1 || u.indexOf('Linux') > -1, //android终端或者uc浏览器
+      iPhone: u.indexOf('iPhone') > -1 || u.indexOf('Mac') > -1, //是否为iPhone或者安卓QQ浏览器
+      iPad: u.indexOf('iPad') > -1, //是否为iPad
+      webApp: u.indexOf('Safari') == -1, //是否为web应用程序，没有头部与底部
+      weixin: u.indexOf('MicroMessenger') == -1, //是否为微信浏览器
+      uc: u.indexOf('UCBrowser') > -1, //是否为android下的UC浏览器
+    }
+  }
+  var browser = {
+    versions: getBrowserVersions(),
+  }
+  console.log('userAgent: ' + browser.versions.userAgent)
+
+  // callback
+  function fontLoaded() {
+    console.log('font loaded')
+    if (document.getElementsByClassName('site-intro-meta')) {
+      document
+        .getElementsByClassName('intro-title')[0]
+        .classList.add('intro-fade-in')
+      document
+        .getElementsByClassName('intro-subtitle')[0]
+        .classList.add('intro-fade-in')
+      var postIntros = document.getElementsByClassName('post-intros')[0]
+      if (postIntros) {
+        postIntros.classList.add('post-fade-in')
+      }
+    }
+  }
+
+  // UC不支持跨域，所以直接显示
+  function asyncCb() {
+    if (browser.versions.uc) {
+      console.log('UCBrowser')
+      fontLoaded()
+    } else {
+      WebFont.load({
+        custom: {
+          families: ['Oswald-Regular'],
+        },
+        loading: function () {
+          // 所有字体开始加载
+          // console.log('font loading');
+        },
+        active: function () {
+          // 所有字体已渲染
+          fontLoaded()
+        },
+        inactive: function () {
+          // 字体预加载失败，无效字体或浏览器不支持加载
+          console.log('inactive: timeout')
+          fontLoaded()
+        },
+        timeout: 5000, // Set the timeout to two seconds
+      })
+    }
+  }
+
+  function asyncErr() {
+    console.warn('script load from CDN failed, will load local script')
+  }
+
+  // load webfont-loader async, and add callback function
+  function async(u, cb, err) {
+    var d = document,
+      t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0]
+    o.src = u
+    if (cb) {
+      o.addEventListener(
+        'load',
+        function (e) {
+          cb(null, e)
+        },
+        false
+      )
+    }
+    if (err) {
+      o.addEventListener(
+        'error',
+        function (e) {
+          err(null, e)
+        },
+        false
+      )
+    }
+    s.parentNode.insertBefore(o, s)
+  }
+
+  var asyncLoadWithFallBack = function (arr, success, reject) {
+    var currReject = function () {
+      reject()
+      arr.shift()
+      if (arr.length) async(arr[0], success, currReject)
+    }
+
+    async(arr[0], success, currReject)
+  }
+
+  asyncLoadWithFallBack(
+    [
+      'https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.min.js',
+      'https://cdn.bootcss.com/webfont/1.6.28/webfontloader.js',
+      "/lib/webfontloader.min.js",
+    ],
+    asyncCb,
+    asyncErr
+  )
+</script>
+
+            <img class="loading" src="/assets/loading.svg" style="display: block; margin: 6rem auto 0 auto; width: 6rem; height: 6rem;" />
+            <div class="container container-unloaded">
+                <main class="main post-page">
+    <article class="article-entry">
+        <blockquote>
+<p>参考链接：<a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_44681716/article/details/89877497">https://blog.csdn.net/weixin_44681716/article/details/89877497</a></p>
+</blockquote>
+<h3 id="延迟绑定"><a href="#延迟绑定" class="headerlink" title="延迟绑定"></a>延迟绑定</h3><p>延迟绑定：当程序第一次调用外部库的函数的时候，才对该函数的进行绑定（即符号查找和重定位等），将函数在内存中的真实地址写入.got.plt中的对应表项。延迟绑定是一种动态链接的优化技术，如果未采用延迟绑定技术，则程序开始执行时，动态链接器都要先进行一次链接工作，寻找并装载所需要的共享对象，然后进行符号查找地址重定位等工作，这些工作必然会减慢程序的启动速度。</p>
+<p>ELF文件通过过程链接表（Procedure Linkage Table, PLT）和GOT的配合来实现延迟绑定，每个被调用的库函数都有一组对应的PLT和GOT。 </p>
+<h4 id="got"><a href="#got" class="headerlink" title=".got"></a><code>.got</code></h4><p>由于一个程序（或者共享库）的数据段和代码段的相对距离总是 保持不变的，因此，指令和变量之间的距离是一个运行时常量，与绝对内存地址无关。于是就有了全局偏移量表（Global Offset Table,GOT），它位于数据段的开头，用于保存全局变量和库函数的引用， 每个条目占8个字节，在加载时会进行重定位并填入符号的绝对地址。</p>
+<p>实际上，为了引入RELRO保护机制，GOT被拆分为.got节和.got.plt节两个部分，不需要延迟绑定的前者用于保存全局变量引用，加载到内存后被标记为只读；需要延迟绑定的后者则用于保存函数引用，具有读写权限</p>
+<h4 id="plt"><a href="#plt" class="headerlink" title=".plt"></a><strong><code>.plt</code></strong></h4><p> PLT（Procedure Linkage Table）程序链接表。它有两个功能，要么在 <code>.got.plt</code> 节中拿到外部符号的地址，并跳转。要么当 <code>.got.plt</code> 没有所需地址的时（第一次使用此外部符号），触发其首部的解析函数去找到所需地址。</p>
+<p>位于代码段.plt节的PLT是一个数组，每个条目占16个字节。其 中PLT[0]用于跳转到动态链接器，PLT[1]用于调用系统启动函数__libc_start_main()，我们熟悉的main()函数就是在这里面调用的，从PLT[2]开始就是被调用的各个函数条目。</p>
+<h4 id="got-plt"><a href="#got-plt" class="headerlink" title=".got.plt"></a><strong><code>.got.plt</code></strong></h4><p> 这个节是GOT的一部分，其中各表项存放了<code>.plt</code> 节所需要的外部符号的地址。另外，<code>.got.plt</code> 节还有一个特殊的地方是它的前三项是由特殊意义的。如图：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204241440101.png" alt="img"></p>
+<blockquote>
+<p><code>.plt</code> 中存放的是代码，<code>.got</code>中存放的是数据</p>
+<p><code>PLT</code> 表中的每一项的数据内容都是对应的 <code>GOT</code> 表中一项的地址，这个是固定不变的，<code>PLT</code> 表中的数据不是函数的真实地址，而是 <code>GOT</code> 表项的地址。</p>
+</blockquote>
+<h3 id="函数调用流程"><a href="#函数调用流程" class="headerlink" title="函数调用流程"></a>函数调用流程</h3><p>下图是第一次调用函数的流程</p>
+<p>由函数调用跳入到 <code>PLT</code> 表中，第一条jump指令找到对应的GOT条目，此时对应GOT表的位置中保存的还是第二条指令（即0x80482b6）的地址，于是执行第二条指令push ，将对应的0x0（puts在.rel.plt中的下标）压栈，然后执行 jmp 0x80482a0,跳转至PLT[0],执行push 0x80496f0，将GOT[1]压栈，然后执行jmp *0x80496F4，调用GOT[2],即动态链接器的_dl_runtime_resolve()函数，完成符号解析和重定位工作，将puts函数的真实地址填入<a href="mailto:&#x70;&#x75;&#116;&#x73;&#64;&#x67;&#111;&#116;&#46;&#112;&#x6c;&#116;">&#x70;&#x75;&#116;&#x73;&#64;&#x67;&#111;&#116;&#46;&#112;&#x6c;&#116;</a>,即GOT[3],最后执行puts函数</p>
+<ul>
+<li>第一步，由函数调用跳入到 <code>PLT</code> 表中第二步，<code>PLT</code> 表跳到 <code>GOT</code> 表中</li>
+<li>第三步，<code>GOT</code> 表回跳到 <code>PLT</code> 表中，这时候进行压栈，把代表函数的 <code>ID</code> 压栈</li>
+<li>第四步，跳转到公共的 <code>PLT</code> 表项中</li>
+<li>第五步，进入到 <code>GOT</code> 表</li>
+<li>第六步，<code>_dl_runtime_resolve</code> 对动态函数进行地址解析和重定位</li>
+<li>第七步，把动态函数真实的地址写入到 <code>GOT</code> 表项中</li>
+<li>第八步，执行函数</li>
+<li>第九步，返回</li>
+</ul>
+<p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204241439602.png" alt="image-20220424134145006"></p>
+<p>下图是第二次调用函数的流程</p>
+<ul>
+<li>第一步，由函数调用调入到 <code>PLT</code> 表中</li>
+<li>第二步，跳入到 <code>GOT</code> 表，由于这时候该表项已经是动态函数的真实地址，所以可以直接执行然后返回</li>
+</ul>
+<p><img src="https://img-blog.csdnimg.cn/20190506113642605.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80NDY4MTcxNg==,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
+<h3 id="动态查看调用puts函数过程"><a href="#动态查看调用puts函数过程" class="headerlink" title="动态查看调用puts函数过程"></a>动态查看调用puts函数过程</h3><p>第一次调用puts函数时，</p>
+<p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204241439604.png" alt="image-20220424135313948"></p>
+<p>执行call指令，进入puts@plt，执行第jmp *0x601018(即got[3]),got[3]中存储的为puts@plt中的第二条指令 push 0x0（puts函数在.rel.plt中的下标），然后执行 jmp ox400680，进入PLT[0]，执行push *0x601008，即将GOT[1] (relor entries)压栈，然后jmp *0x601010,即执行动态链接器的_dl_runtime_resolve()函数，完成符号解析和重定位工作，将puts函数的真实地址填入<a href="mailto:&#x70;&#117;&#x74;&#x73;&#64;&#103;&#x6f;&#x74;&#x2e;&#112;&#108;&#116;">&#x70;&#117;&#x74;&#x73;&#64;&#103;&#x6f;&#x74;&#x2e;&#112;&#108;&#116;</a>,即GOT[3],最后执行puts函数。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204241439605.png" alt="image-20220424135526929"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204241439606.png" alt="image-20220424140932396"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204241439607.png" alt="image-20220424141236487"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204241439608.png" alt="image-20220424141847642"></p>
+<p>第二次调用puts函数</p>
+<p>执行call指令，进入puts@plt，执行第jmp *0x601018(即got[3]),此时got[3]中存储的即为puts函数的真实地址。所以可以直接执行然后返回。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204241439609.png" alt="image-20220424142429607"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204241439610.png" alt="image-20220424142542032"></p>
+<h3 id="RELRO"><a href="#RELRO" class="headerlink" title="RELRO"></a>RELRO</h3><p>在延迟绑定的情况下，.got.plt必须是可写的，这就给了攻击者篡改地址劫持程序执行的可能。</p>
+<p><code>RELRO（ReLocation Read-Only）</code>机制的提出就是为了解决延 迟绑定的安全问题，它最初于2004年由Redhat的工程师JakubJelínek实现，它将符号重定向表设置为只读，或者在程序启动时就解 析并绑定所有动态符号，从而避免GOT上的地址被篡改。</p>
+<p>如今，<code>RELOR</code>有两种形式：</p>
+<p>• <code>Partial RELRO</code>：一些段（包括<code>.dynamic、.go</code>t等）在初始化 后将会被标记为只读。在Ubuntu16.04（GCC-5.4.0）上，默认开启<code>Partial RELRO</code>。</p>
+<p>• <code>Full RELRO</code>：除了<code>Partial RELRO</code>，延迟绑定将被禁止，所有的导入符号将在开始时被解析，<code>.got.plt</code>段会被完全初始化为目标函数的最终地址，并被<code>mprotect</code>标记为只读，但其实<code>.got.plt</code>会直接被合并到 <code>.got</code> ,也就看不到这段了 。 另 外<code>link_map</code> <code>_dl_runtime_resolve</code>的地址也不会被装入。开启<code>Full RELRO</code>会对程序启动时的性能造成一定的影响，但也只有这样才能防止攻击者篡 改GOT。 </p>
+
+    </article>
+    <!-- license -->
+    
+    <!-- paginator -->
+    <ul class="post-paginator">
+        <li class="next">
+            
+                <div class="nextSlogan">Next Post</div>
+                <a href="/2022/04/25/srop/" title="srop">
+                    <div class="nextTitle">srop</div>
+                </a>
+            
+        </li>
+        <li class="previous">
+            
+                <div class="prevSlogan">Previous Post</div>
+                <a href="/2022/04/22/houseofAtum/" title="BCTF2018 House of Atum">
+                    <div class="prevTitle">BCTF2018 House of Atum</div>
+                </a>
+            
+        </li>
+    </ul>
+    <!-- comment -->
+    
+        <div class="post-comment">
+            <!-- 来必力 City 版安装代码 -->
+
+
+            
+
+            
+
+            
+
+            <!-- utteranc评论 -->
+
+
+            <!-- partial('_partial/comment/changyan') -->
+            <!--PC版-->
+
+
+            
+            
+
+        </div>
+    
+    <!-- timeliness note -->
+    <!-- idea from: https://hexo.fluid-dev.com/posts/hexo-injector/#%E6%96%87%E7%AB%A0%E6%97%B6%E6%95%88%E6%80%A7%E6%8F%90%E7%A4%BA -->
+    
+    <!-- Mathjax -->
+    
+</main>
+
+                <!-- profile -->
+                
+            </div>
+            <footer class="footer footer-unloaded">
+    <!-- social  -->
+    
+        <div class="social">
+            
+    
+        
+            
+                <a href="mailto:2811745785@qq.com" class="iconfont-archer email" title=email ></a>
+            
+        
+    
+        
+            
+                <a href="//github.com/wysyrg" class="iconfont-archer github" target="_blank" title=github></a>
+            
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+
+
+        </div>
+    
+    <!-- powered by Hexo  -->
+    <div class="copyright">
+        <span id="hexo-power">Powered by <a href="https://hexo.io/" target="_blank">Hexo</a></span><span class="iconfont-archer power">&#xe635;</span><span id="theme-info">theme <a href="https://github.com/fi3ework/hexo-theme-archer" target="_blank">Archer</a></span>
+    </div>
+    <!-- website approve for Chinese user -->
+    
+    <!-- 不蒜子  -->
+    
+        <div class="busuanzi-container">
+            
+             
+                <span id="busuanzi_container_site_pv">PV: <span id="busuanzi_value_site_pv"></span> :)</span>
+            
+        </div>
+    	
+</footer>
+
+        </div>
+        <!-- toc -->
+        
+            <div class="toc-wrapper toc-wrapper-loding" style=
+
+
+
+
+
+
+
+    top:50vh;
+
+>
+                <div class="toc-catalog">
+                    <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
+                </div>
+                <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BB%B6%E8%BF%9F%E7%BB%91%E5%AE%9A"><span class="toc-number">1.</span> <span class="toc-text">延迟绑定</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#got"><span class="toc-number">1.1.</span> <span class="toc-text">.got</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#plt"><span class="toc-number">1.2.</span> <span class="toc-text">.plt</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#got-plt"><span class="toc-number">1.3.</span> <span class="toc-text">.got.plt</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8%E6%B5%81%E7%A8%8B"><span class="toc-number">2.</span> <span class="toc-text">函数调用流程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8A%A8%E6%80%81%E6%9F%A5%E7%9C%8B%E8%B0%83%E7%94%A8puts%E5%87%BD%E6%95%B0%E8%BF%87%E7%A8%8B"><span class="toc-number">3.</span> <span class="toc-text">动态查看调用puts函数过程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#RELRO"><span class="toc-number">4.</span> <span class="toc-text">RELRO</span></a></li></ol>
+            </div>
+        
+        <!-- sidebar -->
+        <div class="sidebar sidebar-hide">
+    <ul class="sidebar-tabs sidebar-tabs-active-0">
+        <li class="sidebar-tab-archives"><span class="iconfont-archer">&#xe67d;</span><span class="tab-name">Archive</span></li>
+        <li class="sidebar-tab-tags"><span class="iconfont-archer">&#xe61b;</span><span class="tab-name">Tag</span></li>
+        <li class="sidebar-tab-categories"><span class="iconfont-archer">&#xe666;</span><span class="tab-name">Cate</span></li>
+    </ul>
+    <div class="sidebar-content sidebar-content-show-archive">
+        <div class="sidebar-panel-archives">
+    <!-- 在 ejs 中将 archive 按照时间排序 -->
+    
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+    
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+    
+    
+    
+    
+    <div class="total-and-search">
+        <div class="total-archive">
+        Total : 34
+        </div>
+        <!-- search  -->
+        
+    </div>
+    
+    <div class="post-archive">
+    
+        
+            
+            
+            <div class="archive-year"> 2022 </div>
+            <ul class="year-list">
+            
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/03</span>
+            <a class="archive-post-title" href="/2022/07/03/0ctf_2018_babystack/">[Untitled Post]</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/02</span>
+            <a class="archive-post-title" href="/2022/07/02/ret2dlresolve_x64/">ret2dlresolve_x64</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/29</span>
+            <a class="archive-post-title" href="/2022/04/29/dl-runtime-resolve/">ret2dl-resolve</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/24</span>
+            <a class="archive-post-title" href="/2022/04/24/%E5%BB%B6%E8%BF%9F%E7%BB%91%E5%AE%9A/">延迟绑定</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/22</span>
+            <a class="archive-post-title" href="/2022/04/22/houseofAtum/">BCTF2018 House of Atum</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/20</span>
+            <a class="archive-post-title" href="/2022/04/20/gundam/">HITBCTF2018 gundam</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/19</span>
+            <a class="archive-post-title" href="/2022/04/19/IDA%20pro/">IDA pro创建结构体</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/18</span>
+            <a class="archive-post-title" href="/2022/04/18/examination/">examination</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/17</span>
+            <a class="archive-post-title" href="/2022/04/17/LCTF2018%20PWN%20easy_heap/">LCTF2018 easy_heap</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/08</span>
+            <a class="archive-post-title" href="/2022/04/08/tcache/">tcache</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/07</span>
+            <a class="archive-post-title" href="/2022/04/07/libc-2.26/">libc 2.26</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/07</span>
+            <a class="archive-post-title" href="/2022/04/07/house-of-storm/">house of storm</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/04</span>
+            <a class="archive-post-title" href="/2022/04/04/%E5%B3%BB%E6%9E%81pwn/">峻极pwn</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/19</span>
+            <a class="archive-post-title" href="/2022/03/19/stack%20pivoting/">stack pivoting</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">02/26</span>
+            <a class="archive-post-title" href="/2022/02/26/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/">操作系统</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/16</span>
+            <a class="archive-post-title" href="/2022/01/16/large%20bin%20attack/">large bin attack</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/15</span>
+            <a class="archive-post-title" href="/2022/01/15/magicheap/">magicheap</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/15</span>
+            <a class="archive-post-title" href="/2022/01/15/unsorted%20bin%20attack/">unsorted bin attack</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/13</span>
+            <a class="archive-post-title" href="/2022/01/13/pwn200/">pwn200</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/12</span>
+            <a class="archive-post-title" href="/2022/01/12/write%20some%20paper/">write some paper</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/09</span>
+            <a class="archive-post-title" href="/2022/01/09/fastbin_attack/">fastbin_attack</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/overlapping%20chunks/">overlapping chunks</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/gdb%E8%B0%83%E8%AF%95/">gdb的使用</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/ciscn_2019/">ciscn</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/csaw/">csaw部分题解</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/secretHolder_hitcon_2016/">secretHolder_hitcon_2016</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/unsafe_unlink/">unsafe_unlink</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/kernel_pwn%E7%8E%AF%E5%A2%83/">kernel pwn环境搭建</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/lab1%20%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A/">lab1实验报告</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/lab2%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A/">lab2 实验报告</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/off-by-one/">off-by-one</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/pwnable%E5%88%B7%E9%A2%98/">pwnable刷题</a>
+        </li>
+    
+        
+            
+            
+                
+                </ul>
+            
+            <div class="archive-year"> Invalid date </div>
+            <ul class="year-list">
+            
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">Invalid date</span>
+            <a class="archive-post-title" href="/2022/04/25/srop/">srop</a>
+        </li>
+    
+        
+            
+            
+                
+                </ul>
+            
+            <div class="archive-year"> Invalid date </div>
+            <ul class="year-list">
+            
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">Invalid date</span>
+            <a class="archive-post-title" href="/2022/05/07/%E9%9D%9E%E6%A0%88%E4%B8%8A%E7%9A%84%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%BC%8F%E6%B4%9E/">非栈上的格式化字符串漏洞</a>
+        </li>
+    
+    </div>
+</div>
+
+        <div class="sidebar-panel-tags">
+    <div class="sidebar-tags-name">
+        
+            <span class="sidebar-tag-name" data-tags="tcache">
+                <span class="iconfont-archer">&#xe606;</span>
+                tcache
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="os">
+                <span class="iconfont-archer">&#xe606;</span>
+                os
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="unsorted bin attack">
+                <span class="iconfont-archer">&#xe606;</span>
+                unsorted bin attack
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="house of spirit">
+                <span class="iconfont-archer">&#xe606;</span>
+                house of spirit
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="pwn">
+                <span class="iconfont-archer">&#xe606;</span>
+                pwn
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="fastbin doule free">
+                <span class="iconfont-archer">&#xe606;</span>
+                fastbin doule free
+            </span>
+        
+    </div>
+    <div class="iconfont-archer sidebar-tags-empty">&#xe678;</div>
+    <div class="tag-load-fail" style="display: none; color: #ccc; font-size: 0.6rem;">
+        缺失模块，请参考主题文档进行安装配置：https://github.com/fi3ework/hexo-theme-archer#%E5%AE%89%E8%A3%85%E4%B8%BB%E9%A2%98
+    </div> 
+    <div class="sidebar-tags-list"></div>
+</div>
+
+        <div class="sidebar-panel-categories">
+    <div class="sidebar-categories-name">
+    
+        <span class="sidebar-category-name" data-categories="Diary">
+            <span class="iconfont-archer">&#xe60a;</span>
+            Diary
+        </span>
+    
+    </div>
+    <div class="iconfont-archer sidebar-categories-empty">&#xe678;</div>
+    <div class="sidebar-categories-list"></div>
+</div>
+
+    </div>
+</div>
+
+        <!-- site-meta -->
+        <script>
+    var siteMeta = {
+        root: "/",
+        author: "John Doe"
+    }
+</script>
+
+        <!-- import experimental options here -->
+        <!-- Custom Font -->
+
+
+        <!-- main func -->
+        <script src="/scripts/main.js?v=20210823"></script>
+        <!-- dark mode -->
+        <script src="/scripts/dark.js?v=20210823"></script>
+        <!-- fancybox -->
+        <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" defer></script>
+        <!-- algolia -->
+        
+        <!-- busuanzi -->
+        
+            <script src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
+        
+        <!-- CNZZ -->
+        
+        <!-- async load share.js -->
+        
+            <script src="/scripts/share.js?v=20210823" async></script>
+        
+        <!-- mermaid -->
+        
+    </body>
+</html>

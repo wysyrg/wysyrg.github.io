@@ -26,17 +26,17 @@
 <meta property="og:site_name" content="Hexo">
 <meta property="og:description" content="参考链接：https:&#x2F;&#x2F;www.cnblogs.com&#x2F;max1z&#x2F;p&#x2F;15299000.html 原理：stack pivoting，正如它所描述的，该技巧就是劫持栈指针指向攻击者所能控制的内存处，然后再在相应的位置进行 ROP。一般来说，我们可能在以下情况需要使用 stack pivoting  可以控制的栈溢出的字节数较少，难以构造较长的 ROP 链 开启了 PIE 保护，栈地址未知，我">
 <meta property="og:locale" content="en_US">
-<meta property="og:image" content="https://img2020.cnblogs.com/blog/2547408/202109/2547408-20210916185441224-1475278617.png">
-<meta property="og:image" content="https://img2020.cnblogs.com/blog/2547408/202109/2547408-20210916190235308-2007478208.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204241637174.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204241637269.png">
 <meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204072112893.png">
 <meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204072112894.png">
 <meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204072112895.png">
-<meta property="og:image" content="https://img2020.cnblogs.com/blog/2547408/202109/2547408-20210916192136789-1878432503.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202205041057523.png">
 <meta property="article:published_time" content="2022-03-19T09:33:24.001Z">
-<meta property="article:modified_time" content="2022-04-07T13:12:38.985Z">
+<meta property="article:modified_time" content="2022-05-04T02:58:01.315Z">
 <meta property="article:author" content="John Doe">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://img2020.cnblogs.com/blog/2547408/202109/2547408-20210916185441224-1475278617.png">
+<meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204241637174.png">
     <meta http-equiv="Cache-control" content="no-cache">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <link rel="icon" href="/assets/favicon.ico">
@@ -508,7 +508,7 @@
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">gef➤  x/7i <span class="number">0x000000000040061a</span></span><br><span class="line"><span class="number">0x40061a</span> &lt;__libc_csu_init+<span class="number">90</span>&gt;:  pop    rbx</span><br><span class="line"><span class="number">0x40061b</span> &lt;__libc_csu_init+<span class="number">91</span>&gt;:  pop    rbp</span><br><span class="line"><span class="number">0x40061c</span> &lt;__libc_csu_init+<span class="number">92</span>&gt;:  pop    r12</span><br><span class="line"><span class="number">0x40061e</span> &lt;__libc_csu_init+<span class="number">94</span>&gt;:  pop    r13</span><br><span class="line"><span class="number">0x400620</span> &lt;__libc_csu_init+<span class="number">96</span>&gt;:  pop    r14</span><br><span class="line"><span class="number">0x400622</span> &lt;__libc_csu_init+<span class="number">98</span>&gt;:  pop    r15</span><br><span class="line"><span class="number">0x400624</span> &lt;__libc_csu_init+<span class="number">100</span>&gt;: ret    </span><br><span class="line">gef➤  x/7i <span class="number">0x000000000040061d</span></span><br><span class="line"><span class="number">0x40061d</span> &lt;__libc_csu_init+<span class="number">93</span>&gt;:  pop    rsp</span><br><span class="line"><span class="number">0x40061e</span> &lt;__libc_csu_init+<span class="number">94</span>&gt;:  pop    r13</span><br><span class="line"><span class="number">0x400620</span> &lt;__libc_csu_init+<span class="number">96</span>&gt;:  pop    r14</span><br><span class="line"><span class="number">0x400622</span> &lt;__libc_csu_init+<span class="number">98</span>&gt;:  pop    r15</span><br><span class="line"><span class="number">0x400624</span> &lt;__libc_csu_init+<span class="number">100</span>&gt;: ret</span><br></pre></td></tr></table></figure>
 
 <p>一个函数在被调用以及结束时的汇编代码以及栈的变化：</p>
-<p><img src="https://img2020.cnblogs.com/blog/2547408/202109/2547408-20210916185441224-1475278617.png" alt="img"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204241637174.png" alt="img"></p>
 <p>当调用foo函数时:</p>
 <ul>
 <li>保存当前 <strong>eip</strong>下面的位置到栈中，即 <strong>ret</strong>；</li>
@@ -522,8 +522,8 @@
 <li>将esp所指的上层函数的返回地址弹入eip地址中（pop ebp 会使esp+4）</li>
 </ul>
 <p>在恢复现场的过程中，栈顶指针的位置由ebp寄存器的内容所控制（mov esp，ebp），而ebp寄存器的内容可由栈中数据控制（pop ebp），如果我们能修改栈上old ebp的内容，则可以修改ebp寄存器中的内容，从而有可能篡改esp中的内容，进而影响eip，这一流程就是栈迁移 的核心思想。</p>
-<p><img src="https://img2020.cnblogs.com/blog/2547408/202109/2547408-20210916190235308-2007478208.png" alt="img"></p>
-<p>但是leave的子指令是先执行mov ebp，esp ，然后执行pop ebp，那么无法先影响ebp在影响esp。那应该怎么办呢？</p>
+<p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204241637269.png" alt="img"></p>
+<p>但是leave的子指令是先执行mov esp，ebp ，然后执行pop ebp，那么无法先影响ebp在影响esp。那应该怎么办呢？</p>
 <p>答案是可以将栈上ret部分覆盖为另一组leave ret指令（gadget）的地址，那么函数调用退出时就会执行两次leave指令，一次ret指令。</p>
 <p>由此，当 <strong>pop ebp</strong> 被第一次执行后，<strong>eip</strong> 将指向又一条 <strong>mov esp, ebp</strong>指令的地址，而此时 <strong>ebp</strong> 寄存器的内容已变为了第一次 <strong>pop ebp</strong> 时，被篡改过的栈上 <strong>ebp</strong> 的数据。这样，<strong>esp</strong> 就会被「骗」到了另外的一处内存空间，从而整个函数的栈空间也完成了「迁移」。</p>
 <h3 id="栈迁移利用过程"><a href="#栈迁移利用过程" class="headerlink" title="栈迁移利用过程"></a>栈迁移利用过程</h3><ol>
@@ -553,7 +553,7 @@
 <p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204072112895.png" alt="image-20220319192622054"></p>
 <p>为了完成栈迁移的攻击结构，要将esp劫持到old_ebp-0x38处，需要将ebp的old ebp覆盖为</p>
 <p>old ebp-0x38,old ebp 可通过第一次printf泄露得到</p>
-<p><img src="https://img2020.cnblogs.com/blog/2547408/202109/2547408-20210916192136789-1878432503.png" alt="img"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202205041057523.png" alt="img"></p>
 <p>栈迁移的最后一个pop eip执行结束后，esp将指向aaaa后的内容开始执行，故此处要填上 <strong>system</strong> 函数地址，（函数的调用过程是先将参数入栈，接着保存返回地址，最后call system。system后面的数据是system() 函数的返回地址，因为我们的目的就是打开shell，所以这个返回地址随便设置 一个值就可以。）再往后则是 <strong>system</strong> 的函数参数，即 /bin/sh 的地址。而 /bin/sh 本身我们也可由 <strong>read</strong> 函数输入到该区域内，因此其地址恰好也在栈上。</p>
 <blockquote>
 <h2 id="为什么调用system的plt地址时，要比调用call-system的调用地址时多构造四个字节？"><a href="#为什么调用system的plt地址时，要比调用call-system的调用地址时多构造四个字节？" class="headerlink" title="为什么调用system的plt地址时，要比调用call system的调用地址时多构造四个字节？"></a>为什么调用<a target="_blank" rel="noopener" href="https://so.csdn.net/so/search?q=system&spm=1001.2101.3001.7020">system</a>的plt地址时，要比调用call system的调用地址时多构造四个字节？</h2><p>若程序执行<code>system(&#39;/bin/sh&#39;);</code>,正常的程序执行流程为：</p>
@@ -870,7 +870,91 @@
         
         
         
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
     
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
         
         
         
@@ -1077,7 +1161,7 @@
     
     <div class="total-and-search">
         <div class="total-archive">
-        Total : 28
+        Total : 34
         </div>
         <!-- search  -->
         
@@ -1091,6 +1175,30 @@
             <div class="archive-year"> 2022 </div>
             <ul class="year-list">
             
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/03</span>
+            <a class="archive-post-title" href="/2022/07/03/0ctf_2018_babystack/">[Untitled Post]</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/02</span>
+            <a class="archive-post-title" href="/2022/07/02/ret2dlresolve_x64/">ret2dlresolve_x64</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/29</span>
+            <a class="archive-post-title" href="/2022/04/29/dl-runtime-resolve/">ret2dl-resolve</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/24</span>
+            <a class="archive-post-title" href="/2022/04/24/%E5%BB%B6%E8%BF%9F%E7%BB%91%E5%AE%9A/">延迟绑定</a>
+        </li>
+    
         
         <li class="archive-post-item">
             <span class="archive-post-date">04/22</span>
@@ -1238,6 +1346,18 @@
         
         <li class="archive-post-item">
             <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/lab1%20%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A/">lab1实验报告</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/lab2%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A/">lab2 实验报告</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
             <a class="archive-post-title" href="/2022/01/08/off-by-one/">off-by-one</a>
         </li>
     
@@ -1248,15 +1368,33 @@
         </li>
     
         
+            
+            
+                
+                </ul>
+            
+            <div class="archive-year"> Invalid date </div>
+            <ul class="year-list">
+            
+        
         <li class="archive-post-item">
-            <span class="archive-post-date">01/08</span>
-            <a class="archive-post-title" href="/2022/01/08/lab1%20%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A/">lab1实验报告</a>
+            <span class="archive-post-date">Invalid date</span>
+            <a class="archive-post-title" href="/2022/04/25/srop/">srop</a>
         </li>
     
         
+            
+            
+                
+                </ul>
+            
+            <div class="archive-year"> Invalid date </div>
+            <ul class="year-list">
+            
+        
         <li class="archive-post-item">
-            <span class="archive-post-date">01/08</span>
-            <a class="archive-post-title" href="/2022/01/08/lab2%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A/">lab2 实验报告</a>
+            <span class="archive-post-date">Invalid date</span>
+            <a class="archive-post-title" href="/2022/05/07/%E9%9D%9E%E6%A0%88%E4%B8%8A%E7%9A%84%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%BC%8F%E6%B4%9E/">非栈上的格式化字符串漏洞</a>
         </li>
     
     </div>
@@ -1264,6 +1402,16 @@
 
         <div class="sidebar-panel-tags">
     <div class="sidebar-tags-name">
+        
+            <span class="sidebar-tag-name" data-tags="tcache">
+                <span class="iconfont-archer">&#xe606;</span>
+                tcache
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="os">
+                <span class="iconfont-archer">&#xe606;</span>
+                os
+            </span>
         
             <span class="sidebar-tag-name" data-tags="unsorted bin attack">
                 <span class="iconfont-archer">&#xe606;</span>
@@ -1283,16 +1431,6 @@
             <span class="sidebar-tag-name" data-tags="fastbin doule free">
                 <span class="iconfont-archer">&#xe606;</span>
                 fastbin doule free
-            </span>
-        
-            <span class="sidebar-tag-name" data-tags="tcache">
-                <span class="iconfont-archer">&#xe606;</span>
-                tcache
-            </span>
-        
-            <span class="sidebar-tag-name" data-tags="os">
-                <span class="iconfont-archer">&#xe606;</span>
-                os
             </span>
         
     </div>

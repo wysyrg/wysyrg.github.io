@@ -428,6 +428,195 @@
             
         
         <article class="index-post">
+            <a class="abstract-title" href="/2022/07/03/0ctf_2018_babystack/">
+                
+                <span class="abstract-title-text">[Untitled Post]</span>
+            </a>
+            <div class="abstract-content">
+                
+title:0CTF 2018 BabyStack
+            </div>
+            <!-- read more -->
+            
+            <div class="abstract-post-meta">
+                <!-- date -->
+                <div class="abstract-date" title="Last updated: 2022/07/03">
+                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2022/07/03</span>
+                </div>
+                <!-- tags -->
+                
+            </div>
+        </article>
+        <div class="index-post-divider"></div>
+    
+        
+        
+        
+        
+            
+        
+        <article class="index-post">
+            <a class="abstract-title" href="/2022/07/02/ret2dlresolve_x64/">
+                
+                <span class="abstract-title-text">ret2dlresolve_x64</span>
+            </a>
+            <div class="abstract-content">
+                
+ 参考链接：https://www.yuque.com/cyberangel/rg9gdm/oyne1i#zDOuK
+
+64位的程序与32为程序的动态链接过程基本相同，不同的是一些结构体的参数
+ELF结构体_DYNAMICELF64_Dyn结构体的定义如下：
+123456789101112typedef struct&#123;  Elf64_Sxword	d_tag;			/* Dynamic entry type */  union    &#123;      Elf64_Xword d_val;		/* Integer value */      Elf64_Addr d_pt...
+            </div>
+            <!-- read more -->
+            
+            <div class="abstract-post-meta">
+                <!-- date -->
+                <div class="abstract-date" title="Last updated: 2022/07/03">
+                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2022/07/02</span>
+                </div>
+                <!-- tags -->
+                
+            </div>
+        </article>
+        <div class="index-post-divider"></div>
+    
+        
+        
+        
+        
+            
+        
+        <article class="index-post">
+            <a class="abstract-title" href="/2022/05/07/%E9%9D%9E%E6%A0%88%E4%B8%8A%E7%9A%84%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%BC%8F%E6%B4%9E/">
+                
+                <span class="abstract-title-text">非栈上的格式化字符串漏洞</span>
+            </a>
+            <div class="abstract-content">
+                
+ 格式化字符串漏洞知识链接
+https://ctf-wiki.org/pwn/linux/user-mode/fmtstr/fmtstr-intro/
+https://www.yuque.com/cyberangel/rg9gdm/vh62v6
+
+
+非栈上的格式化字符串字符串漏洞
+https://www.cnblogs.com/vi0let/articles/15978174.html
+https://www.anquanke.com/post/id/184717#h2-7
+
+非栈上格式化字符串漏洞概述当printf(buf)中的buf不在栈上时，无法在栈上
+
+            </div>
+            <!-- read more -->
+            
+            <div class="abstract-post-meta">
+                <!-- date -->
+                <div class="abstract-date" title="Last updated: 2022/05/08">
+                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2022/05/07</span>
+                </div>
+                <!-- tags -->
+                
+            </div>
+        </article>
+        <div class="index-post-divider"></div>
+    
+        
+        
+        
+        
+            
+        
+        <article class="index-post">
+            <a class="abstract-title" href="/2022/04/29/dl-runtime-resolve/">
+                
+                <span class="abstract-title-text">ret2dl-resolve</span>
+            </a>
+            <div class="abstract-content">
+                
+参考链接：https://ctf-wiki.org/pwn/linux/user-mode/stackoverflow/x86/advanced-rop/ret2dlresolve/
+https://hitcxy.com/2020/dl-runtime-resolve/
+https://www.yuque.com/cyberangel/rg9gdm/oyne1i#YrjFV
+
+ret2dl-resolveret2dlresolve是高级ROP（Return-Oriented  Programming：返回导向编程）的一种，顾名思义就是利用溢出或其他漏洞返回到“Linux动态链接库中符号...
+            </div>
+            <!-- read more -->
+            
+            <div class="abstract-post-meta">
+                <!-- date -->
+                <div class="abstract-date" title="Last updated: 2022/07/02">
+                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2022/04/29</span>
+                </div>
+                <!-- tags -->
+                
+            </div>
+        </article>
+        <div class="index-post-divider"></div>
+    
+        
+        
+        
+        
+            
+        
+        <article class="index-post">
+            <a class="abstract-title" href="/2022/04/25/srop/">
+                
+                <span class="abstract-title-text">srop</span>
+            </a>
+            <div class="abstract-content">
+                linux系统调用一开始Linux是通过int 0x80中断的方式进入系统调用的，它会 先进行调用者特权级别的检查，然后进行压栈、跳转等操作，这无疑会浪费许多资源。从Linux 2.6开始，就出现了新的系统调用指令sysenter/sysexit ，前者用于从Ring3进入Ring0，后者用于从Ring0返回Ring3，它没有特权级别检查，也没有压栈的操作，所以执行速度更快。
+signal机制当有中断或异常产生时，内核会向某个进程发送一个signal，该 进程被挂起并进入内核，然后内核为其保存相应的上下文，再跳转到之前注册好的signal handler中进行处理，待signal han...
+            </div>
+            <!-- read more -->
+            
+            <div class="abstract-post-meta">
+                <!-- date -->
+                <div class="abstract-date" title="Last updated: 2022/06/29">
+                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2022/04/25</span>
+                </div>
+                <!-- tags -->
+                
+            </div>
+        </article>
+        <div class="index-post-divider"></div>
+    
+        
+        
+        
+        
+            
+        
+        <article class="index-post">
+            <a class="abstract-title" href="/2022/04/24/%E5%BB%B6%E8%BF%9F%E7%BB%91%E5%AE%9A/">
+                
+                <span class="abstract-title-text">延迟绑定</span>
+            </a>
+            <div class="abstract-content">
+                
+参考链接：https://blog.csdn.net/weixin_44681716/article/details/89877497
+
+延迟绑定延迟绑定：当程序第一次调用外部库的函数的时候，才对该函数的进行绑定（即符号查找和重定位等），将函数在内存中的真实地址写入.got.plt中的对应表项。延迟绑定是一种动态链接的优化技术，如果未采用延迟绑定技术，则程序开始执行时，动态链接器都要先进行一次链接工作，寻找并装载所需要的共享对象，然后进行符号查找地址重定位等工作，这些工作必然会减慢程序的启动速度。
+ELF文件通过过程链接表（Procedure Linkage Table, PLT）和G...
+            </div>
+            <!-- read more -->
+            
+            <div class="abstract-post-meta">
+                <!-- date -->
+                <div class="abstract-date" title="Last updated: 2022/06/28">
+                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2022/04/24</span>
+                </div>
+                <!-- tags -->
+                
+            </div>
+        </article>
+        <div class="index-post-divider"></div>
+    
+        
+        
+        
+        
+            
+        
+        <article class="index-post">
             <a class="abstract-title" href="/2022/04/22/houseofAtum/">
                 
                 <span class="abstract-title-text">BCTF2018 House of Atum</span>
@@ -441,7 +630,7 @@ IDA分析main函数1234567891011121314151617181920212223242526272829303132333435
             
             <div class="abstract-post-meta">
                 <!-- date -->
-                <div class="abstract-date" title="Last updated: 2022/04/22">
+                <div class="abstract-date" title="Last updated: 2022/05/27">
                     <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2022/04/22</span>
                 </div>
                 <!-- tags -->
@@ -558,208 +747,10 @@ add_student: v2 = calloc(1uLL, 0x20uLL);v3 = calloc(1uLL, 0x18uLL);
         </article>
         <div class="index-post-divider"></div>
     
-        
-        
-        
-        
-            
-        
-        <article class="index-post">
-            <a class="abstract-title" href="/2022/04/17/LCTF2018%20PWN%20easy_heap/">
-                
-                <span class="abstract-title-text">LCTF2018 easy_heap</span>
-            </a>
-            <div class="abstract-content">
-                
-参考链接：https://ctf-wiki.org/pwn/linux/user-mode/heap/ptmalloc2/tcache-attack/
-https://hollk.blog.csdn.net/article/details/113697892?spm=1001.2014.3001.5502
-
-保护检查
-IDA分析main函数1234567891011121314151617181920212223242526272829303132333435363738void __fastcall __noreturn main(__int64 a1, char **a2, cha...
-            </div>
-            <!-- read more -->
-            
-            <div class="abstract-post-meta">
-                <!-- date -->
-                <div class="abstract-date" title="Last updated: 2022/04/17">
-                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2022/04/17</span>
-                </div>
-                <!-- tags -->
-                
-                    <div class= abstract-tags >
-    
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags="tcache">tcache</a>
-    
-</div>
-
-                
-            </div>
-        </article>
-        <div class="index-post-divider"></div>
-    
-        
-        
-        
-        
-            
-        
-        <article class="index-post">
-            <a class="abstract-title" href="/2022/04/08/tcache/">
-                
-                <span class="abstract-title-text">tcache</span>
-            </a>
-            <div class="abstract-content">
-                TCache机制TCache全名为Thread Local Caching，它为每个线程创建一个缓存，里面包含了一些小堆块，无须对arena上锁即可使用，这种无锁的分配算法能有不错的性能提升，但也引入了更多的不安全性,让之前很多的代码检查都不再起作用，可以很好的绕过，libc-2.26正式引入该机制，并默认开启。
-数据结构glibc在编译时使用USE_TCACHE条件来开启tcache机制，并定
-义了下面这些宏。
-123456789101112131415161718192021222324252627#if USE_TCACHE/* We want 64 entries.  This ...
-            </div>
-            <!-- read more -->
-            
-            <div class="abstract-post-meta">
-                <!-- date -->
-                <div class="abstract-date" title="Last updated: 2022/04/18">
-                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2022/04/08</span>
-                </div>
-                <!-- tags -->
-                
-            </div>
-        </article>
-        <div class="index-post-divider"></div>
-    
-        
-        
-        
-        
-            
-        
-        <article class="index-post">
-            <a class="abstract-title" href="/2022/04/07/libc-2.26/">
-                
-                <span class="abstract-title-text">libc 2.26</span>
-            </a>
-            <div class="abstract-content">
-                fastbin attackfastbin dup在libc-2.26，对应 tcache dup由于新添加的tcache机制不会检查 二次释放，因此不必考虑如何绕过的问题，直接释放两次即可，fastbin dup变得更加简单，甚至还不局限于fastbin大小的chunk，我们称之为tcache dup。示例程序：
-123456789101112#include &lt;stdlib.h&gt;#include &lt;stdio.h&gt;int main() &#123;    void *p1 = malloc(0x10);    fprintf(stderr, &quot;1st...
-            </div>
-            <!-- read more -->
-            
-            <div class="abstract-post-meta">
-                <!-- date -->
-                <div class="abstract-date" title="Last updated: 2022/04/07">
-                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2022/04/07</span>
-                </div>
-                <!-- tags -->
-                
-            </div>
-        </article>
-        <div class="index-post-divider"></div>
-    
-        
-        
-        
-        
-            
-        
-        <article class="index-post">
-            <a class="abstract-title" href="/2022/04/07/house-of-storm/">
-                
-                <span class="abstract-title-text">house of storm</span>
-            </a>
-            <div class="abstract-content">
-                
-参考链接：
-https://www.anquanke.com/post/id/203096
-https://www.cnblogs.com/Rookle/p/13140339.html
-https://a1ex.online/2020/10/07/house-of-storm/
-https://chenqiw9.github.io/2021/07/21/Tcache%20Stashing%20Unlink%20Attack%E5%92%8Chouse%20of%20storm%E7%AE%80%E6%9E%90/
-
-产生条件House_of_storm是一种结合了unsorted_bi...
-            </div>
-            <!-- read more -->
-            
-            <div class="abstract-post-meta">
-                <!-- date -->
-                <div class="abstract-date" title="Last updated: 2022/04/07">
-                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2022/04/07</span>
-                </div>
-                <!-- tags -->
-                
-            </div>
-        </article>
-        <div class="index-post-divider"></div>
-    
-        
-        
-        
-        
-            
-        
-        <article class="index-post">
-            <a class="abstract-title" href="/2022/04/04/%E5%B3%BB%E6%9E%81pwn/">
-                
-                <span class="abstract-title-text">峻极pwn</span>
-            </a>
-            <div class="abstract-content">
-                本文主要记录一下周日的比赛，和同学商量写出了3题
-warmpwn保护检查
-发现保护全开
-IDA分析12345678910111213141516171819202122232425262728__int64 __fastcall main(__int64 a1, char **a2, char **a3)&#123;  int v4; // [rsp+4h] [rbp-ECh] BYREF  int *v5; // [rsp+8h] [rbp-E8h]  char format[112]; // [rsp+10h] [rbp-E0h] BYREF  char s[104]; // [rs...
-            </div>
-            <!-- read more -->
-            
-            <div class="abstract-post-meta">
-                <!-- date -->
-                <div class="abstract-date" title="Last updated: 2022/04/04">
-                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2022/04/04</span>
-                </div>
-                <!-- tags -->
-                
-            </div>
-        </article>
-        <div class="index-post-divider"></div>
-    
-        
-        
-        
-        
-            
-        
-        <article class="index-post">
-            <a class="abstract-title" href="/2022/03/19/stack%20pivoting/">
-                
-                <span class="abstract-title-text">stack pivoting</span>
-            </a>
-            <div class="abstract-content">
-                 参考链接：https://www.cnblogs.com/max1z/p/15299000.html
-原理：stack pivoting，正如它所描述的，该技巧就是劫持栈指针指向攻击者所能控制的内存处，然后再在相应的位置进行 ROP。一般来说，我们可能在以下情况需要使用 stack pivoting
-
-可以控制的栈溢出的字节数较少，难以构造较长的 ROP 链
-开启了 PIE 保护，栈地址未知，我们可以将栈劫持到已知的区域。
-其它漏洞难以利用，我们需要进行转换，比如说将栈劫持到堆空间，从而在堆上写 rop 及进行堆漏洞利用
-
-此外，利用 stack pivoting 有以下几个要求：
-
-...
-            </div>
-            <!-- read more -->
-            
-            <div class="abstract-post-meta">
-                <!-- date -->
-                <div class="abstract-date" title="Last updated: 2022/04/07">
-                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2022/03/19</span>
-                </div>
-                <!-- tags -->
-                
-            </div>
-        </article>
-        <div class="index-post-divider"></div>
-    
     <!-- paginator  -->
     
         <nav class="page-nav">
-            <span class="page-number current">1</span><a class="page-number" href="/archives/page/2/">2</a><a class="page-number" href="/archives/page/3/">3</a><a class="extend next" rel="next" href="/archives/page/2/">NEXT &gt;</a>
+            <span class="page-number current">1</span><a class="page-number" href="/archives/page/2/">2</a><a class="page-number" href="/archives/page/3/">3</a><a class="page-number" href="/archives/page/4/">4</a><a class="extend next" rel="next" href="/archives/page/2/">NEXT &gt;</a>
         </nav>
     
 </main>
@@ -996,7 +987,91 @@ IDA分析12345678910111213141516171819202122232425262728__int64 __fastcall main(
         
         
         
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
     
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
         
         
         
@@ -1203,7 +1278,7 @@ IDA分析12345678910111213141516171819202122232425262728__int64 __fastcall main(
     
     <div class="total-and-search">
         <div class="total-archive">
-        Total : 28
+        Total : 34
         </div>
         <!-- search  -->
         
@@ -1217,6 +1292,30 @@ IDA分析12345678910111213141516171819202122232425262728__int64 __fastcall main(
             <div class="archive-year"> 2022 </div>
             <ul class="year-list">
             
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/03</span>
+            <a class="archive-post-title" href="/2022/07/03/0ctf_2018_babystack/">[Untitled Post]</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/02</span>
+            <a class="archive-post-title" href="/2022/07/02/ret2dlresolve_x64/">ret2dlresolve_x64</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/29</span>
+            <a class="archive-post-title" href="/2022/04/29/dl-runtime-resolve/">ret2dl-resolve</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/24</span>
+            <a class="archive-post-title" href="/2022/04/24/%E5%BB%B6%E8%BF%9F%E7%BB%91%E5%AE%9A/">延迟绑定</a>
+        </li>
+    
         
         <li class="archive-post-item">
             <span class="archive-post-date">04/22</span>
@@ -1364,6 +1463,18 @@ IDA分析12345678910111213141516171819202122232425262728__int64 __fastcall main(
         
         <li class="archive-post-item">
             <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/lab1%20%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A/">lab1实验报告</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/lab2%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A/">lab2 实验报告</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
             <a class="archive-post-title" href="/2022/01/08/off-by-one/">off-by-one</a>
         </li>
     
@@ -1374,15 +1485,33 @@ IDA分析12345678910111213141516171819202122232425262728__int64 __fastcall main(
         </li>
     
         
+            
+            
+                
+                </ul>
+            
+            <div class="archive-year"> Invalid date </div>
+            <ul class="year-list">
+            
+        
         <li class="archive-post-item">
-            <span class="archive-post-date">01/08</span>
-            <a class="archive-post-title" href="/2022/01/08/lab1%20%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A/">lab1实验报告</a>
+            <span class="archive-post-date">Invalid date</span>
+            <a class="archive-post-title" href="/2022/04/25/srop/">srop</a>
         </li>
     
         
+            
+            
+                
+                </ul>
+            
+            <div class="archive-year"> Invalid date </div>
+            <ul class="year-list">
+            
+        
         <li class="archive-post-item">
-            <span class="archive-post-date">01/08</span>
-            <a class="archive-post-title" href="/2022/01/08/lab2%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A/">lab2 实验报告</a>
+            <span class="archive-post-date">Invalid date</span>
+            <a class="archive-post-title" href="/2022/05/07/%E9%9D%9E%E6%A0%88%E4%B8%8A%E7%9A%84%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%BC%8F%E6%B4%9E/">非栈上的格式化字符串漏洞</a>
         </li>
     
     </div>
@@ -1390,6 +1519,16 @@ IDA分析12345678910111213141516171819202122232425262728__int64 __fastcall main(
 
         <div class="sidebar-panel-tags">
     <div class="sidebar-tags-name">
+        
+            <span class="sidebar-tag-name" data-tags="tcache">
+                <span class="iconfont-archer">&#xe606;</span>
+                tcache
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="os">
+                <span class="iconfont-archer">&#xe606;</span>
+                os
+            </span>
         
             <span class="sidebar-tag-name" data-tags="unsorted bin attack">
                 <span class="iconfont-archer">&#xe606;</span>
@@ -1409,16 +1548,6 @@ IDA分析12345678910111213141516171819202122232425262728__int64 __fastcall main(
             <span class="sidebar-tag-name" data-tags="fastbin doule free">
                 <span class="iconfont-archer">&#xe606;</span>
                 fastbin doule free
-            </span>
-        
-            <span class="sidebar-tag-name" data-tags="tcache">
-                <span class="iconfont-archer">&#xe606;</span>
-                tcache
-            </span>
-        
-            <span class="sidebar-tag-name" data-tags="os">
-                <span class="iconfont-archer">&#xe606;</span>
-                os
             </span>
         
     </div>

