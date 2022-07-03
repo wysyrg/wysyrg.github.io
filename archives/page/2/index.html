@@ -428,6 +428,47 @@
             
         
         <article class="index-post">
+            <a class="abstract-title" href="/2022/04/18/examination/">
+                
+                <span class="abstract-title-text">examination</span>
+            </a>
+            <div class="abstract-content">
+                周六的比赛题，看了一会没思路，直接开摆，现在看wp复现一下
+
+参考链接：[*CTF 2022 pwn] examination
+
+保护检查
+保护全开，应该要修改hook了
+IDA分析程序太长，就不一 一粘贴了，将函数功能整理如下
+teacher:
+add_student: v2 = calloc(1uLL, 0x20uLL);v3 = calloc(1uLL, 0x18uLL);
+
+
+​       增加一个学生
+​       管理块chunk :0x20,含指向成绩单的指针
+​       成绩单chunk：含有学生评级,成绩，以及评价指针，和评价长度 
+​       评价   c...
+            </div>
+            <!-- read more -->
+            
+            <div class="abstract-post-meta">
+                <!-- date -->
+                <div class="abstract-date" title="Last updated: 2022/04/18">
+                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2022/04/18</span>
+                </div>
+                <!-- tags -->
+                
+            </div>
+        </article>
+        <div class="index-post-divider"></div>
+    
+        
+        
+        
+        
+            
+        
+        <article class="index-post">
             <a class="abstract-title" href="/2022/04/17/LCTF2018%20PWN%20easy_heap/">
                 
                 <span class="abstract-title-text">LCTF2018 easy_heap</span>
@@ -724,38 +765,6 @@ https://www.yuque.com/hxfqg9/bin/mdrz9g#Eqi6H
         </article>
         <div class="index-post-divider"></div>
     
-        
-        
-        
-        
-            
-        
-        <article class="index-post">
-            <a class="abstract-title" href="/2022/01/15/unsorted%20bin%20attack/">
-                
-                <span class="abstract-title-text">unsorted bin attack</span>
-            </a>
-            <div class="abstract-content">
-                
-参考链接：https://xz.aliyun.com/t/7251
-
-unsorted bin attackunsorted bin介绍unsorted bin attack作为一种久远的攻击方式常常作为其他攻击方式的辅助手段，比如修改global_max_fast为一个较大的值使得几乎所有大小的chunk都用fast bin的管理方式进行分配和释放，又或者修改_IO_list_all来伪造_IO_FILE进行攻击。在上述攻击的利用过程中我们实际上并不需要对unsorted bin的分配过程有太多的了解。
-
-global_max_fast是main_arena中控制最大fastbin大...
-            </div>
-            <!-- read more -->
-            
-            <div class="abstract-post-meta">
-                <!-- date -->
-                <div class="abstract-date" title="Last updated: 2022/01/15">
-                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2022/01/15</span>
-                </div>
-                <!-- tags -->
-                
-            </div>
-        </article>
-        <div class="index-post-divider"></div>
-    
     <!-- paginator  -->
     
         <nav class="page-nav">
@@ -1026,7 +1035,16 @@ global_max_fast是main_arena中控制最大fastbin大...
         
         
         
+        
+        
+        
+        
+        
     
+        
+        
+        
+        
         
         
         
@@ -1287,7 +1305,7 @@ global_max_fast是main_arena中控制最大fastbin大...
     
     <div class="total-and-search">
         <div class="total-archive">
-        Total : 34
+        Total : 35
         </div>
         <!-- search  -->
         
@@ -1333,14 +1351,44 @@ global_max_fast是main_arena中控制最大fastbin大...
     
         
         <li class="archive-post-item">
-            <span class="archive-post-date">04/20</span>
-            <a class="archive-post-title" href="/2022/04/20/gundam/">HITBCTF2018 gundam</a>
+            <span class="archive-post-date">04/19</span>
+            <a class="archive-post-title" href="/2022/04/19/IDA%20pro/">IDA pro创建结构体</a>
         </li>
     
         
         <li class="archive-post-item">
-            <span class="archive-post-date">04/19</span>
-            <a class="archive-post-title" href="/2022/04/19/IDA%20pro/">IDA pro创建结构体</a>
+            <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/ciscn_2019/">ciscn</a>
+        </li>
+    
+        
+            
+            
+                
+                </ul>
+            
+            <div class="archive-year"> Invalid date </div>
+            <ul class="year-list">
+            
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">Invalid date</span>
+            <a class="archive-post-title" href="/2022/05/14/IO_FILE/">_IO_FILE</a>
+        </li>
+    
+        
+            
+            
+                
+                </ul>
+            
+            <div class="archive-year"> 2022 </div>
+            <ul class="year-list">
+            
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/20</span>
+            <a class="archive-post-title" href="/2022/04/20/gundam/">HITBCTF2018 gundam</a>
         </li>
     
         
@@ -1442,12 +1490,6 @@ global_max_fast是main_arena中控制最大fastbin大...
         
         <li class="archive-post-item">
             <span class="archive-post-date">01/08</span>
-            <a class="archive-post-title" href="/2022/01/08/ciscn_2019/">ciscn</a>
-        </li>
-    
-        
-        <li class="archive-post-item">
-            <span class="archive-post-date">01/08</span>
             <a class="archive-post-title" href="/2022/01/08/csaw/">csaw部分题解</a>
         </li>
     
@@ -1484,13 +1526,13 @@ global_max_fast是main_arena中控制最大fastbin大...
         
         <li class="archive-post-item">
             <span class="archive-post-date">01/08</span>
-            <a class="archive-post-title" href="/2022/01/08/off-by-one/">off-by-one</a>
+            <a class="archive-post-title" href="/2022/01/08/pwnable%E5%88%B7%E9%A2%98/">pwnable刷题</a>
         </li>
     
         
         <li class="archive-post-item">
             <span class="archive-post-date">01/08</span>
-            <a class="archive-post-title" href="/2022/01/08/pwnable%E5%88%B7%E9%A2%98/">pwnable刷题</a>
+            <a class="archive-post-title" href="/2022/01/08/off-by-one/">off-by-one</a>
         </li>
     
         
@@ -1544,14 +1586,14 @@ global_max_fast是main_arena中控制最大fastbin大...
                 unsorted bin attack
             </span>
         
-            <span class="sidebar-tag-name" data-tags="house of spirit">
-                <span class="iconfont-archer">&#xe606;</span>
-                house of spirit
-            </span>
-        
             <span class="sidebar-tag-name" data-tags="pwn">
                 <span class="iconfont-archer">&#xe606;</span>
                 pwn
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="house of spirit">
+                <span class="iconfont-archer">&#xe606;</span>
+                house of spirit
             </span>
         
             <span class="sidebar-tag-name" data-tags="fastbin doule free">
