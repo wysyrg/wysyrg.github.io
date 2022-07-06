@@ -512,7 +512,7 @@
 <p><code>PLT</code> 表中的每一项的数据内容都是对应的 <code>GOT</code> 表中一项的地址，这个是固定不变的，<code>PLT</code> 表中的数据不是函数的真实地址，而是 <code>GOT</code> 表项的地址。</p>
 </blockquote>
 <h3 id="函数调用流程"><a href="#函数调用流程" class="headerlink" title="函数调用流程"></a>函数调用流程</h3><p>下图是第一次调用函数的流程</p>
-<p>由函数调用跳入到 <code>PLT</code> 表中，第一条jump指令找到对应的GOT条目，此时对应GOT表的位置中保存的还是第二条指令（即0x80482b6）的地址，于是执行第二条指令push ，将对应的0x0（puts在.rel.plt中的下标）压栈，然后执行 jmp 0x80482a0,跳转至PLT[0],执行push 0x80496f0，将GOT[1]压栈，然后执行jmp *0x80496F4，调用GOT[2],即动态链接器的_dl_runtime_resolve()函数，完成符号解析和重定位工作，将puts函数的真实地址填入<a href="mailto:&#x70;&#117;&#116;&#x73;&#64;&#x67;&#111;&#116;&#x2e;&#x70;&#x6c;&#x74;">&#x70;&#117;&#116;&#x73;&#64;&#x67;&#111;&#116;&#x2e;&#x70;&#x6c;&#x74;</a>,即GOT[3],最后执行puts函数</p>
+<p>由函数调用跳入到 <code>PLT</code> 表中，第一条jump指令找到对应的GOT条目，此时对应GOT表的位置中保存的还是第二条指令（即0x80482b6）的地址，于是执行第二条指令push ，将对应的0x0（puts在.rel.plt中的下标）压栈，然后执行 jmp 0x80482a0,跳转至PLT[0],执行push 0x80496f0，将GOT[1]压栈，然后执行jmp *0x80496F4，调用GOT[2],即动态链接器的_dl_runtime_resolve()函数，完成符号解析和重定位工作，将puts函数的真实地址填入<a href="mailto:&#x70;&#x75;&#116;&#115;&#64;&#103;&#x6f;&#x74;&#46;&#x70;&#x6c;&#116;">&#x70;&#x75;&#116;&#115;&#64;&#103;&#x6f;&#x74;&#46;&#x70;&#x6c;&#116;</a>,即GOT[3],最后执行puts函数</p>
 <ul>
 <li>第一步，由函数调用跳入到 <code>PLT</code> 表中第二步，<code>PLT</code> 表跳到 <code>GOT</code> 表中</li>
 <li>第三步，<code>GOT</code> 表回跳到 <code>PLT</code> 表中，这时候进行压栈，把代表函数的 <code>ID</code> 压栈</li>
@@ -532,7 +532,7 @@
 <p><img src="https://img-blog.csdnimg.cn/20190506113642605.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80NDY4MTcxNg==,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
 <h3 id="动态查看调用puts函数过程"><a href="#动态查看调用puts函数过程" class="headerlink" title="动态查看调用puts函数过程"></a>动态查看调用puts函数过程</h3><p>第一次调用puts函数时，</p>
 <p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204241439604.png" alt="image-20220424135313948"></p>
-<p>执行call指令，进入puts@plt，执行第jmp *0x601018(即got[3]),got[3]中存储的为puts@plt中的第二条指令 push 0x0（puts函数在.rel.plt中的下标），然后执行 jmp ox400680，进入PLT[0]，执行push *0x601008，即将GOT[1] (relor entries)压栈，然后jmp *0x601010,即执行动态链接器的_dl_runtime_resolve()函数，完成符号解析和重定位工作，将puts函数的真实地址填入<a href="mailto:&#112;&#117;&#x74;&#x73;&#64;&#103;&#x6f;&#116;&#46;&#112;&#108;&#116;">&#112;&#117;&#x74;&#x73;&#64;&#103;&#x6f;&#116;&#46;&#112;&#108;&#116;</a>,即GOT[3],最后执行puts函数。</p>
+<p>执行call指令，进入puts@plt，执行第jmp *0x601018(即got[3]),got[3]中存储的为puts@plt中的第二条指令 push 0x0（puts函数在.rel.plt中的下标），然后执行 jmp ox400680，进入PLT[0]，执行push *0x601008，即将GOT[1] (relor entries)压栈，然后jmp *0x601010,即执行动态链接器的_dl_runtime_resolve()函数，完成符号解析和重定位工作，将puts函数的真实地址填入<a href="mailto:&#112;&#117;&#x74;&#x73;&#64;&#x67;&#111;&#116;&#x2e;&#112;&#x6c;&#x74;">&#112;&#117;&#x74;&#x73;&#64;&#x67;&#111;&#116;&#x2e;&#112;&#x6c;&#x74;</a>,即GOT[3],最后执行puts函数。</p>
 <p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204241439605.png" alt="image-20220424135526929"></p>
 <p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204241439606.png" alt="image-20220424140932396"></p>
 <p><img src="https://cdn.jsdelivr.net/gh/wysyrg/picodemo/img/202204241439607.png" alt="image-20220424141236487"></p>
@@ -1156,10 +1156,6 @@
         
         
         
-        
-        
-        
-        
     
     
     
@@ -1218,44 +1214,14 @@
     
         
         <li class="archive-post-item">
-            <span class="archive-post-date">04/19</span>
-            <a class="archive-post-title" href="/2022/04/19/IDA%20pro/">IDA pro创建结构体</a>
-        </li>
-    
-        
-        <li class="archive-post-item">
-            <span class="archive-post-date">01/08</span>
-            <a class="archive-post-title" href="/2022/01/08/ciscn_2019/">ciscn</a>
-        </li>
-    
-        
-            
-            
-                
-                </ul>
-            
-            <div class="archive-year"> Invalid date </div>
-            <ul class="year-list">
-            
-        
-        <li class="archive-post-item">
-            <span class="archive-post-date">Invalid date</span>
-            <a class="archive-post-title" href="/2022/05/14/IO_FILE/">_IO_FILE</a>
-        </li>
-    
-        
-            
-            
-                
-                </ul>
-            
-            <div class="archive-year"> 2022 </div>
-            <ul class="year-list">
-            
-        
-        <li class="archive-post-item">
             <span class="archive-post-date">04/20</span>
             <a class="archive-post-title" href="/2022/04/20/gundam/">HITBCTF2018 gundam</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/19</span>
+            <a class="archive-post-title" href="/2022/04/19/IDA%20pro/">IDA pro创建结构体</a>
         </li>
     
         
@@ -1280,12 +1246,6 @@
         <li class="archive-post-item">
             <span class="archive-post-date">04/07</span>
             <a class="archive-post-title" href="/2022/04/07/libc-2.26/">libc 2.26</a>
-        </li>
-    
-        
-        <li class="archive-post-item">
-            <span class="archive-post-date">04/07</span>
-            <a class="archive-post-title" href="/2022/04/07/house-of-storm/">house of storm</a>
         </li>
     
         
@@ -1345,6 +1305,42 @@
         
         <li class="archive-post-item">
             <span class="archive-post-date">01/08</span>
+            <a class="archive-post-title" href="/2022/01/08/csaw/">csaw部分题解</a>
+        </li>
+    
+        
+            
+            
+                
+                </ul>
+            
+            <div class="archive-year"> Invalid date </div>
+            <ul class="year-list">
+            
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">Invalid date</span>
+            <a class="archive-post-title" href="/2022/05/14/IO_FILE/">_IO_FILE</a>
+        </li>
+    
+        
+            
+            
+                
+                </ul>
+            
+            <div class="archive-year"> 2022 </div>
+            <ul class="year-list">
+            
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/07</span>
+            <a class="archive-post-title" href="/2022/04/07/house-of-storm/">house of storm</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/08</span>
             <a class="archive-post-title" href="/2022/01/08/overlapping%20chunks/">overlapping chunks</a>
         </li>
     
@@ -1357,7 +1353,7 @@
         
         <li class="archive-post-item">
             <span class="archive-post-date">01/08</span>
-            <a class="archive-post-title" href="/2022/01/08/csaw/">csaw部分题解</a>
+            <a class="archive-post-title" href="/2022/01/08/ciscn_2019/">ciscn</a>
         </li>
     
         
@@ -1393,13 +1389,13 @@
         
         <li class="archive-post-item">
             <span class="archive-post-date">01/08</span>
-            <a class="archive-post-title" href="/2022/01/08/pwnable%E5%88%B7%E9%A2%98/">pwnable刷题</a>
+            <a class="archive-post-title" href="/2022/01/08/off-by-one/">off-by-one</a>
         </li>
     
         
         <li class="archive-post-item">
             <span class="archive-post-date">01/08</span>
-            <a class="archive-post-title" href="/2022/01/08/off-by-one/">off-by-one</a>
+            <a class="archive-post-title" href="/2022/01/08/pwnable%E5%88%B7%E9%A2%98/">pwnable刷题</a>
         </li>
     
         
@@ -1453,14 +1449,14 @@
                 unsorted bin attack
             </span>
         
-            <span class="sidebar-tag-name" data-tags="pwn">
-                <span class="iconfont-archer">&#xe606;</span>
-                pwn
-            </span>
-        
             <span class="sidebar-tag-name" data-tags="house of spirit">
                 <span class="iconfont-archer">&#xe606;</span>
                 house of spirit
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="pwn">
+                <span class="iconfont-archer">&#xe606;</span>
+                pwn
             </span>
         
             <span class="sidebar-tag-name" data-tags="fastbin doule free">
